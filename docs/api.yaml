@@ -1,10 +1,266 @@
-openapi: "3.0.0"
+openapi: '3.0.0'
 info:
   version: 1.0.0
-  title: mau\Lu Lindeb
+  title: lindeb
   license:
     name: GPLv3
     url: https://www.gnu.org/licenses/gpl-3.0.en.html
 servers:
-  - url: https://lindeb.maunium.net/api
-paths: {}
+- url: https://lindeb.maunium.net/api
+tags:
+- name: Link Management
+  description: Methods to manage links.
+- name: Link Browsing
+  description: Methods to browse and search for links.
+- name: Authentication
+  description: Methods to manage authentication.
+paths:
+  /link/save:
+    post:
+      summary: Store a new link in the database.
+      operationId: addLink
+      tags: [ Link Management ]
+      requestBody:
+        description: The link to save
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Link'
+      responses:
+        201:
+          description: Link saved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /link/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: The ID of the link to get.
+      schema:
+        type: integer
+    get:
+      summary: Get all the details about the link with the given ID.
+      operationId: getLink
+      tags: [ Link Browsing ]
+      responses:
+        200:
+          description: Link found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+        404:
+          description: Link not found.
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      summary: Delete a link from the database.
+      operationId: deleteLink
+      tags: [ Link Management ]
+      responses:
+        204:
+          description: Link deleted.
+        404:
+          description: Link not found.
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      summary: Update the metadata of a link.
+      operationId: updateLink
+      tags: [ Link Management ]
+      responses:
+        200:
+          description: Link edited.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+        404:
+          description: Link not found.
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /links/search:
+    get:
+      summary: Search for links.
+      operationId: searchLinks
+      tags: [ Link Browsing ]
+      parameters:
+      - name: q
+        in: query
+        description: The search query.
+        schema:
+          type: string
+          example: "lindeb api"
+      - $ref: '#/components/parameters/PageNumber'
+      - $ref: '#/components/parameters/PageSize'
+      responses:
+        200:
+          description: Search successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pages:
+                    type: integer
+                    description: If pagination is enabled, the number of pages in total with the given query.
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /links:
+    get:
+      summary: Get links with optional pagination and filtering.
+      operationId: getLinks
+      tags: [ Link Browsing ]
+      parameters:
+      - $ref: '#/components/parameters/PageNumber'
+      - $ref: '#/components/parameters/PageSize'
+      - name: tags
+        in: query
+        description: The tag or list of tags that the search should be limited to.
+        schema:
+          type: array
+          items:
+            type: string
+      - name: exclusivetags
+        in: query
+        description: Whether or not filtering by multiple tags should only show links with all the tags.
+        schema:
+          type: boolean
+          default: false
+      - name: domain
+        in: query
+        description: The domain or list of domains that the search should be limited to.
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: Links fetched.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pages:
+                    type: integer
+                    description: If pagination is enabled, the number of pages in total with the given query.
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/login:
+    post:
+      summary: Sign in to the application.
+      operationId: login
+      tags: [ Authentication ]
+      requestBody:
+        description: User credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              example:
+                username: linksaver123
+                password: passw0rd!
+      responses:
+        200:
+          description: Signed in successfully.
+        401:
+          description: Invalid username or password.
+  /auth/logout:
+    post:
+      summary: Sign out of the application.
+      operationId: logout
+      tags: [ Authentication ]
+      responses:
+        200:
+          description: Signed out successfully.
+        401:
+          description: User was not signed in.
+  /auth/register:
+    post:
+      summary: Sign up to the application
+      operationId: register
+      tags: [ Authentication ]
+      responses:
+        201:
+          description: Registration successful.
+        401:
+          description: User is logged in.
+        409:
+          description: Username is taken.
+
+components:
+  responses:
+    Unauthorized:
+      description: The user is not signed in.
+  parameters:
+    PageNumber:
+      name: page
+      in: query
+      description: Enable the optional pagination and get the page of the given number.
+      schema:
+        type: integer
+        example: 5
+    PageSize:
+      name: pagesize
+      in: query
+      description: If pagination is enabled, the size of one page. Defaults to 10.
+      schema:
+        type: integer
+        default: 10
+        example: 10
+  schemas:
+    Link:
+      required:
+      - url
+      properties:
+        id:
+          type: integer
+          description: The ID of the link.
+          readOnly: true
+        domain:
+          type: string
+          description: The domain part of the URL.
+          readOnly: true
+        url:
+          type: string
+          description: The URL itself.
+        title:
+          type: string
+          description: The title of the page the URL links to.
+        description:
+          type: string
+          description: A short description of the page the URL links to.
+        tags:
+          type: array
+          description: The tags of this link.
+          items:
+            type: string
+      example:
+        id: 293
+        url: https://github.com/tulir/lindeb/blob/master/docs/api.yaml
+        title: lindeb/api.yaml at master · tulir/lindeb
+        description: lindeb - A database execise project with Go and React
+        tags:
+        - github
+        - openapi
