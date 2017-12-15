@@ -7,6 +7,7 @@ The official deployment will be available at [lindeb.mau.lu](https://lindeb.mau.
 The goal of this project is to create an easy-to-use system for saving links and searching saved links.
 
 ### Scope
+* Authentication. Saved links are always private.
 * Saving links and deleting saved links
   * Saving a link should only require one click on the page being saved
 * Tagging and untagging links, managing tags
