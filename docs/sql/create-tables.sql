@@ -1,12 +1,20 @@
 -- N.B. This file is useless and only exists, because the course requires it.
 --      In reality, you should simply run the server and let it create the tables.
-CREATE DATABASE IF NOT EXISTS User (
+CREATE TABLE IF NOT EXISTS User (
   id       INTEGER      PRIMARY KEY AUTO_INCREMENT,
-  username VARCHAR(255) NOT NULL UNIQUE,
+  username VARCHAR(255) NOT NULL,
   password VARCHAR(60)  NOT NULL
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE DATABASE IF NOT EXISTS Link (
+CREATE TABLE IF NOT EXISTS AuthToken (
+  user  INTEGER,
+  token VARCHAR(64),
+  PRIMARY KEY (user, token),
+  FOREIGN KEY (user) REFERENCES User(id)
+  ON DELETE CASCADE ON UPDATE RESTRICT
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS Link (
   id          INTEGER       PRIMARY KEY AUTO_INCREMENT,
   url         VARCHAR(2047) NOT NULL,
   domain      VARCHAR(255)  NOT NULL,
@@ -18,7 +26,7 @@ CREATE DATABASE IF NOT EXISTS Link (
     ON DELETE CASCADE ON UPDATE RESTRICT
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE DATABASE IF NOT EXISTS Tag (
+CREATE TABLE IF NOT EXISTS Tag (
   id          INTEGER      PRIMARY KEY AUTO_INCREMENT,
   name        VARCHAR(255) NOT NULL,
   description TEXT         NOT NULL,
@@ -28,7 +36,7 @@ CREATE DATABASE IF NOT EXISTS Tag (
     ON DELETE CASCADE ON UPDATE RESTRICT
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE DATABASE IF NOT EXISTS LinkTag (
+CREATE TABLE IF NOT EXISTS LinkTag (
   link INTEGER NOT NULL,
   tag  INTEGER NOT NULL,
 
