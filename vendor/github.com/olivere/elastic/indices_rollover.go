@@ -10,14 +10,14 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // IndicesRolloverService rolls an alias over to a new index when the
 // existing index is considered to be too large or too old.
 //
 // It is documented at
-// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-rollover-index.html.
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.0/indices-rollover-index.html.
 type IndicesRolloverService struct {
 	client              *Client
 	pretty              bool
@@ -189,10 +189,10 @@ func (s *IndicesRolloverService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.dryRun {
-		params.Set("dry_run", "1")
+		params.Set("dry_run", "true")
 	}
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
@@ -242,7 +242,12 @@ func (s *IndicesRolloverService) Do(ctx context.Context) (*IndicesRolloverRespon
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}

@@ -9,12 +9,12 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // IndicesCloseService closes an index.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/indices-open-close.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/indices-open-close.html
 // for details.
 type IndicesCloseService struct {
 	client            *Client
@@ -134,7 +134,11 @@ func (s *IndicesCloseService) Do(ctx context.Context) (*IndicesCloseResponse, er
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -149,5 +153,7 @@ func (s *IndicesCloseService) Do(ctx context.Context) (*IndicesCloseResponse, er
 
 // IndicesCloseResponse is the response of IndicesCloseService.Do.
 type IndicesCloseResponse struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 const (
@@ -117,7 +117,7 @@ func (s *ScrollService) Query(query Query) *ScrollService {
 
 // PostFilter is executed as the last filter. It only affects the
 // search hits but not facets. See
-// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-request-post-filter.html
+// https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-request-post-filter.html
 // for details.
 func (s *ScrollService) PostFilter(postFilter Query) *ScrollService {
 	s.ss = s.ss.PostFilter(postFilter)
@@ -126,7 +126,7 @@ func (s *ScrollService) PostFilter(postFilter Query) *ScrollService {
 
 // Slice allows slicing the scroll request into several batches.
 // This is supported in Elasticsearch 5.0 or later.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-request-scroll.html#sliced-scroll
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-request-scroll.html#sliced-scroll
 // for details.
 func (s *ScrollService) Slice(sliceQuery Query) *ScrollService {
 	s.ss = s.ss.Slice(sliceQuery)
@@ -147,7 +147,7 @@ func (s *ScrollService) FetchSourceContext(fetchSourceContext *FetchSourceContex
 }
 
 // Version can be set to true to return a version for each search hit.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-request-version.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-request-version.html.
 func (s *ScrollService) Version(version bool) *ScrollService {
 	s.ss = s.ss.Version(version)
 	return s
@@ -258,7 +258,12 @@ func (s *ScrollService) Clear(ctx context.Context) error {
 		ScrollId: []string{scrollId},
 	}
 
-	_, err := s.client.PerformRequest(ctx, "DELETE", path, params, body)
+	_, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "DELETE",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return err
 	}
@@ -283,7 +288,12 @@ func (s *ScrollService) first(ctx context.Context) (*SearchResult, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -330,7 +340,7 @@ func (s *ScrollService) buildFirstURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.size != nil && *s.size > 0 {
 		params.Set("size", fmt.Sprintf("%d", *s.size))
@@ -397,7 +407,12 @@ func (s *ScrollService) next(ctx context.Context) (*SearchResult, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -423,7 +438,7 @@ func (s *ScrollService) buildNextURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 
 	return path, params, nil

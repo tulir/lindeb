@@ -13,7 +13,7 @@ import (
 	"reflect"
 	"time"
 
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 )
 
 type Tweet struct {
@@ -71,12 +71,7 @@ func Example() {
 		"number_of_replicas":0
 	},
 	"mappings":{
-		"_default_": {
-			"_all": {
-				"enabled": true
-			}
-		},
-		"tweet":{
+		"doc":{
 			"properties":{
 				"user":{
 					"type":"keyword"
@@ -117,7 +112,7 @@ func Example() {
 	tweet1 := Tweet{User: "olivere", Message: "Take Five", Retweets: 0}
 	put1, err := client.Index().
 		Index("twitter").
-		Type("tweet").
+		Type("doc").
 		Id("1").
 		BodyJson(tweet1).
 		Do(context.Background())
@@ -131,7 +126,7 @@ func Example() {
 	tweet2 := `{"user" : "olivere", "message" : "It's a Raggy Waltz"}`
 	put2, err := client.Index().
 		Index("twitter").
-		Type("tweet").
+		Type("doc").
 		Id("2").
 		BodyString(tweet2).
 		Do(context.Background())
@@ -144,7 +139,7 @@ func Example() {
 	// Get tweet with specified ID
 	get1, err := client.Get().
 		Index("twitter").
-		Type("tweet").
+		Type("doc").
 		Id("1").
 		Do(context.Background())
 	if err != nil {
@@ -217,7 +212,7 @@ func Example() {
 	// Update a tweet by the update API of Elasticsearch.
 	// We just increment the number of retweets.
 	script := elastic.NewScript("ctx._source.retweets += params.num").Param("num", 1)
-	update, err := client.Update().Index("twitter").Type("tweet").Id("1").
+	update, err := client.Update().Index("twitter").Type("doc").Id("1").
 		Script(script).
 		Upsert(map[string]interface{}{"retweets": 0}).
 		Do(context.Background())
@@ -482,58 +477,6 @@ func ExampleSearchResult() {
 	} else {
 		// No hits
 		fmt.Print("Found no tweets\n")
-	}
-}
-
-func ExamplePutTemplateService() {
-	client, err := elastic.NewClient()
-	if err != nil {
-		panic(err)
-	}
-
-	// Create search template
-	tmpl := `{"template":{"query":{"match":{"title":"{{query_string}}"}}}}`
-
-	// Create template
-	resp, err := client.PutTemplate().
-		Id("my-search-template"). // Name of the template
-		BodyString(tmpl).         // Search template itself
-		Do(context.Background())  // Execute
-	if err != nil {
-		panic(err)
-	}
-	if resp.Acknowledged {
-		fmt.Println("search template creation acknowledged")
-	}
-}
-
-func ExampleGetTemplateService() {
-	client, err := elastic.NewClient()
-	if err != nil {
-		panic(err)
-	}
-
-	// Get template stored under "my-search-template"
-	resp, err := client.GetTemplate().Id("my-search-template").Do(context.Background())
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("search template is: %q\n", resp.Template)
-}
-
-func ExampleDeleteTemplateService() {
-	client, err := elastic.NewClient()
-	if err != nil {
-		panic(err)
-	}
-
-	// Delete template
-	resp, err := client.DeleteTemplate().Id("my-search-template").Do(context.Background())
-	if err != nil {
-		panic(err)
-	}
-	if resp != nil && resp.Acknowledged {
-		fmt.Println("template deleted")
 	}
 }
 

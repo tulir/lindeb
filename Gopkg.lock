@@ -20,22 +20,16 @@
   version = "v1.6.0"
 
 [[projects]]
+  branch = "release-branch.v6"
   name = "github.com/olivere/elastic"
-  packages = ["."]
-  revision = "79ff368708b3a2a9da641dc831d95fd0782bf4ef"
-  version = "v5.0.58"
+  packages = [".","config","uritemplates"]
+  revision = "7a065d53ac847c9aba9385e84fa24ef4647a6ae2"
 
 [[projects]]
   name = "github.com/pkg/errors"
   packages = ["."]
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
-
-[[projects]]
-  name = "gopkg.in/olivere/elastic.v5"
-  packages = ["config","uritemplates"]
-  revision = "79ff368708b3a2a9da641dc831d95fd0782bf4ef"
-  version = "v5.0.58"
 
 [[projects]]
   branch = "master"
@@ -46,6 +40,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e98ebc446313508aa1ba2f3eb1639c73509af96c2fdd05c193ccc1182cc16739"
+  inputs-digest = "83e98a481d065a622962b264a21d6734142c3f8b8f85dca6ab5dc4cc2b8d4ef6"
   solver-name = "gps-cdcl"
   solver-version = 1

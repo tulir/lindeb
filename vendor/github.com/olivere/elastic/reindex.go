@@ -11,7 +11,7 @@ import (
 )
 
 // ReindexService is a method to copy documents from one index to another.
-// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.0/docs-reindex.html.
+// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/6.0/docs-reindex.html.
 type ReindexService struct {
 	client              *Client
 	pretty              bool
@@ -168,7 +168,7 @@ func (s *ReindexService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.refresh != "" {
 		params.Set("refresh", s.refresh)
@@ -267,7 +267,12 @@ func (s *ReindexService) Do(ctx context.Context) (*BulkIndexByScrollResponse, er
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -309,7 +314,12 @@ func (s *ReindexService) DoAsync(ctx context.Context) (*StartTaskResult, error) 
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -568,7 +578,7 @@ func (ri *ReindexRemoteInfo) Source() (interface{}, error) {
 // ReindexDestination is the destination of a Reindex API call.
 // It is basically the meta data of a BulkIndexRequest.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-reindex.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/docs-reindex.html
 // fsourcer details.
 type ReindexDestination struct {
 	index       string
@@ -627,7 +637,7 @@ func (r *ReindexDestination) Parent(parent string) *ReindexDestination {
 
 // OpType specifies if this request should follow create-only or upsert
 // behavior. This follows the OpType of the standard document index API.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-index_.html#operation-type
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/docs-index_.html#operation-type
 // for details.
 func (r *ReindexDestination) OpType(opType string) *ReindexDestination {
 	r.opType = opType

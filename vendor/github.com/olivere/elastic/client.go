@@ -21,12 +21,12 @@ import (
 
 	"github.com/pkg/errors"
 
-	"gopkg.in/olivere/elastic.v5/config"
+	"github.com/olivere/elastic/config"
 )
 
 const (
 	// Version is the current version of Elastic.
-	Version = "5.0.58"
+	Version = "6.0.0"
 
 	// DefaultURL is the default endpoint of Elasticsearch on the local machine.
 	// It is used e.g. when initializing a new Client without a specific URL.
@@ -75,9 +75,6 @@ const (
 	// DefaultSendGetBodyAs is the HTTP method to use when elastic is sending
 	// a GET request with a body.
 	DefaultSendGetBodyAs = "GET"
-
-	// DefaultGzipEnabled specifies if gzip compression is enabled by default.
-	DefaultGzipEnabled = false
 
 	// off is used to disable timeouts.
 	off = -1 * time.Second
@@ -135,7 +132,6 @@ type Client struct {
 	basicAuthPassword         string          // password for HTTP Basic Auth
 	sendGetBodyAs             string          // override for when sending a GET with a body
 	requiredPlugins           []string        // list of required plugins
-	gzipEnabled               bool            // gzip compression enabled or disabled (default)
 	retrier                   Retrier         // strategy for retries
 }
 
@@ -158,7 +154,7 @@ type Client struct {
 //
 // If the sniffer is enabled (the default), the new client then sniffes
 // the cluster via the Nodes Info API
-// (see https://www.elastic.co/guide/en/elasticsearch/reference/5.2/cluster-nodes-info.html#cluster-nodes-info).
+// (see https://www.elastic.co/guide/en/elasticsearch/reference/6.0/cluster-nodes-info.html#cluster-nodes-info).
 // It uses the URLs specified by the caller. The caller is responsible
 // to only pass a list of URLs of nodes that belong to the same cluster.
 // This sniffing process is run on startup and periodically.
@@ -209,7 +205,6 @@ func NewClient(options ...ClientOptionFunc) (*Client, error) {
 		snifferCallback:           nopSnifferCallback,
 		snifferStop:               make(chan bool),
 		sendGetBodyAs:             DefaultSendGetBodyAs,
-		gzipEnabled:               DefaultGzipEnabled,
 		retrier:                   noRetries, // no retries by default
 	}
 
@@ -367,7 +362,6 @@ func NewSimpleClient(options ...ClientOptionFunc) (*Client, error) {
 		snifferCallback:           nopSnifferCallback,
 		snifferStop:               make(chan bool),
 		sendGetBodyAs:             DefaultSendGetBodyAs,
-		gzipEnabled:               DefaultGzipEnabled,
 		retrier:                   noRetries, // no retries by default
 	}
 
@@ -592,14 +586,6 @@ func SetMaxRetries(maxRetries int) ClientOptionFunc {
 			backoff := NewSimpleBackoff(ticks...)
 			c.retrier = NewBackoffRetrier(backoff)
 		}
-		return nil
-	}
-}
-
-// SetGzip enables or disables gzip compression (disabled by default).
-func SetGzip(enabled bool) ClientOptionFunc {
-	return func(c *Client) error {
-		c.gzipEnabled = enabled
 		return nil
 	}
 }
@@ -1173,19 +1159,25 @@ func (c *Client) mustActiveConn() error {
 	return errors.Wrap(ErrNoClient, "no active connection found")
 }
 
-// PerformRequest does a HTTP request to Elasticsearch.
-// See PerformRequestWithContentType for details.
-func (c *Client) PerformRequest(ctx context.Context, method, path string, params url.Values, body interface{}, ignoreErrors ...int) (*Response, error) {
-	return c.PerformRequestWithContentType(ctx, method, path, params, body, "application/json", ignoreErrors...)
+// -- PerformRequest --
+
+// PerformRequestOptions must be passed into PerformRequest.
+type PerformRequestOptions struct {
+	Method       string
+	Path         string
+	Params       url.Values
+	Body         interface{}
+	ContentType  string
+	IgnoreErrors []int
 }
 
-// PerformRequestWithContentType executes a HTTP request with a specific content type.
+// PerformRequest does a HTTP request to Elasticsearch.
 // It returns a response (which might be nil) and an error on failure.
 //
 // Optionally, a list of HTTP error codes to ignore can be passed.
 // This is necessary for services that expect e.g. HTTP status 404 as a
 // valid outcome (Exists, IndicesExists, IndicesTypeExists).
-func (c *Client) PerformRequestWithContentType(ctx context.Context, method, path string, params url.Values, body interface{}, contentType string, ignoreErrors ...int) (*Response, error) {
+func (c *Client) PerformRequest(ctx context.Context, opt PerformRequestOptions) (*Response, error) {
 	start := time.Now().UTC()
 
 	c.mu.RLock()
@@ -1194,7 +1186,6 @@ func (c *Client) PerformRequestWithContentType(ctx context.Context, method, path
 	basicAuthUsername := c.basicAuthUsername
 	basicAuthPassword := c.basicAuthPassword
 	sendGetBodyAs := c.sendGetBodyAs
-	gzipEnabled := c.gzipEnabled
 	c.mu.RUnlock()
 
 	var err error
@@ -1205,14 +1196,14 @@ func (c *Client) PerformRequestWithContentType(ctx context.Context, method, path
 	var n int
 
 	// Change method if sendGetBodyAs is specified.
-	if method == "GET" && body != nil && sendGetBodyAs != "GET" {
-		method = sendGetBodyAs
+	if opt.Method == "GET" && opt.Body != nil && sendGetBodyAs != "GET" {
+		opt.Method = sendGetBodyAs
 	}
 
 	for {
-		pathWithParams := path
-		if len(params) > 0 {
-			pathWithParams += "?" + params.Encode()
+		pathWithParams := opt.Path
+		if len(opt.Params) > 0 {
+			pathWithParams += "?" + opt.Params.Encode()
 		}
 
 		// Get a connection
@@ -1239,24 +1230,24 @@ func (c *Client) PerformRequestWithContentType(ctx context.Context, method, path
 			return nil, err
 		}
 
-		req, err = NewRequest(method, conn.URL()+pathWithParams)
+		req, err = NewRequest(opt.Method, conn.URL()+pathWithParams)
 		if err != nil {
-			c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(method), conn.URL()+pathWithParams, err)
+			c.errorf("elastic: cannot create request for %s %s: %v", strings.ToUpper(opt.Method), conn.URL()+pathWithParams, err)
 			return nil, err
 		}
 
 		if basicAuth {
 			req.SetBasicAuth(basicAuthUsername, basicAuthPassword)
 		}
-		if contentType != "" {
-			req.Header.Set("Content-Type", contentType)
+		if opt.ContentType != "" {
+			req.Header.Set("Content-Type", opt.ContentType)
 		}
 
 		// Set body
-		if body != nil {
-			err = req.SetBody(body, gzipEnabled)
+		if opt.Body != nil {
+			err = req.SetBody(opt.Body)
 			if err != nil {
-				c.errorf("elastic: couldn't set body %+v for request: %v", body, err)
+				c.errorf("elastic: couldn't set body %+v for request: %v", opt.Body, err)
 				return nil, err
 			}
 		}
@@ -1301,8 +1292,13 @@ func (c *Client) PerformRequestWithContentType(ctx context.Context, method, path
 		// Tracing
 		c.dumpResponse(res)
 
+		// Log deprecation warnings as errors
+		if s := res.Header.Get("Warning"); s != "" {
+			c.errorf(s)
+		}
+
 		// Check for errors
-		if err := checkResponse((*http.Request)(req), res, ignoreErrors...); err != nil {
+		if err := checkResponse((*http.Request)(req), res, opt.IgnoreErrors...); err != nil {
 			// No retry if request succeeded
 			// We still try to return a response.
 			resp, _ = c.newResponse(res)
@@ -1322,7 +1318,7 @@ func (c *Client) PerformRequestWithContentType(ctx context.Context, method, path
 
 	duration := time.Now().UTC().Sub(start)
 	c.infof("%s %s [status:%d, request:%.3fs]",
-		strings.ToUpper(method),
+		strings.ToUpper(opt.Method),
 		req.URL,
 		resp.StatusCode,
 		float64(int64(duration/time.Millisecond))/1000)
@@ -1384,7 +1380,7 @@ func (c *Client) BulkProcessor() *BulkProcessorService {
 
 // Reindex copies data from a source index into a destination index.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-reindex.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/docs-reindex.html
 // for details on the Reindex API.
 func (c *Client) Reindex() *ReindexService {
 	return NewReindexService(c)
@@ -1409,11 +1405,6 @@ func (c *Client) MultiTermVectors() *MultiTermvectorService {
 // Search is the entry point for searches.
 func (c *Client) Search(indices ...string) *SearchService {
 	return NewSearchService(c).Index(indices...)
-}
-
-// Suggest returns a service to return suggestions.
-func (c *Client) Suggest(indices ...string) *SuggestService {
-	return NewSuggestService(c).Index(indices...)
 }
 
 // MultiSearch is the entry point for multi searches.
@@ -1553,24 +1544,6 @@ func (c *Client) Alias() *AliasService {
 // Aliases returns aliases by index name(s).
 func (c *Client) Aliases() *AliasesService {
 	return NewAliasesService(c)
-}
-
-// GetTemplate gets a search template.
-// Use IndexXXXTemplate funcs to manage index templates.
-func (c *Client) GetTemplate() *GetTemplateService {
-	return NewGetTemplateService(c)
-}
-
-// PutTemplate creates or updates a search template.
-// Use IndexXXXTemplate funcs to manage index templates.
-func (c *Client) PutTemplate() *PutTemplateService {
-	return NewPutTemplateService(c)
-}
-
-// DeleteTemplate deletes a search template.
-// Use IndexXXXTemplate funcs to manage index templates.
-func (c *Client) DeleteTemplate() *DeleteTemplateService {
-	return NewDeleteTemplateService(c)
 }
 
 // IndexGetTemplate gets an index template.

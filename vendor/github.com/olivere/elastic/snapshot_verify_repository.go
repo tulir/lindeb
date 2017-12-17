@@ -10,11 +10,11 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // SnapshotVerifyRepositoryService verifies a snapshop repository.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.3/modules-snapshots.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/modules-snapshots.html
 // for details.
 type SnapshotVerifyRepositoryService struct {
 	client        *Client
@@ -68,7 +68,7 @@ func (s *SnapshotVerifyRepositoryService) buildURL() (string, url.Values, error)
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
@@ -105,7 +105,11 @@ func (s *SnapshotVerifyRepositoryService) Do(ctx context.Context) (*SnapshotVeri
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+	})
 	if err != nil {
 		return nil, err
 	}

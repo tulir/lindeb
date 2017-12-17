@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 const (
@@ -22,7 +22,7 @@ const (
 // FieldStatsService allows finding statistical properties of a field without executing a search,
 // but looking up measurements that are natively available in the Lucene index.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/search-field-stats.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/search-field-stats.html
 // for details
 type FieldStatsService struct {
 	client            *Client
@@ -188,7 +188,13 @@ func (s *FieldStatsService) Do(ctx context.Context) (*FieldStatsResponse, error)
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body, http.StatusNotFound)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method:       "POST",
+		Path:         path,
+		Params:       params,
+		Body:         body,
+		IgnoreErrors: []int{http.StatusNotFound},
+	})
 	if err != nil {
 		return nil, err
 	}

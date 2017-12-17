@@ -10,11 +10,11 @@ import (
 	"fmt"
 	"net/url"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // IngestDeletePipelineService deletes pipelines by ID.
-// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.2/delete-pipeline-api.html.
+// It is documented at https://www.elastic.co/guide/en/elasticsearch/reference/6.0/delete-pipeline-api.html.
 type IngestDeletePipelineService struct {
 	client        *Client
 	pretty        bool
@@ -67,7 +67,7 @@ func (s *IngestDeletePipelineService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
@@ -104,7 +104,11 @@ func (s *IngestDeletePipelineService) Do(ctx context.Context) (*IngestDeletePipe
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "DELETE",
+		Path:   path,
+		Params: params,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -119,5 +123,7 @@ func (s *IngestDeletePipelineService) Do(ctx context.Context) (*IngestDeletePipe
 
 // IngestDeletePipelineResponse is the response of IngestDeletePipelineService.Do.
 type IngestDeletePipelineResponse struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

@@ -10,14 +10,14 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // TermvectorsService returns information and statistics on terms in the
 // fields of a particular document. The document could be stored in the
 // index or artificially provided by the user.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-termvectors.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/docs-termvectors.html
 // for documentation.
 type TermvectorsService struct {
 	client           *Client
@@ -169,7 +169,7 @@ func (s *TermvectorsService) Version(version interface{}) *TermvectorsService {
 	return s
 }
 
-// VersionType specifies a version type ("internal", "external", "external_gte", or "force").
+// VersionType specifies a version type ("internal", "external", or "external_gte").
 func (s *TermvectorsService) VersionType(versionType string) *TermvectorsService {
 	s.versionType = versionType
 	return s
@@ -217,7 +217,7 @@ func (s *TermvectorsService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.dfs != nil {
 		params.Set("dfs", fmt.Sprintf("%v", *s.dfs))
@@ -316,7 +316,12 @@ func (s *TermvectorsService) Do(ctx context.Context) (*TermvectorsResponse, erro
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "GET",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -333,7 +338,7 @@ func (s *TermvectorsService) Do(ctx context.Context) (*TermvectorsResponse, erro
 
 // TermvectorsFilterSettings adds additional filters to a Termsvector request.
 // It allows to filter terms based on their tf-idf scores.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-termvectors.html#_terms_filtering
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/docs-termvectors.html#_terms_filtering
 // for more information.
 type TermvectorsFilterSettings struct {
 	maxNumTerms   *int64

@@ -11,13 +11,13 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // GetService allows to get a typed JSON document from the index based
 // on its id.
 //
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-get.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/docs-get.html
 // for details.
 type GetService struct {
 	client                        *Client
@@ -172,7 +172,7 @@ func (s *GetService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.routing != "" {
 		params.Set("routing", s.routing)
@@ -223,7 +223,11 @@ func (s *GetService) Do(ctx context.Context) (*GetResult, error) {
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "GET", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "GET",
+		Path:   path,
+		Params: params,
+	})
 	if err != nil {
 		return nil, err
 	}

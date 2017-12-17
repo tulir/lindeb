@@ -9,9 +9,9 @@ import (
 	"testing"
 )
 
-func TestScriptingDefault(t *testing.T) {
-	builder := NewScript("doc['field'].value * 2")
-	src, err := builder.Source()
+func TestSignificantTextAggregation(t *testing.T) {
+	agg := NewSignificantTextAggregation().Field("content")
+	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -20,15 +20,19 @@ func TestScriptingDefault(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"source":"doc['field'].value * 2"}`
+	expected := `{"significant_text":{"field":"content"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
 
-func TestScriptingInline(t *testing.T) {
-	builder := NewScriptInline("doc['field'].value * factor").Param("factor", 2.0)
-	src, err := builder.Source()
+func TestSignificantTextAggregationWithArgs(t *testing.T) {
+	agg := NewSignificantTextAggregation().
+		Field("content").
+		ShardSize(5).
+		MinDocCount(10).
+		BackgroundFilter(NewTermQuery("city", "London"))
+	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,15 +41,16 @@ func TestScriptingInline(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"params":{"factor":2},"source":"doc['field'].value * factor"}`
+	expected := `{"significant_text":{"background_filter":{"term":{"city":"London"}},"field":"content","min_doc_count":10,"shard_size":5}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}
 }
 
-func TestScriptingStored(t *testing.T) {
-	builder := NewScriptStored("script-with-id").Param("factor", 2.0)
-	src, err := builder.Source()
+func TestSignificantTextAggregationWithMetaData(t *testing.T) {
+	agg := NewSignificantTextAggregation().Field("content")
+	agg = agg.Meta(map[string]interface{}{"name": "Oliver"})
+	src, err := agg.Source()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,7 +59,7 @@ func TestScriptingStored(t *testing.T) {
 		t.Fatalf("marshaling to JSON failed: %v", err)
 	}
 	got := string(data)
-	expected := `{"id":"script-with-id","params":{"factor":2}}`
+	expected := `{"meta":{"name":"Oliver"},"significant_text":{"field":"content"}}`
 	if got != expected {
 		t.Errorf("expected\n%s\n,got:\n%s", expected, got)
 	}

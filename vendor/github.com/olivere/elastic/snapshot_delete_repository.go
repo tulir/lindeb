@@ -11,11 +11,11 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // SnapshotDeleteRepositoryService deletes a snapshot repository.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.3/modules-snapshots.html
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/modules-snapshots.html
 // for details.
 type SnapshotDeleteRepositoryService struct {
 	client        *Client
@@ -70,7 +70,7 @@ func (s *SnapshotDeleteRepositoryService) buildURL() (string, url.Values, error)
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
@@ -107,7 +107,11 @@ func (s *SnapshotDeleteRepositoryService) Do(ctx context.Context) (*SnapshotDele
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "DELETE", path, params, nil)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "DELETE",
+		Path:   path,
+		Params: params,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -122,5 +126,7 @@ func (s *SnapshotDeleteRepositoryService) Do(ctx context.Context) (*SnapshotDele
 
 // SnapshotDeleteRepositoryResponse is the response of SnapshotDeleteRepositoryService.Do.
 type SnapshotDeleteRepositoryResponse struct {
-	Acknowledged bool `json:"acknowledged"`
+	Acknowledged       bool   `json:"acknowledged"`
+	ShardsAcknowledged bool   `json:"shards_acknowledged"`
+	Index              string `json:"index,omitempty"`
 }

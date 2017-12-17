@@ -11,10 +11,10 @@ import (
 	"net/url"
 	"time"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
-// SnapshotCreateService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/5.x/modules-snapshots.html.
+// SnapshotCreateService is documented at https://www.elastic.co/guide/en/elasticsearch/reference/6.0/modules-snapshots.html.
 type SnapshotCreateService struct {
 	client            *Client
 	pretty            bool
@@ -89,7 +89,7 @@ func (s *SnapshotCreateService) buildURL() (string, url.Values, error) {
 	// Add query string parameters
 	params := url.Values{}
 	if s.pretty {
-		params.Set("pretty", "1")
+		params.Set("pretty", "true")
 	}
 	if s.masterTimeout != "" {
 		params.Set("master_timeout", s.masterTimeout)
@@ -137,7 +137,12 @@ func (s *SnapshotCreateService) Do(ctx context.Context) (*SnapshotCreateResponse
 	}
 
 	// Get HTTP response
-	res, err := s.client.PerformRequest(ctx, "PUT", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "PUT",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}

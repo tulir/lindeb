@@ -11,10 +11,10 @@ import (
 )
 
 func TestUpdateWithScript(t *testing.T) {
-	client := setupTestClientAndCreateIndexAndAddDocs(t) //, SetTraceLog(log.New(os.Stdout, "", 0)))
+	client := setupTestClientAndCreateIndexAndAddDocs(t) // , SetTraceLog(log.New(os.Stdout, "", 0)))
 
 	// Get original
-	getRes, err := client.Get().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
+	getRes, err := client.Get().Index(testIndexName).Type("doc").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -24,7 +24,7 @@ func TestUpdateWithScript(t *testing.T) {
 	}
 
 	// Update with script
-	updRes, err := client.Update().Index(testIndexName).Type("tweet").Id("1").
+	updRes, err := client.Update().Index(testIndexName).Type("doc").Id("1").
 		Script(
 			NewScript(`ctx._source.message = "Updated message text."`).Lang("painless"),
 		).
@@ -40,7 +40,7 @@ func TestUpdateWithScript(t *testing.T) {
 	}
 
 	// Get new version
-	getRes, err = client.Get().Index(testIndexName).Type("tweet").Id("1").Do(context.TODO())
+	getRes, err = client.Get().Index(testIndexName).Type("doc").Id("1").Do(context.TODO())
 	if err != nil {
 		t.Fatal(err)
 	}

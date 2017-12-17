@@ -10,11 +10,11 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/olivere/elastic.v5/uritemplates"
+	"github.com/olivere/elastic/uritemplates"
 )
 
 // DeleteByQueryService deletes documents that match a query.
-// See https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docs-delete-by-query.html.
+// See https://www.elastic.co/guide/en/elasticsearch/reference/6.0/docs-delete-by-query.html.
 type DeleteByQueryService struct {
 	client                 *Client
 	index                  []string
@@ -598,7 +598,12 @@ func (s *DeleteByQueryService) Do(ctx context.Context) (*BulkIndexByScrollRespon
 	}
 
 	// Get response
-	res, err := s.client.PerformRequest(ctx, "POST", path, params, body)
+	res, err := s.client.PerformRequest(ctx, PerformRequestOptions{
+		Method: "POST",
+		Path:   path,
+		Params: params,
+		Body:   body,
+	})
 	if err != nil {
 		return nil, err
 	}

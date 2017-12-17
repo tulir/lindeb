@@ -677,7 +677,7 @@ func TestClientSelectConnHealthy(t *testing.T) {
 	client, err := NewClient(
 		SetSniff(false),
 		SetHealthcheck(false),
-		SetURL("http://127.0.0.1:9200/node1", "http://127.0.0.1:9201/node2/"))
+		SetURL("http://127.0.0.1:9200", "http://127.0.0.1:9201"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -685,54 +685,6 @@ func TestClientSelectConnHealthy(t *testing.T) {
 	// Both are healthy, so we should get both URLs in round-robin
 	client.conns[0].MarkAsHealthy()
 	client.conns[1].MarkAsHealthy()
-
-	// #1: Return 1st
-	c, err := client.next()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if c.URL() != client.conns[0].URL() {
-		t.Fatalf("expected %s; got: %s", c.URL(), client.conns[0].URL())
-	}
-	// #2: Return 2nd
-	c, err = client.next()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if c.URL() != client.conns[1].URL() {
-		t.Fatalf("expected %s; got: %s", c.URL(), client.conns[1].URL())
-	}
-	// #3: Return 1st
-	c, err = client.next()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if c.URL() != client.conns[0].URL() {
-		t.Fatalf("expected %s; got: %s", c.URL(), client.conns[0].URL())
-	}
-}
-
-func TestClientSelectConnHealthyWithURLPrefix(t *testing.T) {
-	client, err := NewClient(
-		SetSniff(false),
-		SetHealthcheck(false),
-		SetURL("http://127.0.0.1:9200/node1", "http://127.0.0.1:9201/node2/prefix/"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Both are healthy, so we should get both URLs in round-robin
-	client.conns[0].MarkAsHealthy()
-	client.conns[1].MarkAsHealthy()
-
-	// Check that the connection used the URLs, including its prefix
-	if want, have := "http://127.0.0.1:9200/node1", client.conns[0].URL(); want != have {
-		t.Fatalf("want Node[0] = %q, have %q", want, have)
-	}
-	// Note that it stripped the / off the suffix
-	if want, have := "http://127.0.0.1:9201/node2/prefix", client.conns[1].URL(); want != have {
-		t.Fatalf("want Node[1] = %q, have %q", want, have)
-	}
 
 	// #1: Return 1st
 	c, err := client.next()
@@ -924,7 +876,10 @@ func TestPerformRequest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/",
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -946,7 +901,10 @@ func TestPerformRequestWithSimpleClient(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/",
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -972,7 +930,10 @@ func TestPerformRequestWithLogger(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/",
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1011,7 +972,10 @@ func TestPerformRequestWithLoggerAndTracer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/",
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1046,7 +1010,10 @@ func TestPerformRequestWithTracerOnError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	client.PerformRequest(context.TODO(), "GET", "/no-such-index", nil, nil)
+	client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/no-such-index",
+	})
 
 	tgot := tw.String()
 	if tgot == "" {
@@ -1070,7 +1037,10 @@ func TestPerformRequestWithCustomLogger(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/",
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1133,7 +1103,10 @@ func TestPerformRequestRetryOnHttpError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/fail",
+	})
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -1163,7 +1136,10 @@ func TestPerformRequestNoRetryOnValidButUnsuccessfulHttpStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	res, err := client.PerformRequest(context.TODO(), "GET", "/fail", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/fail",
+	})
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -1192,7 +1168,11 @@ func TestPerformRequestWithSetBodyError(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, failingBody{})
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/",
+		Body:   failingBody{},
+	})
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -1229,7 +1209,10 @@ func TestPerformRequestWithCancel(t *testing.T) {
 
 	resc := make(chan result, 1)
 	go func() {
-		res, err := client.PerformRequest(ctx, "GET", "/", nil, nil)
+		res, err := client.PerformRequest(ctx, PerformRequestOptions{
+			Method: "GET",
+			Path:   "/",
+		})
 		resc <- result{res: res, err: err}
 	}()
 	select {
@@ -1264,7 +1247,10 @@ func TestPerformRequestWithTimeout(t *testing.T) {
 
 	resc := make(chan result, 1)
 	go func() {
-		res, err := client.PerformRequest(ctx, "GET", "/", nil, nil)
+		res, err := client.PerformRequest(ctx, PerformRequestOptions{
+			Method: "GET",
+			Path:   "/",
+		})
 		resc <- result{res: res, err: err}
 	}()
 	select {
@@ -1312,7 +1298,10 @@ func testPerformRequestWithCompression(t *testing.T, hc *http.Client) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := client.PerformRequest(context.TODO(), "GET", "/", nil, nil)
+	res, err := client.PerformRequest(context.TODO(), PerformRequestOptions{
+		Method: "GET",
+		Path:   "/",
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
