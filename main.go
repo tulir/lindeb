@@ -52,6 +52,7 @@ func main() {
 		fmt.Println("Database connection failed:", err)
 		os.Exit(11)
 	}
+	db.CreateTables()
 
 	search, err := config.Elastic.Connect()
 	if err != nil {

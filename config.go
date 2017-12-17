@@ -1,32 +1,22 @@
 package lindeb
 
 import (
-	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 
-	"github.com/go-sql-driver/mysql"
+	"maunium.net/go/lindeb/db"
+
 	"github.com/gorilla/mux"
 	"github.com/olivere/elastic"
 )
 
 // Config is a configuration
 type Config struct {
-	Database DatabaseConfig `yaml:"database"`
+	Database db.Config      `yaml:"database"`
 	Elastic  ElasticConfig  `yaml:"elastic"`
 	API      APIConfig      `yaml:"api"`
 	Frontend FrontendConfig `yaml:"frontend"`
-}
-
-type DatabaseConfig string
-
-func (dbConf DatabaseConfig) Connect() (*sql.DB, error) {
-	conf, err := mysql.ParseDSN(string(dbConf))
-	if err != nil {
-		return nil, err
-	}
-	return sql.Open("mysql", conf.FormatDSN())
 }
 
 type ElasticConfig string
