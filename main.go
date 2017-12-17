@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"fmt"
 
@@ -74,6 +76,15 @@ func main() {
 	// TODO add listen paths
 
 	config.Frontend.AddHandler(r)
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		db.Close()
+		// TODO check if this does what's expected
+		search.Stop()
+	}()
 
 	err = config.API.ListenAndServe(r)
 	if err != nil {
