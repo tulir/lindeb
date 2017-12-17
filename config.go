@@ -1,14 +1,14 @@
 package lindeb
 
 import (
+	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"github.com/gorilla/mux"
+
 	"github.com/go-sql-driver/mysql"
-	"database/sql"
+	"github.com/gorilla/mux"
 	"github.com/olivere/elastic"
-	elasticconfig "github.com/olivere/elastic/config"
 )
 
 // Config is a configuration
@@ -16,6 +16,7 @@ type Config struct {
 	Database DatabaseConfig `yaml:"database"`
 	Elastic  ElasticConfig  `yaml:"elastic"`
 	API      APIConfig      `yaml:"api"`
+	Frontend FrontendConfig `yaml:"frontend"`
 }
 
 type DatabaseConfig string
@@ -38,7 +39,34 @@ func (eConf ElasticConfig) Connect() (*elastic.Client, error) {
 	return elastic.NewClientFromConfig(conf)
 }
 
+type FrontendConfig struct {
+	Enabled  bool   `yaml:"enabled"`
+	Location string `yaml:"location"`
+}
+
+func (frontConfig FrontendConfig) AddHandler(router *mux.Router) {
+	if !frontConfig.Enabled {
+		return
+	}
+	router.
+		PathPrefix("/").
+		Methods(http.MethodGet).
+		Handler(frontConfig.Handler())
+}
+
+func (frontConfig FrontendConfig) Handler() http.Handler {
+	fs := http.FileServer(http.Dir(frontConfig.Location))
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" {
+			r.URL.Path = "/index.html"
+		}
+
+		fs.ServeHTTP(w, r)
+	})
+}
+
 type APIConfig struct {
+	Prefix  string `yaml:"prefix"`
 	Address string `yaml:"address"`
 	TLS     bool   `yaml:"tls"`
 	TLSCert string `yaml:"tls_cert"`

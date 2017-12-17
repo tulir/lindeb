@@ -1,16 +1,34 @@
 package lindeb
 
 import (
+	"context"
+	"database/sql"
+	"net/http"
+	"os"
+
+	"fmt"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-	"context"
+	"github.com/olivere/elastic"
 	flag "maunium.net/go/mauflag"
-	"fmt"
-	"os"
 )
 
 var configPath = flag.MakeFull("c", "config", "Path to the config file.", "config.yaml").String()
 var wantHelp, _ = flag.MakeHelpFlag()
+
+type AppContext struct {
+	Config  *Config
+	DB      *sql.DB
+	Elastic *elastic.Client
+	Context context.Context
+}
+
+func (ctx AppContext) HTTPMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r.WithContext(ctx.Context))
+	})
+}
 
 func main() {
 	err := flag.Parse()
@@ -41,7 +59,24 @@ func main() {
 		os.Exit(12)
 	}
 
+	appCtx := AppContext{
+		Config:  config,
+		DB:      db,
+		Elastic: search,
+	}
+	realCtx := context.WithValue(context.Background(), "app", appCtx)
+	appCtx.Context = realCtx
+
 	r := mux.NewRouter()
+
+	api := r.PathPrefix(config.API.Prefix).Subrouter()
 	// TODO add listen paths
-	config.API.ListenAndServe(r)
+
+	config.Frontend.AddHandler(r)
+
+	err = config.API.ListenAndServe(r)
+	if err != nil {
+		fmt.Println("HTTP server quit unexpectedly:", err)
+		os.Exit(20)
+	}
 }
