@@ -14,14 +14,117 @@ tags:
   description: Methods to browse and search for links.
 - name: Authentication
   description: Methods to manage authentication.
+- name: Tags
+  description: Methods to list and manage tags.
 paths:
+  /tags:
+    get:
+      summary: Get all tags.
+      operationId: getTags
+      tags: [ Tags ]
+      responses:
+        200:
+          description: Tags fetched.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /tag/add:
+    post:
+      summary: Add a new tag.
+      operationId: addTag
+      tags: [ Tags ]
+      responses:
+        201:
+          description: Tag created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        409:
+          description: Tag already exists.
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /tag/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: The ID of the tag to access.
+      schema:
+        type: integer
+    get:
+      summary: Get all the details about the tag with the given ID.
+      operationId: getTag
+      tags: [ Tags ]
+      parameters:
+      - name: include-links
+        in: query
+        description: Whether or not to include all links that have the tag.
+        schema:
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: Tag found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        404:
+          description: Tag not found.
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      summary: Edit the tag.
+      operationId: editTag
+      tags: [ Tags ]
+      requestBody:
+        description: The updated tag.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+      responses:
+        200:
+          description: Tag updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        404:
+          description: Tag not found.
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      summary: Delete the tag.
+      operationId: deleteTag
+      tags: [ Tags ]
+      parameters:
+      - name: delete-links
+        in: query
+        description: Whether or not to delete all links that have the tag. If false, the links will remain without the tag.
+        schema:
+          type: boolean
+          default: false
+      responses:
+        204:
+          description: Tag deleted.
+        404:
+          description: Tag not found.
+        401:
+          $ref: '#/components/responses/Unauthorized'
   /link/save:
     post:
       summary: Store a new link in the database.
       operationId: addLink
       tags: [ Link Management ]
       requestBody:
-        description: The link to save
+        description: The link to save.
         required: true
         content:
           application/json:
@@ -40,7 +143,7 @@ paths:
     parameters:
     - name: id
       in: path
-      description: The ID of the link to get.
+      description: The ID of the link to access.
       schema:
         type: integer
     get:
@@ -230,6 +333,30 @@ components:
         default: 10
         example: 10
   schemas:
+    Tag:
+      required:
+      - name
+      properties:
+        id:
+          type: integer
+          description: The ID of the tag.
+          readOnly: true
+        name:
+          type: string
+          description: The name of the tag. Must be lowercase.
+        description:
+          type: string
+          description: A short description of what is/should be tagged with the tag.
+        links:
+          type: array
+          readOnly: true
+          description: The list of links tagged with this tag. Only included when specifically requested.
+          items:
+            $ref: '#/components/schemas/Link'
+      example:
+        id: 2
+        name: openapi
+        description: API specs that may be useful
     Link:
       required:
       - url
