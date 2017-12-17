@@ -275,18 +275,20 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
-              example:
-                username: linksaver123
-                password: passw0rd!
+              $ref: '#/components/schemas/User'
       responses:
         200:
           description: Signed in successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        403:
+          description: The user is already signed in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         401:
           description: Invalid username or password.
   /auth/logout:
@@ -307,8 +309,16 @@ paths:
       responses:
         201:
           description: Registration successful.
-        401:
-          description: User is logged in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        403:
+          description: User is already signed in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         409:
           description: Username is taken.
 
@@ -333,6 +343,27 @@ components:
         default: 10
         example: 10
   schemas:
+    User:
+      required:
+      - username
+      - password
+      properties:
+        id:
+          type: integer
+          description: The ID of the user.
+          readOnly: true
+        username:
+          type: string
+          maxLength: 255
+          description: The login username of the user.
+        password:
+          type: string
+          description: The password of the user.
+          writeOnly: true
+      example:
+        id: 123
+        username: linksaver123
+        password: passw0rd!
     Tag:
       required:
       - name
@@ -343,9 +374,11 @@ components:
           readOnly: true
         name:
           type: string
+          maxLength: 255
           description: The name of the tag. Must be lowercase.
         description:
           type: string
+          maxLength: 65535
           description: A short description of what is/should be tagged with the tag.
         links:
           type: array
@@ -367,16 +400,20 @@ components:
           readOnly: true
         domain:
           type: string
+          maxLength: 255
           description: The domain part of the URL.
           readOnly: true
         url:
           type: string
+          maxLength: 2047
           description: The URL itself.
         title:
           type: string
+          maxLength: 255
           description: The title of the page the URL links to.
         description:
           type: string
+          maxLength: 65535
           description: A short description of the page the URL links to.
         tags:
           type: array

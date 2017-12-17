@@ -43,6 +43,7 @@ Support for old browsers is not guaranteed. The latest version of Firefox is rec
 ## Documentation
 * [Course documentation](https://docs.google.com/document/d/1LhNw1F7La3O9GysxXFnXPuQvzvQhpxS3Gmd0t6iF50I) in Finnish
   (also as [PDF](https://github.com/tulir/lindeb/blob/master/docs/course.pdf))
+  * [SQL query files](https://github.com/tulir/lindeb/tree/master/docs/ui)
 * [OpenAPI document](https://github.com/tulir/lindeb/blob/master/docs/api.yaml)
 * [API explorer](https://lindeb.mau.lu/apidocs)
 * [UI designs](https://github.com/tulir/lindeb/tree/master/docs/ui)
