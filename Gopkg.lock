@@ -8,6 +8,12 @@
   version = "v1.3"
 
 [[projects]]
+  branch = "v2"
+  name = "github.com/go-yaml/yaml"
+  packages = ["."]
+  revision = "287cf08546ab5e7e37d55a84f7ed3fd1db036de5"
+
+[[projects]]
   name = "github.com/gorilla/context"
   packages = ["."]
   revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
@@ -33,6 +39,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["bcrypt","blowfish"]
+  revision = "244f6ce1f09cc9f3d7bffe29b033aaa13c0cc2f3"
+
+[[projects]]
+  branch = "master"
   name = "maunium.net/go/mauflag"
   packages = ["."]
   revision = "8337821952ba5e919673bd62c502d43474e5e71d"
@@ -40,6 +52,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "83e98a481d065a622962b264a21d6734142c3f8b8f85dca6ab5dc4cc2b8d4ef6"
+  inputs-digest = "bafa98af4b321e845ea23813aea01a78e5f7027282e074ccd08e40151c0d4c5f"
   solver-name = "gps-cdcl"
   solver-version = 1

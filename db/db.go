@@ -7,8 +7,10 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
+// Config is a wrapper for a DSN string.
 type Config string
 
+// Connect connects to the MySQL database determined by the DSN in this config string.
 func (dbConf Config) Connect() (*DB, error) {
 	conf, err := mysql.ParseDSN(string(dbConf))
 	if err != nil {
@@ -21,10 +23,17 @@ func (dbConf Config) Connect() (*DB, error) {
 	return &DB{sqlDB}, nil
 }
 
+// Scannable is something that can be scanned, which in this context means either *sql.Row or *sql.Rows.
+type Scannable interface {
+	Scan(dest ...interface{}) error
+}
+
+// DB is a wrapper struct for sql.DB.
 type DB struct {
 	*sql.DB
 }
 
+// CreateTables creates all the necessary tables.
 func (db *DB) CreateTables() {
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS User (
 		id       INTEGER      PRIMARY KEY AUTO_INCREMENT,
@@ -48,8 +57,10 @@ func (db *DB) CreateTables() {
 		id          INTEGER       PRIMARY KEY AUTO_INCREMENT,
 		url         VARCHAR(2047) NOT NULL,
 		domain      VARCHAR(255)  NOT NULL,
-		title       VARCHAR(255)  NOT NULL,1
+		revdomain   VARCHAR(255)  NOT NULL,
+		title       VARCHAR(255)  NOT NULL,
 		description TEXT          NOT NULL,
+		timestamp   BIGINT        NOT NULL,
 		owner       INTEGER       NOT NULL,
 
 		FOREIGN KEY (owner) REFERENCES User(id)
@@ -77,7 +88,7 @@ func (db *DB) CreateTables() {
 		FOREIGN KEY (link) REFERENCES Link(id)
 			ON DELETE CASCADE ON UPDATE RESTRICT,
 		FOREIGN KEY (tag)  REFERENCES Tag(id)
-			ON DELETE CASCADE ON UPDATE RESTRICT,
+			ON DELETE CASCADE ON UPDATE RESTRICT
 	) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`)
 	if err != nil {
 		fmt.Println("Failed to create table LinkTag:", err)

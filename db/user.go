@@ -1,32 +1,27 @@
 package db
 
 import (
-	"errors"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
+// User represents a single registered user in the database.
 type User struct {
-	DB           *DB     `json:"-"`
-	ID           integer `json:"id"`
-	Username     string  `json:"username"`
-	PasswordHash []byte  `json:"-"`
+	DB *DB
+
+	ID           int
+	Username     string
+	TokenUsed    *AuthToken
+	PasswordHash []byte
 }
 
 // TryGetUser tries to get the user with the given ID.
 // If the user is not found, nil is returned along with an error that may explain the problem.
-func (db *DB) TryGetUser(id int) (*User, error) {
-	userRow := db.QueryRow("SELECT * FROM User WHERE id=?", id)
-	if userRow == nil {
-		return nil, errors.New("user not found")
-	}
+func (db *DB) scanUser(row Scannable) (*User, error) {
 	var scanID int
 	var username, passwordHash string
-	err := userRow.Scan(&scanID, &username, &passwordHash)
+	err := row.Scan(&scanID, &username, &passwordHash)
 	if err != nil {
 		return nil, err
-	} else if scanID != id {
-		return nil, errors.New("database row scan failed: query ID does not match scanned ID")
 	}
 	return &User{
 		ID:           scanID,
@@ -35,11 +30,32 @@ func (db *DB) TryGetUser(id int) (*User, error) {
 	}, nil
 }
 
-// GetUser gets the user with the given ID.
-// If the user is not found, this just returns nil.
-func (db DB) GetUser(id int) (user *User) {
-	user, _ = db.TryGetUser(id)
+// GetUserByName gets the user with the given username. If the user is not found, nil is returned.
+func (db *DB) GetUserByName(name string) (user *User) {
+	userRow := db.QueryRow("SELECT * FROM User WHERE username=?", name)
+	if userRow == nil {
+		return
+	}
+	user, _ = db.scanUser(userRow)
 	return
+}
+
+// GetUser gets the user with the given ID. If the user is not found, nil is returned.
+func (db *DB) GetUser(id int) (user *User) {
+	userRow := db.QueryRow("SELECT * FROM User WHERE id=?", id)
+	if userRow == nil {
+		return
+	}
+	user, _ = db.scanUser(userRow)
+	return
+}
+
+// NewUser creates a new user with the given username and password, then inserts the user into the database.
+func (db *DB) NewUser(username string, password string) *User {
+	user := &User{Username: username}
+	user.SetPassword(password)
+	user.Insert()
+	return user
 }
 
 // CheckPassword checks whether or not the given password matches the stored password.
@@ -59,11 +75,11 @@ func (user *User) SetPassword(password string) error {
 }
 
 // Update updates the username and password of this user in the database.
-func (user *User) Update() error {
-	_, err := user.DB.Exec(
+func (user *User) Update() (err error) {
+	_, err = user.DB.Exec(
 		"UPDATE User SET username=?,password=? WHERE id=?",
 		user.Username, string(user.PasswordHash), user.ID)
-	return err
+	return
 }
 
 // Insert stores the username and password of this user into the database and
@@ -75,6 +91,10 @@ func (user *User) Insert() error {
 	if err != nil {
 		return err
 	}
-	user.ID, err = result.LastInsertId()
-	return err
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	user.ID = int(id)
+	return nil
 }

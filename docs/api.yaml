@@ -360,6 +360,10 @@ components:
           type: string
           description: The password of the user.
           writeOnly: true
+        authtoken:
+          type: string
+          description: The authentication token returned when logging in.
+          readOnly: true
       example:
         id: 123
         username: linksaver123

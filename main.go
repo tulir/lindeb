@@ -1,9 +1,6 @@
-package lindeb
+package main
 
 import (
-	"context"
-	"database/sql"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,27 +9,15 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-	"github.com/olivere/elastic"
+	"maunium.net/go/lindeb/api"
 	flag "maunium.net/go/mauflag"
 )
 
 var configPath = flag.MakeFull("c", "config", "Path to the config file.", "config.yaml").String()
 var wantHelp, _ = flag.MakeHelpFlag()
 
-type AppContext struct {
-	Config  *Config
-	DB      *sql.DB
-	Elastic *elastic.Client
-	Context context.Context
-}
-
-func (ctx AppContext) HTTPMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		next.ServeHTTP(w, r.WithContext(ctx.Context))
-	})
-}
-
 func main() {
+	flag.SetHelpTitles("lindeb - mau\\Lu Link Database", "lindeb [-c /path/to/config] [-h]")
 	err := flag.Parse()
 	if err != nil {
 		fmt.Println(err)
@@ -62,28 +47,27 @@ func main() {
 		os.Exit(12)
 	}
 
-	appCtx := AppContext{
-		Config:  config,
+	r := mux.NewRouter()
+
+	apiObj := &api.API{
 		DB:      db,
 		Elastic: search,
 	}
-	realCtx := context.WithValue(context.Background(), "app", appCtx)
-	appCtx.Context = realCtx
-
-	r := mux.NewRouter()
-
-	api := r.PathPrefix(config.API.Prefix).Subrouter()
-	// TODO add listen paths
-
+	apiObj.AddHandler(r.PathPrefix(config.API.Prefix).Subrouter())
 	config.Frontend.AddHandler(r)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
-		<-c
+		sig := <-c
+		if sig == os.Interrupt {
+			// Interactive interrupt
+			fmt.Print("\nShutting down...\n")
+		}
 		db.Close()
 		// TODO check if this does what's expected
 		search.Stop()
+		os.Exit(1)
 	}()
 
 	err = config.API.ListenAndServe(r)

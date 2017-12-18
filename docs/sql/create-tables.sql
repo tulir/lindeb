@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS Link (
   domain      VARCHAR(255)  NOT NULL,
   title       VARCHAR(255)  NOT NULL,
   description TEXT          NOT NULL,
+  timestamp   BIGINT        NOT NULL,
   owner       INTEGER       NOT NULL,
 
   FOREIGN KEY (owner) REFERENCES User(id)
