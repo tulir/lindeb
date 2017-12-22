@@ -1,10 +1,27 @@
+// lindeb - mau\Lu Link Database
+// Copyright (C) 2017 Maunium / Tulir Asokan
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 package util
 
 // Reverse reverses the given string by rune.
-func Reverse(s string) string {
-	r := []rune(s)
-	for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
-		r[i], r[j] = r[j], r[i]
+func Reverse(str string) string {
+	r := []rune(str)
+	last := len(r) - 1
+	for i := 0; i < len(r) / 2; i++ {
+		r[i], r[last - i] = r[last - i], r[i]
 	}
 	return string(r)
 }
