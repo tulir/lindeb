@@ -362,12 +362,15 @@ components:
           writeOnly: true
         authtoken:
           type: string
+          minLength: 64
+          maxLength: 64
           description: The authentication token returned when logging in.
           readOnly: true
       example:
         id: 123
         username: linksaver123
         password: passw0rd!
+        authtoken: UTqIVgvyfRyYRrlEmJugTagqhyhODjDPiCwrMbXqNlPXrhJwtAOVhYAVKWDNiMgk
     Tag:
       required:
       - name
