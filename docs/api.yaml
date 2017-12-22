@@ -269,13 +269,14 @@ paths:
       summary: Sign in to the application.
       operationId: login
       tags: [ Authentication ]
+      security: []
       requestBody:
         description: User credentials
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserCredentials'
       responses:
         200:
           description: Signed in successfully.
@@ -284,11 +285,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
         403:
-          description: The user is already signed in.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
+          description: A lindeb authorization header was sent with the request.
         401:
           description: Invalid username or password.
   /auth/logout:
@@ -306,6 +303,14 @@ paths:
       summary: Sign up to the application
       operationId: register
       tags: [ Authentication ]
+      security: []
+      requestBody:
+        description: User info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCredentials'
       responses:
         201:
           description: Registration successful.
@@ -314,15 +319,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
         403:
-          description: User is already signed in.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
+          description: A lindeb authorization header was sent with the request.
         409:
           description: Username is taken.
 
+security:
+- AuthToken: []
+
 components:
+  securitySchemes:
+    AuthToken:
+      type: http
+      description: Authentication token. Sent in the Authorization HTTP header with `LINDEB-TOKEN <token>` as the value.
+      scheme: bearer
+      bearerFormat: LINDEB-TOKEN
   responses:
     Unauthorized:
       description: The user is not signed in.
@@ -343,10 +353,26 @@ components:
         default: 10
         example: 10
   schemas:
-    User:
+    UserCredentials:
       required:
       - username
       - password
+      properties:
+        username:
+          type: string
+          maxLength: 255
+          description: The login username of the user.
+        password:
+          type: string
+          description: The password of the user.
+          writeOnly: true
+      example:
+        username: linksaver123
+        password: passw0rd!
+    User:
+      required:
+      - username
+      - id
       properties:
         id:
           type: integer
@@ -356,10 +382,6 @@ components:
           type: string
           maxLength: 255
           description: The login username of the user.
-        password:
-          type: string
-          description: The password of the user.
-          writeOnly: true
         authtoken:
           type: string
           minLength: 64
@@ -369,7 +391,6 @@ components:
       example:
         id: 123
         username: linksaver123
-        password: passw0rd!
         authtoken: UTqIVgvyfRyYRrlEmJugTagqhyhODjDPiCwrMbXqNlPXrhJwtAOVhYAVKWDNiMgk
     Tag:
       required:
