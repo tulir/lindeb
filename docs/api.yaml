@@ -330,7 +330,9 @@ components:
   securitySchemes:
     AuthToken:
       type: http
-      description: Authentication token. Sent in the Authorization HTTP header with `LINDEB-TOKEN <token>` as the value.
+      description: |
+        Authentication token. Sent in the Authorization HTTP header with
+        `LINDEB-TOKEN user=<user ID> token=<token>`as the value.
       scheme: bearer
       bearerFormat: LINDEB-TOKEN
   responses:
