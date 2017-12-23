@@ -2,7 +2,7 @@
 --      In reality, you should simply run the server and let it create the tables.
 CREATE TABLE IF NOT EXISTS User (
   id       INTEGER      PRIMARY KEY AUTO_INCREMENT,
-  username VARCHAR(255) NOT NULL,
+  username VARCHAR(127) NOT NULL UNIQUE,
   password VARCHAR(60)  NOT NULL
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
