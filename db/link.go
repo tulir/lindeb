@@ -18,11 +18,9 @@ package db
 
 import (
 	"database/sql"
-	"errors"
 	"net/url"
+	"strings"
 	"time"
-
-	"maunium.net/go/lindeb/util"
 )
 
 // Link represents a single link saved by a specific user.
@@ -35,6 +33,7 @@ type Link struct {
 	Description string
 	Timestamp   int64
 	URL         *url.URL
+	Tags        []string
 }
 
 // BlankLink creates a blank link.
@@ -45,18 +44,22 @@ func (user *User) BlankLink() *Link {
 	}
 }
 
-// scanLinks scans a database row into a Link object.
+// scanLink scans a database row into a Link object.
 func (user *User) scanLink(row Scannable) (*Link, error) {
-	var id int
+	var id, ownerID int
 	var timestamp int64
-	var urlString, domain, revDomain, title, description string
-	err := row.Scan(&id, &urlString, &domain, &revDomain, &title, &description, &timestamp)
+	var urlString, domain, title, description, tagsString string
+	err := row.Scan(&id, &urlString, &domain, &title, &description, &timestamp, &ownerID, &tagsString)
 	if err != nil {
 		return nil, err
 	}
 	parsedURL, err := url.Parse(urlString)
 	if err != nil {
 		return nil, err
+	}
+	var tags []string
+	if len(tagsString) > 0 {
+		tags = strings.Split(tagsString, ",")
 	}
 	return &Link{
 		DB:    user.DB,
@@ -67,18 +70,16 @@ func (user *User) scanLink(row Scannable) (*Link, error) {
 		Description: description,
 		Timestamp:   timestamp,
 		URL:         parsedURL,
+		Tags:        tags,
 	}, nil
 }
 
 // scanLinks scans multiple database rows into an array of Links.
-func (user *User) scanLinks(rows *sql.Rows, ignoreErrors bool) ([]*Link, error) {
+func (user *User) scanLinks(rows *sql.Rows) ([]*Link, error) {
 	var links []*Link
 	for rows.Next() {
 		link, err := user.scanLink(rows)
 		if err != nil {
-			if ignoreErrors {
-				continue
-			}
 			return links, err
 		}
 		links = append(links, link)
@@ -86,37 +87,38 @@ func (user *User) scanLinks(rows *sql.Rows, ignoreErrors bool) ([]*Link, error) 
 	return links, nil
 }
 
-// TryGetLink tries to find a link from the database, and returns an error if something goes wrong.
-func (user *User) TryGetLink(id int) (*Link, error) {
-	linkRow := user.DB.QueryRow("SELECT * FROM Link WHERE id=? AND owner=?", id, user.ID)
-	if linkRow == nil {
-		return nil, errors.New("link not found")
-	}
-	return user.scanLink(linkRow)
-}
-
 // GetLink tries to find a link from the database, and returns nil if something goes wrong.
 func (user *User) GetLink(id int) (link *Link) {
-	link, _ = user.TryGetLink(id)
+	linkRow := user.DB.QueryRow(`SELECT Link.*, IFNULL(GROUP_CONCAT(Tag.name), "") AS tags FROM Link
+		LEFT JOIN LinkTag ON LinkTag.link = Link.id
+		LEFT JOIN Tag ON LinkTag.tag = Tag.id
+		WHERE Link.id=? AND Link.owner=?
+		GROUP BY Link.id`, id, user.ID)
+	if linkRow != nil {
+		link, _ = user.scanLink(linkRow)
+	}
 	return
 }
 
 // GetLinks gets all the links owned by this user.
 func (user *User) GetLinks() ([]*Link, error) {
-	results, err := user.DB.Query("SELECT * FROM Link WHERE owner=?", user.ID)
+	results, err := user.DB.Query(`SELECT Link.*, IFNULL(GROUP_CONCAT(Tag.name), "") AS tags FROM Link
+		LEFT JOIN LinkTag ON LinkTag.link = Link.id
+		LEFT JOIN Tag ON LinkTag.tag = Tag.id
+		WHERE Link.owner = ?
+		GROUP BY Link.id`, user.ID)
 	if err != nil {
 		return nil, err
 	}
-	return user.scanLinks(results, false)
+	return user.scanLinks(results)
 }
 
 // Update touches the timestamp of this link and updates the data of this link in the database.
 func (link *Link) Update() (err error) {
 	link.Timestamp = time.Now().Unix()
-	domain := link.URL.Hostname()
 	_, err = link.DB.Exec(
-		"UPDATE Link SET url=?,domain=?,revDomain=?,title=?,description=?,timestamp=? WHERE id=? AND owner=?",
-		link.URL.String(), domain, util.Reverse(domain), link.Title, link.Description, link.Timestamp, link.ID, link.Owner.ID)
+		"UPDATE Link SET url=?,domain=?,title=?,description=?,timestamp=? WHERE id=? AND owner=?",
+		link.URL.String(), link.URL.Hostname(), link.Title, link.Description, link.Timestamp, link.ID, link.Owner.ID)
 	return
 }
 
@@ -125,10 +127,9 @@ func (link *Link) Update() (err error) {
 // and fills in the ID field of the struct with the ID of the inserted row.
 func (link *Link) Insert() error {
 	link.Timestamp = time.Now().Unix()
-	domain := link.URL.Hostname()
 	result, err := link.DB.Exec(
-		"INSERT INTO Link (url, domain, revDomain, title, description, timestamp, owner) VALUES (?, ?, ?, ?, ?, ?, ?)",
-		link.URL.String(), domain, util.Reverse(domain), link.Title, link.Description, link.Timestamp, link.Owner.ID)
+		"INSERT INTO Link (url, domain, title, description, timestamp, owner) VALUES (?, ?, ?, ?, ?, ?)",
+		link.URL.String(), link.URL.Hostname(), link.Title, link.Description, link.Timestamp, link.Owner.ID)
 	if err != nil {
 		return err
 	}
@@ -138,4 +139,10 @@ func (link *Link) Insert() error {
 	}
 	link.ID = int(id)
 	return nil
+}
+
+// Delete deletes this Link from the database.
+func (link *Link) Delete() (err error) {
+	_, err = link.DB.Exec("DELETE FROM Link WHERE owner=? AND id=?", link.Owner.ID, link.ID)
+	return
 }

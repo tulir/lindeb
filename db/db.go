@@ -53,7 +53,7 @@ type DB struct {
 func (db *DB) CreateTables() {
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS User (
 		id       INTEGER      PRIMARY KEY AUTO_INCREMENT,
-		username VARCHAR(255) NOT NULL UNIQUE,
+		username VARCHAR(127) NOT NULL UNIQUE,
 		password VARCHAR(60)  NOT NULL
 	) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`)
 	if err != nil {
@@ -73,7 +73,6 @@ func (db *DB) CreateTables() {
 		id          INTEGER       PRIMARY KEY AUTO_INCREMENT,
 		url         VARCHAR(2047) NOT NULL,
 		domain      VARCHAR(255)  NOT NULL,
-		revdomain   VARCHAR(255)  NOT NULL,
 		title       VARCHAR(255)  NOT NULL,
 		description TEXT          NOT NULL,
 		timestamp   BIGINT        NOT NULL,

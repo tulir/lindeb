@@ -22,82 +22,80 @@ import (
 	"strconv"
 	"strings"
 
+	"context"
+
 	"maunium.net/go/lindeb/db"
 )
 
-type user struct {
+type apiUser struct {
 	ID        int    `json:"id"`
 	Username  string `json:"username"`
 	Password  string `json:"password,omitempty"`
 	AuthToken string `json:"authtoken,omitempty"`
 }
 
-func dbToLocalUser(dbUser *db.User) user {
-	return user{
+func dbToAPIUser(dbUser *db.User) apiUser {
+	return apiUser{
 		ID:       dbUser.ID,
 		Username: dbUser.Username,
 	}
 }
 
-// Login checks the provided password and generates a new authentication token that is sent back to the user.
+// Login checks the provided password and generates a new authentication token that is sent back to the apiUser.
 func (api *API) Login(w http.ResponseWriter, r *http.Request) {
 	header := r.Header.Get("Authorization")
 	if len(header) == 0 && strings.HasPrefix(header, authHeader) {
-		error(w, http.StatusForbidden, "Please do not send a lindeb authorization header when logging in.")
+		http.Error(w, "Please do not send a lindeb authorization header when logging in.", http.StatusForbidden)
 	}
 
-	userData := user{}
+	userData := apiUser{}
 	if !readJSON(w, r, &userData) {
 		return
 	}
 
 	user := api.DB.GetUserByName(userData.Username)
 	if user == nil || !user.CheckPassword(userData.Password) {
-		error(w, http.StatusUnauthorized, "Invalid username or password.")
+		http.Error(w, "Invalid username or password.", http.StatusUnauthorized)
 		return
 	}
 
-	userData = dbToLocalUser(user)
+	userData = dbToAPIUser(user)
 	userData.AuthToken = user.GenerateAuthToken().Token
 	writeJSON(w, http.StatusOK, userData)
 }
 
 // Logout invalidates the authentication token sent with the request.
 func (api *API) Logout(w http.ResponseWriter, r *http.Request) {
-	user := api.GetUser(r)
-	if user == nil {
-		error(w, http.StatusUnauthorized, "You are not logged in.")
-		return
-	}
+	user := api.GetUserFromContext(r)
 
 	if user.TokenUsed == nil {
-		internalError(w, "Unexpected state: GetUser() returned an user with no TokenUsed set.")
+		internalError(w, "Unexpected state: GetUser() returned an apiUser with no TokenUsed set.")
 		return
 	}
 
 	user.TokenUsed.Delete()
 }
 
-// Register creates a new user and logs in.
+// Register creates a new apiUser and logs in.
 func (api *API) Register(w http.ResponseWriter, r *http.Request) {
 	header := r.Header.Get("Authorization")
 	if len(header) == 0 && strings.HasPrefix(header, authHeader) {
-		error(w, http.StatusForbidden, "Please do not send a lindeb authorization header when registering.")
+		http.Error(w, "Please do not send a lindeb authorization header when registering.", http.StatusForbidden)
 	}
 
-	userData := user{}
+	userData := apiUser{}
 	if !readJSON(w, r, &userData) {
 		return
 	}
 
 	user := api.DB.GetUserByName(userData.Username)
 	if user != nil {
-		error(w, http.StatusConflict, "Username is taken.")
+		http.Error(w, "Username is taken.", http.StatusConflict)
 		return
 	}
 
 	user = api.DB.NewUser(userData.Username, userData.Password)
-	userData = dbToLocalUser(user)
+	userData = dbToAPIUser(user)
 	userData.AuthToken = user.GenerateAuthToken().Token
 	writeJSON(w, http.StatusCreated, userData)
 }
@@ -106,7 +104,7 @@ var tokenRegex = regexp.MustCompile("LINDEB-TOKEN user=([0-9]+) token=([A-Za-z]+
 
 const authHeader = "LINDEB-TOKEN"
 
-// GetUser gets the user who sent the request, or nil if the sender is not logged in.
+// GetUser gets the apiUser who sent the request, or nil if the sender is not logged in.
 func (api *API) GetUser(r *http.Request) *db.User {
 	val := r.Header.Get("Authorization")
 	if len(val) == 0 {
@@ -128,12 +126,43 @@ func (api *API) GetUser(r *http.Request) *db.User {
 	}
 
 	user := api.DB.GetUser(userID)
-	if user != nil {
+	if user == nil {
 		return nil
 	}
 
 	if !user.CheckToken(match[2]) {
 		return nil
+	}
+	return user
+}
+
+// AuthMiddleware provides a HTTP handler middleware that loads the user data of the sender to the request context.
+//
+// If the user is not logged in, HTTP Unauthorized is returned and the next handler is not called.
+func (api *API) AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := api.GetUser(r)
+		if user == nil {
+			http.Error(w, "You are not logged in.", http.StatusUnauthorized)
+			return
+		}
+		newContext := context.WithValue(r.Context(), "user", user)
+		next.ServeHTTP(w, r.WithContext(newContext))
+	})
+}
+
+// GetUserFromContext gets the database user object from the context of the given request.
+//
+// Calling this function with a request that did not go through the auth check middleware is strictly forbidden and
+// will cause a panic.
+func (api *API) GetUserFromContext(r *http.Request) *db.User {
+	userInterface := r.Context().Value("user")
+	if userInterface == nil {
+		panic("Fatal: Called GetUserFromContext from handler without auth middleware (user not in context)")
+	}
+	user, ok := userInterface.(*db.User)
+	if !ok {
+		panic("Fatal: Called GetUserFromContext from handler without auth middleware (context user is wrong type)")
 	}
 	return user
 }

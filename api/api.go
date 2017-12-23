@@ -36,17 +36,17 @@ type API struct {
 func (api *API) AddHandler(router *mux.Router) {
 	auth := router.PathPrefix("/auth").Methods(http.MethodPost).Subrouter()
 	auth.HandleFunc("/login", api.Login)
-	auth.HandleFunc("/logout", api.Logout)
+	auth.Handle("/logout", api.AuthMiddleware(http.HandlerFunc(api.Logout)))
 	auth.HandleFunc("/register", api.Register)
-}
 
-func error(w http.ResponseWriter, status int, message string) {
-	w.WriteHeader(status)
-	w.Write([]byte(message))
+	link := router.PathPrefix("/link").Subrouter()
+	link.Handle("/save", api.AuthMiddleware(http.HandlerFunc(api.SaveLink))).Methods(http.MethodPost)
+	link.Handle("/{id:[0-9]+}", api.AuthMiddleware(api.LinkMiddleware(http.HandlerFunc(api.AccessLink)))).
+		Methods(http.MethodGet, http.MethodPut, http.MethodDelete)
 }
 
 func internalError(w http.ResponseWriter, message string) {
-	error(w, http.StatusInternalServerError, "Internal server error: Check console for more details.")
+	http.Error(w, "Internal server error: Check console for more details.", http.StatusInternalServerError)
 	fmt.Println(message)
 }
 
@@ -55,7 +55,7 @@ func readJSON(w http.ResponseWriter, r *http.Request, into interface{}) bool {
 
 	err := json.NewDecoder(r.Body).Decode(into)
 	if err != nil {
-		error(w, http.StatusBadRequest, "Malformed JSON.")
+		http.Error(w, "Malformed JSON.", http.StatusBadRequest)
 		return false
 	}
 

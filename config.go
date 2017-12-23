@@ -148,7 +148,7 @@ type APIConfig struct {
 
 // ListenAndServe sets up a HTTP server according to this API configuration and sets the given
 // router as the main router.
-func (apiConf APIConfig) ListenAndServe(router *mux.Router) error {
+func (apiConf APIConfig) ListenAndServe(router http.Handler) error {
 	if apiConf.TLS {
 		return http.ListenAndServeTLS(apiConf.Address, apiConf.TLSCert, apiConf.TLSKey, router)
 	}

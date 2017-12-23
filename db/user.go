@@ -30,8 +30,6 @@ type User struct {
 	PasswordHash []byte
 }
 
-// TryGetUser tries to get the user with the given ID.
-// If the user is not found, nil is returned along with an error that may explain the problem.
 func (db *DB) scanUser(row Scannable) (*User, error) {
 	var scanID int
 	var username, passwordHash string
@@ -40,6 +38,7 @@ func (db *DB) scanUser(row Scannable) (*User, error) {
 		return nil, err
 	}
 	return &User{
+		DB:           db,
 		ID:           scanID,
 		Username:     username,
 		PasswordHash: []byte(passwordHash),
@@ -49,26 +48,24 @@ func (db *DB) scanUser(row Scannable) (*User, error) {
 // GetUserByName gets the user with the given username. If the user is not found, nil is returned.
 func (db *DB) GetUserByName(name string) (user *User) {
 	userRow := db.QueryRow("SELECT * FROM User WHERE username=?", name)
-	if userRow == nil {
-		return
+	if userRow != nil {
+		user, _ = db.scanUser(userRow)
 	}
-	user, _ = db.scanUser(userRow)
 	return
 }
 
 // GetUser gets the user with the given ID. If the user is not found, nil is returned.
 func (db *DB) GetUser(id int) (user *User) {
 	userRow := db.QueryRow("SELECT * FROM User WHERE id=?", id)
-	if userRow == nil {
-		return
+	if userRow != nil {
+		user, _ = db.scanUser(userRow)
 	}
-	user, _ = db.scanUser(userRow)
 	return
 }
 
 // NewUser creates a new user with the given username and password, then inserts the user into the database.
 func (db *DB) NewUser(username string, password string) *User {
-	user := &User{Username: username}
+	user := &User{DB: db, Username: username}
 	user.SetPassword(password)
 	user.Insert()
 	return user
