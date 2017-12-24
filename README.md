@@ -1,7 +1,13 @@
 # lindeb - mau\Lu Link Database
-A database exercise project with Go and React.
+A simple link manager with powerful search. Built using Go, React, Elasticsearch and MariaDB.
 
 The official deployment will be available at [lindeb.mau.lu](https://lindeb.mau.lu).
+
+This is also a database exercise project.
+For the duration of the exercise project course, the repository will contain some useless files, such as
+* the [Course documentation](https://docs.google.com/document/d/1LhNw1F7La3O9GysxXFnXPuQvzvQhpxS3Gmd0t6iF50I) in Finnish
+  (also as [PDF](https://github.com/tulir/lindeb/blob/master/docs/course.pdf))
+* and [SQL query files](https://github.com/tulir/lindeb/tree/master/docs/sql)
 
 ## Objective
 The goal of this project is to create an easy-to-use system for saving links and searching saved links.
@@ -40,10 +46,7 @@ However, a DBMS instance and an Elasticsearch instance must be available.
 The frontend uses [React](https://reactjs.org/) and modern JavaScript syntax.
 Support for old browsers is not guaranteed. The latest version of Firefox is recommended, but Chrome will work too.
 
-## Documentation
-* [Course documentation](https://docs.google.com/document/d/1LhNw1F7La3O9GysxXFnXPuQvzvQhpxS3Gmd0t6iF50I) in Finnish
-  (also as [PDF](https://github.com/tulir/lindeb/blob/master/docs/course.pdf))
-  * [SQL query files](https://github.com/tulir/lindeb/tree/master/docs/sql)
+## Specifications
 * [OpenAPI document](https://github.com/tulir/lindeb/blob/master/docs/api.yaml)
 * [API explorer](https://lindeb.mau.lu/apidocs)
 * [UI designs](https://github.com/tulir/lindeb/tree/master/docs/ui)
