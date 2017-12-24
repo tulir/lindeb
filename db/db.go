@@ -90,6 +90,7 @@ func (db *DB) CreateTables() {
 		description TEXT         NOT NULL,
 		owner       INTEGER      NOT NULL,
 
+		UNIQUE KEY name (name, owner),
 		FOREIGN KEY (owner) REFERENCES User(id)
 			ON DELETE CASCADE ON UPDATE RESTRICT
 	) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`)

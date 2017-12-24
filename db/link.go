@@ -19,6 +19,7 @@ package db
 import (
 	"database/sql"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -111,6 +112,63 @@ func (user *User) GetLinks() ([]*Link, error) {
 		return nil, err
 	}
 	return user.scanLinks(results)
+}
+
+func (link *Link) IDString() string {
+	return strconv.Itoa(link.ID)
+}
+
+func (link *Link) Matches(domains []string, tags []string, exclusiveTags bool) bool {
+	tagsMatched := len(tags) == 0
+	if exclusiveTags {
+		if link.HasTags(tags) {
+			tagsMatched = true
+		}
+	} else {
+		for _, tag := range tags {
+			if link.HasTag(tag) {
+				tagsMatched = true
+			}
+			break
+		}
+	}
+
+	domainMatched := len(domains) == 0
+	domain := link.URL.Hostname()
+	for _, domainToMatch := range domains {
+		if domain == domainToMatch {
+			domainMatched = true
+			break
+		}
+	}
+
+	return tagsMatched && domainMatched
+}
+
+func (link *Link) HasTag(tagToCheck string) bool {
+	for _, tag := range link.Tags {
+		if tagToCheck == tag {
+			return true
+		}
+	}
+	return false
+}
+
+func (link *Link) HasTags(tagsToCheck []string) bool {
+Outer:
+	for _, tag := range link.Tags {
+		if len(tagsToCheck) == 0 {
+			return true
+		}
+		for index, tagToCheck := range tagsToCheck {
+			if tag == tagToCheck {
+				tagsToCheck[index] = tagsToCheck[len(tagsToCheck)-1]
+				tagsToCheck = tagsToCheck[:len(tagsToCheck)-1]
+				continue Outer
+			}
+		}
+	}
+	return len(tagsToCheck) == 0
 }
 
 // Update touches the timestamp of this link and updates the data of this link in the database.

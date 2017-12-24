@@ -63,8 +63,22 @@ func dbToAPILink(dbLink *db.Link) *apiLink {
 	}
 }
 
-const TheIndex = "lindeb"
-const TheType = "link"
+func apiToDBLink(user *db.User, apiLink apiLink) *db.Link {
+	url, _ := url.Parse(apiLink.URLString)
+	return &db.Link{
+		ID:          apiLink.ID,
+		Title:       apiLink.Title,
+		Description: apiLink.Description,
+		Timestamp:   apiLink.Timestamp,
+		URL:         url,
+		Tags:        apiLink.Tags,
+		Owner:       user,
+		DB:          user.DB,
+	}
+}
+
+const ElasticIndex = "lindeb"
+const ElasticType = "link"
 
 // SaveLink is a handler for POST /api/link/save
 func (api *API) SaveLink(w http.ResponseWriter, r *http.Request) {
@@ -86,7 +100,7 @@ func (api *API) SaveLink(w http.ResponseWriter, r *http.Request) {
 	htmlBody := scrapeLink(link)
 	err = link.Insert()
 	if err != nil {
-		internalError(w, fmt.Sprintf("Failed to insert link into database: %v", err))
+		internalError(w, "Failed to insert link into database: %v", err)
 		return
 	}
 
@@ -96,9 +110,10 @@ func (api *API) SaveLink(w http.ResponseWriter, r *http.Request) {
 	apiLink.HTML = htmlBody
 	apiLink.Owner = user.ID
 	_, err = api.Elastic.Index().
-		Index(TheIndex).
-		Type(TheType).
-		Id(strconv.Itoa(link.ID)).
+		Index(ElasticIndex).
+		Type(ElasticType).
+		Routing(user.IDString()).
+		Id(link.IDString()).
 		BodyJson(apiLink).
 		Do(context.Background())
 	if err != nil {
@@ -146,7 +161,7 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 	htmlBody := scrapeLink(link)
 	err = link.Update()
 	if err != nil {
-		internalError(w, fmt.Sprintf("Failed to update link %d in database: %v", link.ID, err))
+		internalError(w, "Failed to update link %d in database: %v", link.ID, err)
 		return
 	}
 
@@ -156,9 +171,10 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 	apiLink.HTML = htmlBody
 	apiLink.Owner = user.ID
 	_, err = api.Elastic.Update().
-		Index(TheIndex).
-		Type(TheType).
-		Id(strconv.Itoa(link.ID)).
+		Index(ElasticIndex).
+		Type(ElasticType).
+		Routing(user.IDString()).
+		Id(link.IDString()).
 		Doc(apiLink).
 		Do(context.Background())
 	if err != nil {
@@ -168,12 +184,14 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 
 // DeleteLink is the handler for DELETE /api/link/<id>
 func (api *API) DeleteLink(w http.ResponseWriter, r *http.Request) {
+	user := api.GetUserFromContext(r)
 	link := api.GetLinkFromContext(r)
 	link.Delete()
 	_, err := api.Elastic.Delete().
-		Index(TheIndex).
-		Type(TheType).
-		Id(strconv.Itoa(link.ID)).
+		Index(ElasticIndex).
+		Type(ElasticType).
+		Routing(user.IDString()).
+		Id(link.IDString()).
 		Do(context.Background())
 	if err != nil {
 		fmt.Printf("Elasticsearch error while deleting link %d: %v", link.ID, err)

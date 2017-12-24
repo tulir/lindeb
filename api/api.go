@@ -39,15 +39,15 @@ func (api *API) AddHandler(router *mux.Router) {
 	auth.Handle("/logout", api.AuthMiddleware(http.HandlerFunc(api.Logout)))
 	auth.HandleFunc("/register", api.Register)
 
-	link := router.PathPrefix("/link").Subrouter()
-	link.Handle("/save", api.AuthMiddleware(http.HandlerFunc(api.SaveLink))).Methods(http.MethodPost)
-	link.Handle("/{id:[0-9]+}", api.AuthMiddleware(api.LinkMiddleware(http.HandlerFunc(api.AccessLink)))).
+	router.Handle("/link/save", api.AuthMiddleware(http.HandlerFunc(api.SaveLink))).Methods(http.MethodPost)
+	router.Handle("/link/{id:[0-9]+}", api.AuthMiddleware(api.LinkMiddleware(http.HandlerFunc(api.AccessLink)))).
 		Methods(http.MethodGet, http.MethodPut, http.MethodDelete)
+	router.Handle("/links", api.AuthMiddleware(http.HandlerFunc(api.BrowseLinks))).Methods(http.MethodGet)
 }
 
-func internalError(w http.ResponseWriter, message string) {
+func internalError(w http.ResponseWriter, message string, args ...interface{}) {
 	http.Error(w, "Internal server error: Check console for more details.", http.StatusInternalServerError)
-	fmt.Println(message)
+	fmt.Printf(message+"\n", args...)
 }
 
 func readJSON(w http.ResponseWriter, r *http.Request, into interface{}) bool {

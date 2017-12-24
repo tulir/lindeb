@@ -17,6 +17,8 @@
 package db
 
 import (
+	"strconv"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -61,6 +63,10 @@ func (db *DB) GetUser(id int) (user *User) {
 		user, _ = db.scanUser(userRow)
 	}
 	return
+}
+
+func (user *User) IDString() string {
+	return strconv.Itoa(user.ID)
 }
 
 // NewUser creates a new user with the given username and password, then inserts the user into the database.

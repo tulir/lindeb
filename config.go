@@ -48,6 +48,9 @@ const elasticMapping = `
 	},
 	"mappings": {
 		"link": {
+			"_routing": {
+				"required": true
+			},
 			"properties": {
 				"id": {
 					"type": "integer",

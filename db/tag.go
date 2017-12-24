@@ -126,3 +126,9 @@ func (tag *Tag) Insert() error {
 	tag.ID = int(id)
 	return nil
 }
+
+// Delete deletes this Tag from the database.
+func (tag *Tag) Delete() (err error) {
+	_, err = tag.DB.Exec("DELETE FROM Tag WHERE owner=? AND id=?", tag.Owner.ID, tag.ID)
+	return
+}
