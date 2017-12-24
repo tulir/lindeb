@@ -305,9 +305,8 @@ components:
       type: http
       description: |
         Authentication token. Sent in the Authorization HTTP header with
-        `LINDEB-TOKEN user=<user ID> token=<token>`as the value.
-      scheme: bearer
-      bearerFormat: LINDEB-TOKEN
+        `LINDEB-TOKEN user=<user ID> token=<token>` as the value.
+      scheme: LINDEB-TOKEN
   responses:
     Unauthorized:
       description: The user is not signed in.
