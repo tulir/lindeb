@@ -25,7 +25,7 @@ import (
 )
 
 func (api *API) AddTag(w http.ResponseWriter, r *http.Request) {
-
+	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // AccessTag is a method proxy for the handlers of /api/tag/<id>
@@ -43,16 +43,112 @@ func (api *API) AccessTag(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (api *API) GetTag(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+type tagWithLinks struct {
+	*db.Tag
+	Links []apiLink `json:"links"`
 }
 
+// GetTag is the handler for GET /api/tag/<id>
+func (api *API) GetTag(w http.ResponseWriter, r *http.Request) {
+	tag := api.GetTagFromContext(r)
+
+	includeLinks := len(r.URL.Query().Get("include-links")) > 0
+	if !includeLinks {
+		writeJSON(w, http.StatusOK, tag)
+		return
+	}
+
+	links, err := tag.GetTaggedLinks()
+	if err != nil {
+		internalError(w, "Failed to fetch links with tag %d: %v", tag.ID, err)
+	}
+	var apiLinks []apiLink
+	for _, link := range links {
+		apiLinks = append(apiLinks, dbToAPILink(link))
+	}
+
+	writeJSON(w, http.StatusOK, tagWithLinks{
+		tag,
+		apiLinks,
+	})
+}
+
+// EditTag is the handler for PUT /api/link/<id>
 func (api *API) EditTag(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+	user := api.GetUserFromContext(r)
+	tag := api.GetTagFromContext(r)
+
+	inputTag := &db.Tag{}
+	if !readJSON(w, r, &inputTag) {
+		return
+	}
+
+	if len(inputTag.Name) > 0 {
+		duplicateTag := user.GetTagByName(inputTag.Name)
+		if duplicateTag != nil {
+			http.Error(w, fmt.Sprintf("New name conflicts with tag %d", duplicateTag.ID), http.StatusConflict)
+			return
+		}
+		tag.Name = inputTag.Name
+	}
+	if len(inputTag.Description) > 0 {
+		tag.Description = inputTag.Description
+	}
+
+	err := tag.Update()
+	if err != nil {
+		internalError(w, "Failed to update tag %d in database: %v", tag.ID, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, tag)
 }
 
 func (api *API) DeleteTag(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+	tag := api.GetTagFromContext(r)
+
+	deleteLinks := len(r.URL.Query().Get("delete-links")) > 0
+	if deleteLinks {
+		// I'd use a simpler DELETE query with some JOINs, but we also need to delete the links from Elasticsearch,
+		// so looping over the links is necessary.
+		links, err := tag.GetTaggedLinks()
+		if err != nil {
+			internalError(w, "Failed to fetch links tagged with tag %d from database: %v", tag.ID, err)
+			return
+		}
+
+		var errors []error
+		for _, link := range links {
+			err = link.Delete()
+			if err != nil {
+				errors = append(errors, err)
+			}
+			_, err = api.Elastic.Delete().
+				Index(ElasticIndex).
+				Type(ElasticType).
+				Routing(link.Owner.IDString()).
+				Id(link.IDString()).
+				Do(context.Background())
+			if err != nil {
+				errors = append(errors, err)
+			}
+		}
+		if len(errors) > 0 {
+			internalError(w, "Errors occurred while deleting links tagged with %d", tag.ID)
+			for index, err := range errors {
+				fmt.Printf("Error %d: %v\n", index, err)
+			}
+			return
+		}
+	}
+
+	err := tag.Delete()
+	if err != nil {
+		internalError(w, "Failed to delete tag %d from database: %v", tag.ID, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (api *API) ListTags(w http.ResponseWriter, r *http.Request) {
