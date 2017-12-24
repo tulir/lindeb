@@ -80,8 +80,13 @@ func (user *User) GetTag(id int) (tag *Tag) {
 }
 
 func (user *User) GetTagsByName(names []string) ([]*Tag, error) {
+	if len(names) == 0 {
+		return nil, nil
+	}
 	args := []interface{}{user.ID}
-	args = append(args, names)
+	for _, name := range names {
+		args = append(args, name)
+	}
 
 	results, err := user.DB.Query(
 		fmt.Sprintf("SELECT * FROM Tag WHERE owner=? AND name IN (? %s)",

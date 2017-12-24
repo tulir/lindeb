@@ -114,6 +114,51 @@ func (user *User) GetLinks() ([]*Link, error) {
 	return user.scanLinks(results)
 }
 
+// UpdateTags updates the tags of this link both in the database and in memory.
+func (link *Link) UpdateTags(tags []string) error {
+	tagObjs, err := link.Owner.GetTagsByName(tags)
+	if err != nil {
+		return err
+	}
+
+	// If there are any unknown tags, add them to the database.
+	if len(tagObjs) != len(tags) {
+	TagNames:
+		for _, tag := range tags {
+			for _, tagObj := range tagObjs {
+				if tagObj.Name == tag {
+					continue TagNames
+				}
+			}
+
+			tagObj := link.Owner.BlankTag()
+			tagObj.Name = tag
+			tagObj.Insert()
+			tagObjs = append(tagObjs, tagObj)
+		}
+	}
+
+	// To make sure that there are no old tags, we just delete everything and re-add the requested tags.
+	_, err = link.DB.Exec("DELETE FROM LinkTag WHERE link=?", link.ID)
+	if err != nil {
+		return err
+	}
+
+	if len(tagObjs) > 0 {
+		stmt, _ := link.DB.Prepare("INSERT INTO LinkTag (link, tag) VALUES (?, ?)")
+		for _, tag := range tagObjs {
+			stmt.Exec(link.ID, tag.ID)
+		}
+
+		err = stmt.Close()
+		if err != nil {
+			return err
+		}
+	}
+	link.Tags = tags
+	return nil
+}
+
 func (link *Link) IDString() string {
 	return strconv.Itoa(link.ID)
 }

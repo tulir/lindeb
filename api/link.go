@@ -104,6 +104,12 @@ func (api *API) SaveLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = link.UpdateTags(inputLink.Tags)
+	if err != nil {
+		internalError(w, "Failed to update tags of link %d in database: %v", link.ID, err)
+		return
+	}
+
 	apiLink := dbToAPILink(link)
 	writeJSON(w, http.StatusCreated, apiLink)
 
@@ -162,6 +168,12 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 	err = link.Update()
 	if err != nil {
 		internalError(w, "Failed to update link %d in database: %v", link.ID, err)
+		return
+	}
+
+	err = link.UpdateTags(inputLink.Tags)
+	if err != nil {
+		internalError(w, "Failed to update tags of link %d in database: %v", link.ID, err)
 		return
 	}
 
