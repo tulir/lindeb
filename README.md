@@ -10,17 +10,19 @@ The official deployment will be available at [lindeb.mau.lu](https://lindeb.mau.
     * [x] Database connection
     * [x] Elasticsearch connection
     * [x] HTTP server
-  * [ ] Database
+  * [x] Database
     * [x] Links
     * [x] Users
     * [x] Auth tokens
-    * [ ] Tags
+    * [x] Tags
   * [ ] API
     * [x] Authentication (`/auth/`)
-    * [ ] Links
+    * [x] Links
       * [x] Adding/accessing links (`/link/...`)
-      * [ ] Listing links (`/links`)
-      * [ ] Searching for links (`/links/search`)
+      * [x] Browsing links (`/links`)
+        * [x] Listing
+        * [x] Searching
+        * [x] Filtering
     * [ ] Tag management (`/tag/...`, `/tags`)
 * Frontend
   * [ ] Development started
