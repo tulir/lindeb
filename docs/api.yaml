@@ -334,7 +334,7 @@ components:
       properties:
         username:
           type: string
-          maxLength: 255
+          maxLength: 32
           description: The login username of the user.
         password:
           type: string
@@ -354,7 +354,7 @@ components:
           readOnly: true
         username:
           type: string
-          maxLength: 255
+          maxLength: 32
           description: The login username of the user.
         authtoken:
           type: string
@@ -376,7 +376,7 @@ components:
           readOnly: true
         name:
           type: string
-          maxLength: 255
+          maxLength: 32
           description: The name of the tag. Must be lowercase.
         description:
           type: string
@@ -422,6 +422,7 @@ components:
           description: The tags of this link.
           items:
             type: string
+            maxLength: 32
       example:
         id: 293
         url: https://github.com/tulir/lindeb/blob/master/docs/api.yaml

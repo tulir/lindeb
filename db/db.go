@@ -52,9 +52,9 @@ type DB struct {
 // CreateTables creates all the necessary tables.
 func (db *DB) CreateTables() {
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS User (
-		id       INTEGER      PRIMARY KEY AUTO_INCREMENT,
-		username VARCHAR(127) NOT NULL UNIQUE,
-		password VARCHAR(60)  NOT NULL
+		id       INTEGER     PRIMARY KEY AUTO_INCREMENT,
+		username VARCHAR(32) NOT NULL UNIQUE,
+		password VARCHAR(60) NOT NULL
 	) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`)
 	if err != nil {
 		fmt.Println("Failed to create table User:", err)
@@ -85,10 +85,10 @@ func (db *DB) CreateTables() {
 		fmt.Println("Failed to create table Link:", err)
 	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS Tag (
-		id          INTEGER      PRIMARY KEY AUTO_INCREMENT,
-		name        VARCHAR(255) NOT NULL,
-		description TEXT         NOT NULL,
-		owner       INTEGER      NOT NULL,
+		id          INTEGER     PRIMARY KEY AUTO_INCREMENT,
+		name        VARCHAR(32) NOT NULL,
+		description TEXT        NOT NULL,
+		owner       INTEGER     NOT NULL,
 
 		UNIQUE KEY name (name, owner),
 		FOREIGN KEY (owner) REFERENCES User(id)
