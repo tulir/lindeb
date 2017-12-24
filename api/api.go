@@ -70,7 +70,7 @@ func readJSON(w http.ResponseWriter, r *http.Request, into interface{}) bool {
 }
 
 func writeJSON(w http.ResponseWriter, status int, data interface{}) bool {
-	payload, err := json.Marshal(data)
+	payload, err := json.Marshal(&data)
 	if err != nil {
 		internalError(w, fmt.Sprintf("Failed to marshal JSON: %v", err))
 		return false

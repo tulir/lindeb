@@ -28,8 +28,8 @@ import (
 )
 
 type listResponse struct {
-	Links      []*apiLink `json:"links"`
-	TotalCount int        `json:"totalCount"`
+	Links      []apiLink `json:"links"`
+	TotalCount int       `json:"totalCount"`
 }
 
 // getQueryInt gets an integer value from the query parameter with the given name.
@@ -57,7 +57,7 @@ func getQueryInt(w http.ResponseWriter, r *http.Request, name string, defVal int
 //
 // If an error occurs, the second return value (totalCount) is set to -1 and a HTTP error is written to the given
 // response writer.
-func filterLinks(w http.ResponseWriter, r *http.Request, links []*db.Link) (filtered []*apiLink, totalCount int) {
+func filterLinks(w http.ResponseWriter, r *http.Request, links []*db.Link) (filtered []apiLink, totalCount int) {
 	totalCount = -1
 	var page, pageSize int
 	var ok bool
@@ -97,7 +97,7 @@ func filterLinks(w http.ResponseWriter, r *http.Request, links []*db.Link) (filt
 	}
 	if filtered == nil {
 		// Return an empty array instead of null.
-		filtered = []*apiLink{}
+		filtered = []apiLink{}
 	}
 	return
 }
@@ -157,7 +157,7 @@ func (api *API) BrowseLinks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, &listResponse{
+	writeJSON(w, http.StatusOK, listResponse{
 		filtered,
 		totalCount,
 	})

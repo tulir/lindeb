@@ -40,7 +40,7 @@ type apiLink struct {
 	HTML  string `json:"html,omitempty"`
 }
 
-func dbToAPILink(dbLink *db.Link) *apiLink {
+func dbToAPILink(dbLink *db.Link) apiLink {
 	var urlStr, domain string
 	if dbLink.URL != nil {
 		urlStr = dbLink.URL.String()
@@ -49,7 +49,7 @@ func dbToAPILink(dbLink *db.Link) *apiLink {
 	if dbLink.Tags == nil {
 		dbLink.Tags = []string{}
 	}
-	return &apiLink{
+	return apiLink{
 		ID:          dbLink.ID,
 		Title:       dbLink.Title,
 		Description: dbLink.Description,
@@ -195,8 +195,14 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 func (api *API) DeleteLink(w http.ResponseWriter, r *http.Request) {
 	user := api.GetUserFromContext(r)
 	link := api.GetLinkFromContext(r)
-	link.Delete()
-	_, err := api.Elastic.Delete().
+
+	err := link.Delete()
+	if err != nil {
+		internalError(w, "Failed to delete link %d from database: %v", link.ID, err)
+		return
+	}
+
+	_, err = api.Elastic.Delete().
 		Index(ElasticIndex).
 		Type(ElasticType).
 		Routing(user.IDString()).
