@@ -49,7 +49,7 @@ func (api *API) AddHandler(router *mux.Router) {
 	router.Handle("/tag/add", api.AuthMiddleware(http.HandlerFunc(api.AddTag))).Methods(http.MethodPost)
 	router.Handle("/tag/{id:[0-9]+}", api.AuthMiddleware(api.TagMiddleware(http.HandlerFunc(api.AccessTag)))).
 		Methods(http.MethodGet, http.MethodPut, http.MethodDelete)
-	router.Handle("/links", api.AuthMiddleware(http.HandlerFunc(api.ListTags))).Methods(http.MethodGet)
+	router.Handle("/tags", api.AuthMiddleware(http.HandlerFunc(api.ListTags))).Methods(http.MethodGet)
 }
 
 func internalError(w http.ResponseWriter, message string, args ...interface{}) {

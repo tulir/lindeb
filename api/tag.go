@@ -25,7 +25,29 @@ import (
 )
 
 func (api *API) AddTag(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+	user := api.GetUserFromContext(r)
+
+	inputTag := &db.Tag{}
+	if !readJSON(w, r, &inputTag) {
+		return
+	}
+	inputTag.DB = user.DB
+	inputTag.Owner = user
+	inputTag.ID = 0
+
+	duplicateTag := user.GetTagByName(inputTag.Name)
+	if duplicateTag != nil {
+		http.Error(w, fmt.Sprintf("New name conflicts with tag %d", duplicateTag.ID), http.StatusConflict)
+		return
+	}
+
+	err := inputTag.Insert()
+	if err != nil {
+		internalError(w, "Failed to insert tag by %d into database: %v", user.ID, err)
+		return
+	}
+
+	writeJSON(w, http.StatusCreated, inputTag)
 }
 
 // AccessTag is a method proxy for the handlers of /api/tag/<id>
@@ -105,6 +127,7 @@ func (api *API) EditTag(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) DeleteTag(w http.ResponseWriter, r *http.Request) {
+	user := api.GetUserFromContext(r)
 	tag := api.GetTagFromContext(r)
 
 	deleteLinks := len(r.URL.Query().Get("delete-links")) > 0
@@ -126,7 +149,7 @@ func (api *API) DeleteTag(w http.ResponseWriter, r *http.Request) {
 			_, err = api.Elastic.Delete().
 				Index(ElasticIndex).
 				Type(ElasticType).
-				Routing(link.Owner.IDString()).
+				Routing(user.IDString()).
 				Id(link.IDString()).
 				Do(context.Background())
 			if err != nil {
@@ -152,7 +175,22 @@ func (api *API) DeleteTag(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) ListTags(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+	user := api.GetUserFromContext(r)
+	tagList := r.URL.Query()["tag"]
+
+	var tags []*db.Tag
+	var err error
+	if len(tagList) > 0 {
+		tags, err = user.GetTagsByName(tagList)
+	} else {
+		tags, err = user.GetTags()
+	}
+	if err != nil {
+		internalError(w, "Failed to fetch tags of %d: %v", user.ID, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, tags)
 }
 
 // TagMiddleware provides a HTTP handler middleware that loads the data of the tag with the requested ID to the
