@@ -5,9 +5,9 @@ The official deployment will be available at [lindeb.mau.lu](https://lindeb.mau.
 
 This is also a database exercise project.
 For the duration of the exercise project course, the repository will contain some useless files, such as
-* the [Course documentation](https://docs.google.com/document/d/1LhNw1F7La3O9GysxXFnXPuQvzvQhpxS3Gmd0t6iF50I) in Finnish
-  (also as [PDF](https://github.com/tulir/lindeb/blob/master/docs/course.pdf))
-* and [SQL query files](https://github.com/tulir/lindeb/tree/master/docs/sql)
+the [course documentation](https://github.com/tulir/lindeb/blob/master/docs/course.pdf)
+(also in [Google Docs](https://docs.google.com/document/d/1LhNw1F7La3O9GysxXFnXPuQvzvQhpxS3Gmd0t6iF50I))
+and [SQL query files](https://github.com/tulir/lindeb/tree/master/docs/sql)
 
 ## Objective
 The goal of this project is to create an easy-to-use system for saving links and searching saved links.
