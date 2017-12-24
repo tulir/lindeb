@@ -21,6 +21,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"strconv"
+
 	"github.com/gorilla/mux"
 	"github.com/olivere/elastic"
 	"maunium.net/go/lindeb/db"
@@ -43,6 +45,11 @@ func (api *API) AddHandler(router *mux.Router) {
 	router.Handle("/link/{id:[0-9]+}", api.AuthMiddleware(api.LinkMiddleware(http.HandlerFunc(api.AccessLink)))).
 		Methods(http.MethodGet, http.MethodPut, http.MethodDelete)
 	router.Handle("/links", api.AuthMiddleware(http.HandlerFunc(api.BrowseLinks))).Methods(http.MethodGet)
+
+	router.Handle("/tag/add", api.AuthMiddleware(http.HandlerFunc(api.AddTag))).Methods(http.MethodPost)
+	router.Handle("/tag/{id:[0-9]+}", api.AuthMiddleware(api.TagMiddleware(http.HandlerFunc(api.AccessTag)))).
+		Methods(http.MethodGet, http.MethodPut, http.MethodDelete)
+	router.Handle("/links", api.AuthMiddleware(http.HandlerFunc(api.ListTags))).Methods(http.MethodGet)
 }
 
 func internalError(w http.ResponseWriter, message string, args ...interface{}) {
@@ -73,4 +80,25 @@ func writeJSON(w http.ResponseWriter, status int, data interface{}) bool {
 	w.WriteHeader(status)
 	w.Write(payload)
 	return true
+}
+
+func getMuxIntVar(w http.ResponseWriter, r *http.Request, field, name string) (val int, ok bool) {
+	ok = false
+
+	vars := mux.Vars(r)
+	str, found := vars[field]
+	if !found {
+		http.Error(w, fmt.Sprintf("%s not given.", name), http.StatusBadRequest)
+		return
+	}
+
+	var err error
+	val, err = strconv.Atoi(str)
+	if err != nil {
+		http.Error(w, fmt.Sprintf(`%s "%s" is not a number.`, name, str), http.StatusBadRequest)
+		return
+	}
+
+	ok = true
+	return
 }

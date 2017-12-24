@@ -22,11 +22,8 @@ import (
 
 	"fmt"
 
-	"strconv"
-
 	"net/url"
 
-	"github.com/gorilla/mux"
 	"maunium.net/go/lindeb/db"
 )
 
@@ -223,16 +220,8 @@ func (api *API) LinkMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := api.GetUserFromContext(r)
 
-		vars := mux.Vars(r)
-		idStr, found := vars["id"]
-		if !found {
-			http.Error(w, "Link ID not given.", http.StatusBadRequest)
-			return
-		}
-
-		id, err := strconv.Atoi(idStr)
-		if err != nil {
-			http.Error(w, fmt.Sprintf(`Link ID "%s" is not a number.`, idStr), http.StatusBadRequest)
+		id, ok := getMuxIntVar(w, r, "id", "Link ID")
+		if !ok {
 			return
 		}
 
