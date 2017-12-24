@@ -3,30 +3,6 @@ A database exercise project with Go and React.
 
 The official deployment will be available at [lindeb.mau.lu](https://lindeb.mau.lu).
 
-## Progress
-* Backend
-  * [x] Initialization
-    * [x] Config
-    * [x] Database connection
-    * [x] Elasticsearch connection
-    * [x] HTTP server
-  * [x] Database
-    * [x] Links
-    * [x] Users
-    * [x] Auth tokens
-    * [x] Tags
-  * [ ] API
-    * [x] Authentication (`/auth/`)
-    * [x] Links
-      * [x] Adding/accessing links (`/link/...`)
-      * [x] Browsing links (`/links`)
-        * [x] Listing
-        * [x] Searching
-        * [x] Filtering
-    * [ ] Tag management (`/tag/...`, `/tags`)
-* Frontend
-  * [ ] Development started
-
 ## Objective
 The goal of this project is to create an easy-to-use system for saving links and searching saved links.
 
