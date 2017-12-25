@@ -1,0 +1,33 @@
+{
+	"name": "lindeb",
+	"version": "0.1.0",
+	"description": "A simple link manager with powerful search",
+	"author": "Tulir Asokan <tulir@maunium.net>",
+	"license": "GPL-3.0",
+	"repository": {
+		"type": "git",
+		"url": "https+git://github.com/tulir/lindeb.git"
+	},
+	"proxy": {
+		"/api": {
+			"target": {
+				"host": "localhost",
+				"protocol": "http:",
+				"port": 29315
+			},
+			"changeOrigin": true,
+			"secure": false
+		}
+	},
+	"dependencies": {
+		"react": "^16.2.0",
+		"react-dom": "^16.2.0",
+		"react-scripts": "1.0.17"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test --env=jsdom",
+		"eject": "react-scripts eject"
+	}
+}
