@@ -151,13 +151,28 @@ module.exports = {
               cacheDirectory: true,
             },
           },
+          {
+            test: /\.svg$/,
+            use: [
+              {
+                loader: require.resolve("babel-loader"),
+              },
+              {
+                loader: require.resolve("react-svg-loader"),
+                options: {
+                  jsx: true,
+                },
+              },
+            ],
+          },
+
           // "postcss" loader applies autoprefixer to our CSS.
           // "css" loader resolves paths in CSS and adds assets as dependencies.
           // "style" loader turns CSS into JS modules that inject <style> tags.
           // In production, we use a plugin to extract that CSS to a file, but
           // in development "style" loader enables hot editing of CSS.
           {
-            test: /\.css$/,
+            test: /\.sass$/,
             use: [
               require.resolve('style-loader'),
               {
@@ -167,6 +182,9 @@ module.exports = {
                 },
               },
               {
+                loader: require.resolve('sass-loader'),
+              },
+              /*{
                 loader: require.resolve('postcss-loader'),
                 options: {
                   // Necessary for external CSS imports to work
@@ -179,13 +197,13 @@ module.exports = {
                         '>1%',
                         'last 4 versions',
                         'Firefox ESR',
-                        'not ie < 9', // React doesn't support IE8 anyway
+                        'not ie < 11', // React doesn't support IE8 anyway
                       ],
                       flexbox: 'no-2009',
                     }),
                   ],
                 },
-              },
+              },*/
             ],
           },
           // "file" loader makes sure those assets get served by WebpackDevServer.
