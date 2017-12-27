@@ -115,7 +115,10 @@ func (api *API) searchLinks(w http.ResponseWriter, user *db.User, query string, 
 		Index(ElasticIndex).
 		Type(ElasticType).
 		Routing(user.IDString()).
-		Query(elastic.NewMultiMatchQuery(query, fields...)).
+		Query(
+		elastic.NewBoolQuery().
+			Filter(elastic.NewTermQuery("user", user.ID)).
+			Must(elastic.NewMultiMatchQuery(query, fields...))).
 		Do(context.Background())
 	if err != nil {
 		internalError(w, "Elasticsearch error while searching for \"%s\" in #%d's links: %v",
