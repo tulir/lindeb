@@ -173,8 +173,8 @@ func (link *Link) Matches(domains []string, tags []string, exclusiveTags bool) b
 		for _, tag := range tags {
 			if link.HasTag(tag) {
 				tagsMatched = true
+				break
 			}
-			break
 		}
 	}
 
@@ -200,6 +200,7 @@ func (link *Link) HasTag(tagToCheck string) bool {
 }
 
 func (link *Link) HasTags(tagsToCheck []string) bool {
+	tagsToCheck = append([]string(nil), tagsToCheck...)
 Outer:
 	for _, tag := range link.Tags {
 		if len(tagsToCheck) == 0 {
