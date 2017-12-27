@@ -14,11 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
+import React, {Component} from "react"
+import Tag from "./tag"
 
-@import components/login
-@import components/topbar
-@import components/links
-@import components/tags
+class Link extends Component {
+	static contextTypes = {}
+
+	constructor(props, context) {
+		super(props, context)
+		this.state = {}
+	}
+
+	handleInputChange(event) {
+		this.setState({[event.target.name]: event.target.value})
+	}
+
+	render() {
+		return (
+			<article className="link">
+				<header><h1 className="title">
+					<a href={this.props.url}>{this.props.title}</a>
+				</h1></header>
+				<div className="tags">
+					{this.props.tags.map(tag => <Tag key={tag} name={tag}/>)}
+				</div>
+				<address>{this.props.domain}</address>
+				<p>{this.props.description}</p>
+			</article>
+		)
+	}
+}
+
+export default Link

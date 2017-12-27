@@ -14,11 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
+$main-color: darken(#50D367, 10%)
+$dark-color: darken($main-color, 10%)
+$light-color: lighten($main-color, 10%)
+$alt-color: darken(#47B9D7, 10%)
+$dark-alt-color: darken($alt-color, 10%)
+$text-color: #212121
+$background-color: #FAFAFA
+$inverted-text-color: $background-color
+$font-stack: "Raleway", "Roboto", sans-serif
+$max-width: 42.5rem
+$header-height: 3.5rem
 
-@import components/login
-@import components/topbar
-@import components/links
-@import components/tags
+$breakpoint-min: "screen and (min-width: #{$max-width + 0.0625rem})"
+$breakpoint-max: "screen and (max-width: #{$max-width})"
+
+=if-big
+	@media #{$breakpoint-min}
+		@content
+
+=if-small
+	@media #{$breakpoint-max}
+		@content

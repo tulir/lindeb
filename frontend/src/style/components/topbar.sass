@@ -14,11 +14,45 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
+header.topbar
+	display: flex
+	align-items: center
+	background-color: $main-color
+	color: white
 
-@import components/login
-@import components/topbar
-@import components/links
-@import components/tags
+	> .brand-wrapper
+		padding: 0 1rem
+		> .brand
+			margin: 0
+			font-weight: normal
+
+	> .search-wrapper
+		flex: 1
+		text-align: center
+		height: 2.25rem
+
+		> .centered-search-wrapper
+			display: inline-flex
+			align-items: center
+			border-radius: .25rem
+			max-width: $max-width
+			width: 100%
+			height: 100%
+			background-color: $light-color
+
+			> svg
+				margin-left: .5rem
+				width: 24px
+				fill: #ACEAB7
+
+			> input
+				padding: .5rem
+				width: 100%
+				box-sizing: border-box
+				height: 100%
+
+	> .control-buttons
+		padding: 0 .5rem
+		height: 2.25rem
+		> button
+			height: 100%

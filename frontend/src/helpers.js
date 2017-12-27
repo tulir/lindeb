@@ -14,11 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
+// A helper function to use Maps easily within JSX.
+// eslint-disable-next-line
+Map.prototype.map = function (...args) {
+	return [...this.values()].map(...args)
+}
 
-@import components/login
-@import components/topbar
-@import components/links
-@import components/tags
+// A helper function to find a key from a map based on a given filter.
+// eslint-disable-next-line
+Map.prototype.find = function(callback) {
+	for (const [key, value] of this) {
+		if (callback(value)) {
+			return key
+		}
+	}
+	return undefined
+}

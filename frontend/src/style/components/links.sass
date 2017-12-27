@@ -14,11 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
+main > .links > .link
+	padding: 1rem .5rem
+	border-bottom: 1px solid #AAA
 
-@import components/login
-@import components/topbar
-@import components/links
-@import components/tags
+	header > .title
+		font-weight: normal
+		font-size: 1.4rem
+		margin: .25rem 0
+
+		> a
+			text-decoration: none
+			color: $main-color
+
+	address
+		color: #AAA
+		font-style: normal
+		font-size: 0.9rem
+
+	p
+		margin: .25rem 0

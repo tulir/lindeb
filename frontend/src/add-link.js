@@ -14,11 +14,4 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
-
-@import components/login
-@import components/topbar
-@import components/links
-@import components/tags
+// TODO: bookmarklet that adds the current page to lindeb.

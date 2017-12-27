@@ -14,11 +14,40 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
+button
+	font-family: $font-stack
+	padding: .375rem 1rem
+	background-color: $main-color
+	border: none
+	border-radius: .25rem
+	color: $inverted-text-color
+	box-sizing: border-box
+	font-size: 1rem
+	cursor: pointer
 
-@import components/login
-@import components/topbar
-@import components/links
-@import components/tags
+	&:hover
+		background-color: $dark-color
+
+=button-group()
+	> button
+		border-radius: 0
+		&:first-of-type
+			border-radius: .25rem 0 0 .25rem
+		&:last-of-type
+			border-radius: 0 .25rem .25rem 0
+
+=vertical-button-group()
+	> button
+		border-radius: 0
+		&:first-of-type
+			border-radius: .25rem .25rem 0 0
+		&:last-of-type
+			border-radius: 0 0 .25rem .25rem
+
+input, textarea
+	border: none
+	background-color: $light-color
+	border-radius: .25rem
+	padding: .375rem 1rem
+	font-size: 1rem
+	color: white

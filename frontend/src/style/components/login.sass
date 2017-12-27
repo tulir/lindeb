@@ -14,11 +14,38 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
+main:not(.authenticated)
+	background-color: $main-color
 
-@import components/login
-@import components/topbar
-@import components/links
-@import components/tags
+main > .login
+	max-width: 26rem !important
+	padding: 2.5rem
+	background-color: $background-color
+	border-radius: .25rem
+
+	> h1
+		text-align: center
+		margin: 0 0 3rem
+		font-size: 3rem
+		color: $main-color
+
+	> input
+		width: 100%
+		background-color: $background-color
+		border: 1px solid #CCC
+		color: $text-color
+
+		padding: 1rem
+		margin-bottom: 1rem
+		box-sizing: border-box
+
+		&:hover, &:focus
+			border: 1px solid $main-color
+
+	> .buttons
+		+button-group
+		width: 100%
+
+		> button
+			padding: 1rem
+			width: 50%

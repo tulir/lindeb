@@ -14,11 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
+import React, {Component} from "react"
+import Link from "./link"
 
-@import components/login
-@import components/topbar
-@import components/links
-@import components/tags
+class LinkListView extends Component {
+	static contextTypes = {}
+
+	constructor(props, context) {
+		super(props, context)
+		this.state = {
+			username: "",
+			password: "",
+		}
+	}
+
+	handleInputChange(event) {
+		this.setState({[event.target.name]: event.target.value})
+	}
+
+	render() {
+		if (!this.props.links) {
+			return <div></div>
+		}
+		return (
+			<div className="links">
+				{this.props.links.map(link => <Link key={link.id} {...link}/>)}
+			</div>
+		)
+	}
+}
+
+export default LinkListView

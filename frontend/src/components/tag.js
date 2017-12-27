@@ -14,11 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
+import React, {Component} from "react"
+import PropTypes from "prop-types"
 
-@import components/login
-@import components/topbar
-@import components/links
-@import components/tags
+class Tag extends Component {
+	static contextTypes = {
+		tagsByName: PropTypes.object,
+	}
+
+	constructor(props, context) {
+		super(props, context)
+		this.data = this.context.tagsByName.get(this.props.name)
+	}
+
+	handleInputChange(event) {
+		this.setState({[event.target.name]: event.target.value})
+	}
+
+	render() {
+		return (
+			<div className="tag" title={this.data.description}>
+				{this.props.name}
+			</div>
+		)
+	}
+}
+
+export default Tag

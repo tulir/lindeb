@@ -14,11 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
+.link > .tags
+	color: $alt-color
+	display: inline-block
 
-@import components/login
-@import components/topbar
-@import components/links
-@import components/tags
+	&:empty
+		display: none
+
+	.tag
+		display: inline-block
+		font-size: 1.1rem
+
+		margin-right: .25rem
+
+		&::before
+			content: "#"
