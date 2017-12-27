@@ -209,7 +209,7 @@ paths:
         schema:
           type: string
           example: "lindeb api"
-      - name: tags
+      - name: tag
         in: query
         description: The tag or list of tags that the search should be limited to.
         schema:

@@ -67,9 +67,9 @@ func filterLinks(w http.ResponseWriter, r *http.Request, links []*db.Link) (filt
 	if pageSize, ok = getQueryInt(w, r, "pagesize", 10); !ok {
 		return
 	}
-	tags := r.URL.Query()["tags"]
+	tags := r.URL.Query()["tag"]
 	exclusiveTags := len(r.URL.Query().Get("exclusivetags")) > 0
-	domains := r.URL.Query()["domains"]
+	domains := r.URL.Query()["domain"]
 
 	for _, link := range links {
 		if link.Matches(domains, tags, exclusiveTags) {
