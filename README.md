@@ -43,7 +43,7 @@ Since the backend is written in Go, the server running the backend does not need
 However, a DBMS instance and an Elasticsearch instance must be available.
 
 ### Frontend
-The frontend uses [React](https://reactjs.org/) and modern JavaScript syntax.
+The frontend uses [React](https://reactjs.org/), [Sass](http://sass-lang.com/) and modern JavaScript syntax.
 Support for old browsers is not guaranteed. The latest version of Firefox is recommended, but Chrome will work too.
 
 ## Specifications
