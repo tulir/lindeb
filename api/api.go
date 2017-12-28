@@ -41,7 +41,7 @@ func (api *API) AddHandler(router *mux.Router) {
 	auth.Handle("/logout", api.AuthMiddleware(http.HandlerFunc(api.Logout)))
 	auth.HandleFunc("/register", api.Register)
 
-	router.Handle("/link/save", api.AuthMiddleware(http.HandlerFunc(api.SaveLink))).Methods(http.MethodPost)
+	router.Handle("/link/save", api.AuthMiddleware(http.HandlerFunc(api.SaveLink))).Methods(http.MethodPost, http.MethodGet)
 	router.Handle("/link/{id:[0-9]+}", api.AuthMiddleware(api.LinkMiddleware(http.HandlerFunc(api.AccessLink)))).
 		Methods(http.MethodGet, http.MethodPut, http.MethodDelete)
 	router.Handle("/links", api.AuthMiddleware(http.HandlerFunc(api.BrowseLinks))).Methods(http.MethodGet)

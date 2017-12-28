@@ -80,8 +80,15 @@ const ElasticType = "link"
 // SaveLink is a handler for POST /api/link/save
 func (api *API) SaveLink(w http.ResponseWriter, r *http.Request) {
 	inputLink := apiLink{}
-	if !readJSON(w, r, &inputLink) {
-		return
+	if r.Method == http.MethodPost {
+		if !readJSON(w, r, &inputLink) {
+			return
+		}
+	} else {
+		inputLink.URLString = r.URL.Query().Get("url")
+		inputLink.Title = r.URL.Query().Get("title")
+		inputLink.Description = r.URL.Query().Get("description")
+		inputLink.Tags = r.URL.Query()["tag"]
 	}
 
 	user := api.GetUserFromContext(r)
