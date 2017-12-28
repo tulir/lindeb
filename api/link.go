@@ -95,6 +95,13 @@ func (api *API) SaveLink(w http.ResponseWriter, r *http.Request) {
 	}
 
 	htmlBody := scrapeLink(link)
+	if len(inputLink.Title) > 0 {
+		link.Title = inputLink.Title
+	}
+	if len(inputLink.Description) > 0 {
+		link.Description = inputLink.Description
+	}
+
 	err = link.Insert()
 	if err != nil {
 		internalError(w, "Failed to insert link into database: %v", err)
@@ -110,18 +117,20 @@ func (api *API) SaveLink(w http.ResponseWriter, r *http.Request) {
 	apiLink := dbToAPILink(link)
 	writeJSON(w, http.StatusCreated, apiLink)
 
-	apiLink.HTML = htmlBody
-	apiLink.Owner = user.ID
-	_, err = api.Elastic.Index().
-		Index(ElasticIndex).
-		Type(ElasticType).
-		Routing(user.IDString()).
-		Id(link.IDString()).
-		BodyJson(apiLink).
-		Do(context.Background())
-	if err != nil {
-		fmt.Printf("Elasticsearch error while saving link %d from %d: %v", link.ID, user.ID, err)
-	}
+	go func() {
+		apiLink.HTML = htmlBody
+		apiLink.Owner = user.ID
+		_, err = api.Elastic.Index().
+			Index(ElasticIndex).
+			Type(ElasticType).
+			Routing(user.IDString()).
+			Id(link.IDString()).
+			BodyJson(apiLink).
+			Do(context.Background())
+		if err != nil {
+			fmt.Printf("Elasticsearch error while saving link %d from %d: %v", link.ID, user.ID, err)
+		}
+	}()
 }
 
 // AccessLink is a method proxy for the handlers of /api/link/<id>
@@ -155,10 +164,13 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var err error
-	link.URL, err = url.Parse(inputLink.URLString)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Malformed URL: %v", err), http.StatusBadRequest)
-		return
+
+	if len(inputLink.URLString) > 0 {
+		link.URL, err = url.Parse(inputLink.URLString)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Malformed URL: %v", err), http.StatusBadRequest)
+			return
+		}
 	}
 
 	htmlBody := scrapeLink(link)
@@ -167,6 +179,13 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 		internalError(w, "Failed to update link %d in database: %v", link.ID, err)
 		return
 	}
+	if len(inputLink.Title) > 0 {
+		link.Title = inputLink.Title
+	}
+	if len(inputLink.Description) > 0 {
+		link.Description = inputLink.Description
+	}
+
 
 	err = link.UpdateTags(inputLink.Tags)
 	if err != nil {
@@ -177,18 +196,20 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 	apiLink := dbToAPILink(link)
 	writeJSON(w, http.StatusOK, apiLink)
 
-	apiLink.HTML = htmlBody
-	apiLink.Owner = user.ID
-	_, err = api.Elastic.Update().
-		Index(ElasticIndex).
-		Type(ElasticType).
-		Routing(user.IDString()).
-		Id(link.IDString()).
-		Doc(apiLink).
-		Do(context.Background())
-	if err != nil {
-		fmt.Printf("Elasticsearch error while updating link %d from %d: %v", link.ID, user.ID, err)
-	}
+	go func() {
+		apiLink.HTML = htmlBody
+		apiLink.Owner = user.ID
+		_, err = api.Elastic.Update().
+			Index(ElasticIndex).
+			Type(ElasticType).
+			Routing(user.IDString()).
+			Id(link.IDString()).
+			Doc(apiLink).
+			Do(context.Background())
+		if err != nil {
+			fmt.Printf("Elasticsearch error while updating link %d from %d: %v", link.ID, user.ID, err)
+		}
+	}()
 }
 
 // DeleteLink is the handler for DELETE /api/link/<id>

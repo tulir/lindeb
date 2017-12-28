@@ -57,8 +57,7 @@ func getQueryInt(w http.ResponseWriter, r *http.Request, name string, defVal int
 //
 // If an error occurs, the second return value (totalCount) is set to -1 and a HTTP error is written to the given
 // response writer.
-func filterLinks(r *http.Request, links []*db.Link) (filtered []apiLink, totalCount int) {
-	totalCount = -1
+func filterLinks(r *http.Request, links []*db.Link) (filtered []apiLink) {
 	tags := r.URL.Query()["tag"]
 	exclusiveTags := len(r.URL.Query().Get("exclusivetags")) > 0
 	domains := r.URL.Query()["domain"]
@@ -68,8 +67,6 @@ func filterLinks(r *http.Request, links []*db.Link) (filtered []apiLink, totalCo
 			filtered = append(filtered, dbToAPILink(link))
 		}
 	}
-
-	totalCount = len(filtered)
 
 	if filtered == nil {
 		// Return an empty array instead of null.
@@ -167,7 +164,6 @@ func (api *API) BrowseLinks(w http.ResponseWriter, r *http.Request) {
 	user := api.GetUserFromContext(r)
 
 	var links []apiLink
-	var totalCount int
 	searchQuery := r.URL.Query().Get("search")
 	if len(searchQuery) == 0 {
 		dbLinks, err := user.GetLinks()
@@ -176,10 +172,7 @@ func (api *API) BrowseLinks(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		links, totalCount = filterLinks(r, dbLinks)
-		if totalCount < 0 {
-			return
-		}
+		links = filterLinks(r, dbLinks)
 	} else {
 		tags := r.URL.Query()["tag"]
 		exclusiveTags := len(r.URL.Query().Get("exclusivetags")) > 0
@@ -191,6 +184,8 @@ func (api *API) BrowseLinks(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	totalCount := len(links)
 
 	links, ok := paginate(w, r, links)
 	if !ok {
