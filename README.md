@@ -4,10 +4,13 @@ A simple link manager with powerful search. Built using Go, React, Elasticsearch
 The official deployment will be available at [lindeb.mau.lu](https://lindeb.mau.lu).
 
 This is also a database exercise project.
-For the duration of the exercise project course, the repository will contain some useless files, such as
+For the duration of the exercise project course, the repository will contain some useless files/readme sections, such as
 the [course documentation](https://github.com/tulir/lindeb/blob/master/docs/course.pdf)
-(also in [Google Docs](https://docs.google.com/document/d/1LhNw1F7La3O9GysxXFnXPuQvzvQhpxS3Gmd0t6iF50I))
-and [SQL query files](https://github.com/tulir/lindeb/tree/master/docs/sql)
+(also in [Google Docs](https://docs.google.com/document/d/1LhNw1F7La3O9GysxXFnXPuQvzvQhpxS3Gmd0t6iF50I)),
+[SQL query files](https://github.com/tulir/lindeb/tree/master/docs/sql) and
+the following links to some React components:
+* [Kirjautumissivu](https://github.com/tulir/lindeb/blob/master/frontend/src/commponents/login.js)
+* [Linkkilista (etusivu, linkkien muokkaus ja linkkien poisto)](https://github.com/tulir/lindeb/blob/master/frontend/src/commponents/linklist.js)
 
 ## Objective
 The goal of this project is to create an easy-to-use system for saving links and searching saved links.
