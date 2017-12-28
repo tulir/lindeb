@@ -39,7 +39,7 @@ class Tag extends Component {
 
 	render() {
 		return (
-			<div className="tag" onClick={this.click} title={this.data.description}>
+			<div className="tag" onClick={this.click} title={this.data ? this.data.description : ""}>
 				{this.props.name}
 			</div>
 		)

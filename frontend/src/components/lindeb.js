@@ -115,7 +115,7 @@ class Lindeb extends Component {
 			console.log("Unhandled error fetching tags:", await tagFetchResult.text())
 			return
 		}
-		const rawTags = await tagFetchResult.json()
+		const rawTags = await tagFetchResult.json() || []
 		const tagsByID = new Map(rawTags.map(tag => [tag.id, tag]))
 		const tagsByName = new Map(rawTags.map(tag => [tag.name, tag]))
 

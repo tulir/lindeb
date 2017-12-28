@@ -64,8 +64,8 @@ class LoginView extends Component {
 					   value={this.state.password}
 					   onChange={this.handleInputChange}/>
 				<div className="buttons">
-					<button type="button" className="register" onClick={() => this.auth("register")}>Register</button>
-					<button type="submit" className="login" onClick={() => this.auth("login")}>Login</button>
+					<button type="button" className="main-color register" onClick={() => this.auth("register")}>Register</button>
+					<button type="submit" className="main-color login" onClick={() => this.auth("login")}>Login</button>
 				</div>
 			</div>
 		)
