@@ -57,16 +57,8 @@ func getQueryInt(w http.ResponseWriter, r *http.Request, name string, defVal int
 //
 // If an error occurs, the second return value (totalCount) is set to -1 and a HTTP error is written to the given
 // response writer.
-func filterLinks(w http.ResponseWriter, r *http.Request, links []*db.Link) (filtered []apiLink, totalCount int) {
+func filterLinks(r *http.Request, links []*db.Link) (filtered []apiLink, totalCount int) {
 	totalCount = -1
-	var page, pageSize int
-	var ok bool
-	if page, ok = getQueryInt(w, r, "page", 0); !ok {
-		return
-	}
-	if pageSize, ok = getQueryInt(w, r, "pagesize", 10); !ok {
-		return
-	}
 	tags := r.URL.Query()["tag"]
 	exclusiveTags := len(r.URL.Query().Get("exclusivetags")) > 0
 	domains := r.URL.Query()["domain"]
@@ -79,22 +71,6 @@ func filterLinks(w http.ResponseWriter, r *http.Request, links []*db.Link) (filt
 
 	totalCount = len(filtered)
 
-	if page > 0 && pageSize > 0 {
-		from := (page - 1) * pageSize
-		to := page * pageSize
-		if from < len(filtered) {
-			if to < len(filtered) {
-				// From and to are within link list, get the section ruled out by the two.
-				filtered = filtered[from:to]
-			} else {
-				// To is outside the list, get everything after from.
-				filtered = filtered[from:]
-			}
-		} else {
-			// From is outside the list -> no results.
-			filtered = nil
-		}
-	}
 	if filtered == nil {
 		// Return an empty array instead of null.
 		filtered = []apiLink{}
@@ -102,33 +78,89 @@ func filterLinks(w http.ResponseWriter, r *http.Request, links []*db.Link) (filt
 	return
 }
 
+func paginate(w http.ResponseWriter, r *http.Request, links []apiLink) (paginated []apiLink) {
+	var page, pageSize int
+	var ok bool
+	if page, ok = getQueryInt(w, r, "page", 0); !ok {
+		return
+	}
+	if pageSize, ok = getQueryInt(w, r, "pagesize", 10); !ok {
+		return
+	}
+
+	if page > 0 && pageSize > 0 {
+		from := (page - 1) * pageSize
+		to := page * pageSize
+		if from < len(links) {
+			if to < len(links) {
+				// From and to are within link list, get the section ruled out by the two.
+				paginated = links[from:to]
+			} else {
+				// To is outside the list, get everything after from.
+				paginated = links[from:]
+			}
+		} else {
+			// From is outside the list -> no results.
+			paginated = []apiLink{}
+		}
+	}
+
+	return
+}
+
+func stringToInterfaceSlice(slice []string) []interface{} {
+	new := make([]interface{}, len(slice))
+	for i, v := range slice {
+		new[i] = v
+	}
+	return new
+}
+
+func (api *API) buildQuery(user *db.User, search string, domains []string, tags []string, exclusiveTags bool, fields ...string) elastic.Query {
+	if len(fields) == 0 {
+		fields = []string{"url", "title", "description", "html"}
+	}
+	query := elastic.NewBoolQuery()
+	query.Filter(elastic.NewTermQuery("owner", user.ID))
+	var must []elastic.Query
+	must = append(must, elastic.NewMultiMatchQuery(search, fields...))
+	if len(tags) > 0 {
+		if exclusiveTags {
+			for _, tag := range tags {
+				must = append(must, elastic.NewTermQuery("tags", tag))
+			}
+		} else {
+
+			must = append(must, elastic.NewTermsQuery("tags", stringToInterfaceSlice(tags)...))
+		}
+	}
+	if len(domains) > 0 {
+		must = append(must, elastic.NewTermsQuery("domain", stringToInterfaceSlice(domains)))
+	}
+	query.Must(must...)
+	return query
+}
+
 // searchLinks searches Elasticsearch with the given query.
 //
 // If an error occurs, the second return value (ok) is set to false and a HTTP error is written to the given response
 // writer.
-func (api *API) searchLinks(w http.ResponseWriter, user *db.User, query string, fields ...string) (links []*db.Link, ok bool) {
+func (api *API) searchLinks(w http.ResponseWriter, user *db.User, query elastic.Query) (links []apiLink, ok bool) {
 	ok = false
-	if len(fields) == 0 {
-		fields = []string{"url", "domain", "title", "description", "html"}
-	}
+
 	results, err := api.Elastic.Search().
 		Index(ElasticIndex).
 		Type(ElasticType).
 		Routing(user.IDString()).
-		Query(
-		elastic.NewBoolQuery().
-			Filter(elastic.NewTermQuery("user", user.ID)).
-			Must(elastic.NewMultiMatchQuery(query, fields...))).
+		Query(query).
 		Do(context.Background())
 	if err != nil {
-		internalError(w, "Elasticsearch error while searching for \"%s\" in #%d's links: %v",
-			query, user.ID, err)
+		internalError(w, "Elasticsearch error while searching #%d's links: %v", user.ID, err)
 		return
 	}
 	var link apiLink
 	for _, item := range results.Each(reflect.TypeOf(link)) {
-		t := item.(apiLink)
-		links = append(links, apiToDBLink(user, t))
+		links = append(links, item.(apiLink))
 	}
 	ok = true
 	return
@@ -138,30 +170,34 @@ func (api *API) searchLinks(w http.ResponseWriter, user *db.User, query string, 
 func (api *API) BrowseLinks(w http.ResponseWriter, r *http.Request) {
 	user := api.GetUserFromContext(r)
 
-	var links []*db.Link
-	var err error
+	var links []apiLink
+	var totalCount int
 	searchQuery := r.URL.Query().Get("search")
 	if len(searchQuery) == 0 {
-		links, err = user.GetLinks()
+		dbLinks, err := user.GetLinks()
 		if err != nil {
 			internalError(w, "Failed to list links of %d: %v", user.ID, err)
 			return
 		}
+
+		links, totalCount = filterLinks(r, dbLinks)
+		if totalCount < 0 {
+			return
+		}
 	} else {
+		tags := r.URL.Query()["tag"]
+		exclusiveTags := len(r.URL.Query().Get("exclusivetags")) > 0
+		domains := r.URL.Query()["domain"]
+
 		var ok bool
-		links, ok = api.searchLinks(w, user, searchQuery)
+		links, ok = api.searchLinks(w, user, api.buildQuery(user, searchQuery, domains, tags, exclusiveTags))
 		if !ok {
 			return
 		}
 	}
 
-	filtered, totalCount := filterLinks(w, r, links)
-	if totalCount < 0 {
-		return
-	}
-
 	writeJSON(w, http.StatusOK, listResponse{
-		filtered,
+		links,
 		totalCount,
 	})
 }
