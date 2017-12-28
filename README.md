@@ -12,6 +12,7 @@ the [course documentation](https://github.com/tulir/lindeb/blob/master/docs/cour
 the following links to some React components:
 * [Kirjautumissivu](https://github.com/tulir/lindeb/blob/master/frontend/src/components/login.js)
 * [Linkkilista (etusivu, linkkien muokkaus ja linkkien poisto)](https://github.com/tulir/lindeb/blob/master/frontend/src/components/linklist.js)
+* [Linkin lisäys](https://github.com/tulir/lindeb/blob/master/frontend/src/components/addlink.js)
 
 ## Objective
 The goal of this project is to create an easy-to-use system for saving links and searching saved links.
