@@ -29,7 +29,8 @@ import (
 func scrapeLink(link *db.Link) (body string) {
 	resp, err := http.Get(link.URL.String())
 	if err != nil {
-		link.Description = "Could not reach website"
+		link.Title = "Unreachable website"
+		link.Description = "The lindeb crawler could not reach this URL."
 		return
 	}
 
@@ -37,7 +38,8 @@ func scrapeLink(link *db.Link) (body string) {
 
 	rawBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		link.Description = "Could not read website"
+		link.Title = "Unreachable website"
+		link.Description = "The lindeb crawler could not reach this URL."
 		return
 	}
 
