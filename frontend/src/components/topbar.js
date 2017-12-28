@@ -23,6 +23,7 @@ class Topbar extends Component {
 	static contextTypes = {
 		logout: PropTypes.func,
 		isAuthenticated: PropTypes.func,
+		showSearch: PropTypes.bool,
 		search: PropTypes.func,
 	}
 
@@ -97,7 +98,7 @@ class Topbar extends Component {
 	 */
 	queryToSearch(query) {
 		if (!query) {
-			query = Query.parse(decodeURIComponent(window.location.hash))
+			query = Query.parse(window.location.hash)
 		}
 		let search = ""
 		for (const domain of query.getAll("domain")) {
@@ -131,13 +132,17 @@ class Topbar extends Component {
 				<div className="brand-wrapper">
 					<h1 className="brand">lindeb</h1>
 				</div>
-				<div className="search-wrapper">
-					<div className="centered-search-wrapper">
-						<SearchIcon/>
-						<input type="text" className="search" placeholder="Search" value={this.state.search}
-							   onKeyPress={this.searchEntered} onChange={this.searchQueryChanged}/>
+				{this.context.showSearch ? (
+					<div className="search-wrapper">
+						<div className="centered-search-wrapper">
+							<SearchIcon/>
+							<input type="text" className="search" placeholder="Search" value={this.state.search}
+								   onKeyPress={this.searchEntered} onChange={this.searchQueryChanged}/>
+						</div>
 					</div>
-				</div>
+				) : (
+					<div className="search-wrapper"/>
+				)}
 				<div className="control-buttons">
 					<button type="button" className="main-color logout" onClick={this.context.logout}>Sign out</button>
 				</div>

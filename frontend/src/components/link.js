@@ -72,7 +72,7 @@ class Link extends Component {
 	render() {
 		if (this.state.editing) {
 			return (
-				<article className={`link ${this.state.editing ? "editing" : ""}`}>
+				<div className={`link ${this.state.editing ? "editing" : ""}`}>
 					<div className="buttons">
 						<button className="delete" type="button" onClick={this.delete}>
 							<DeleteButton/>
@@ -88,7 +88,7 @@ class Link extends Component {
 					<input name="tags" placeholder="Comma-separated tags" type="text" className="tags-editor" value={this.state.tags} onChange={this.handleInputChange}/>
 					<input name="url" placeholder="URL" type="text" className="url" value={this.state.url} onChange={this.handleInputChange}/>
 					<textarea rows="4" name="description" placeholder="Description" className="description" value={this.state.description} onChange={this.handleInputChange}/>
-				</article>
+				</div>
 			)
 		}
 		return (

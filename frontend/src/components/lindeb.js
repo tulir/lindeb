@@ -20,9 +20,11 @@ import {Hashmux} from "hashmux"
 import Topbar from "./topbar"
 import LoginView from "./login"
 import LinkView from "./linklist"
+import LinkAddView from "./addlink"
 
 const
 	VIEW_LINKS = "links",
+	VIEW_LINK_ADD = "link-add",
 	VIEW_TAGS = "tags",
 	VIEW_SETTINGS = "settings"
 
@@ -32,10 +34,13 @@ class Lindeb extends Component {
 		logout: PropTypes.func,
 		deleteLink: PropTypes.func,
 		updateLink: PropTypes.func,
+		addLink: PropTypes.func,
 		tagsByID: PropTypes.object,
 		tagsByName: PropTypes.object,
 		isAuthenticated: PropTypes.func,
 		topbar: PropTypes.object,
+		user: PropTypes.object,
+		showSearch: PropTypes.bool,
 	}
 
 	getChildContext() {
@@ -44,10 +49,13 @@ class Lindeb extends Component {
 			logout: this.logout.bind(this),
 			deleteLink: this.deleteLink.bind(this),
 			updateLink: this.updateLink.bind(this),
+			addLink: this.addLink.bind(this),
 			tagsByID: this.state.tagsByID,
 			tagsByName: this.state.tagsByName,
 			isAuthenticated: this.isAuthenticated.bind(this),
 			topbar: this.topbar,
+			user: this.state.user,
+			showSearch: this.state.view === VIEW_LINKS,
 		}
 	}
 
@@ -66,6 +74,7 @@ class Lindeb extends Component {
 
 		this.router = new Hashmux()
 		this.router.handle("/", (_, query) => this.openLinkList(query))
+		this.router.handle("/save", (_, query) => this.openLinkAdder(query))
 		this.router.handle("/tags", () => this.setState({view: VIEW_TAGS}))
 		this.router.handle("/settings", () => this.setState({view: VIEW_SETTINGS}))
 	}
@@ -139,6 +148,19 @@ class Lindeb extends Component {
 		}
 	}
 
+	async addLink(data) {
+		if (!this.isAuthenticated()) {
+			return
+		}
+
+		const response = await fetch(`api/link/save`, {
+			headers: this.headers,
+			method: "POST",
+			body: JSON.stringify(data),
+		})
+		window.location.href = "#/"
+	}
+
 	async updateLink(data) {
 		if (!this.isAuthenticated()) {
 			return
@@ -184,6 +206,22 @@ class Lindeb extends Component {
 		})
 	}
 
+	openLinkAdder(query) {
+		if (!this.isAuthenticated()) {
+			return
+		}
+
+		this.setState({
+			view: VIEW_LINK_ADD,
+			newLink: {
+				url: query.get("url", 0, ""),
+				tags: query.getAll("tag").join(", "),
+				title: query.get("title", 0, ""),
+				description: query.get("description", 0, ""),
+			},
+		})
+	}
+
 	getView() {
 		if (!this.state.user) {
 			return <LoginView/>
@@ -193,6 +231,8 @@ class Lindeb extends Component {
 			return undefined // <TagView/>
 		case VIEW_SETTINGS:
 			return undefined // <SettingsView/>
+		case VIEW_LINK_ADD:
+			return <LinkAddView {...this.state.newLink}/>
 		default:
 		case VIEW_LINKS:
 			return <LinkView links={this.state.links}/>
