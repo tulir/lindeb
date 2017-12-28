@@ -17,21 +17,88 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import SearchIcon from "../res/search.svg"
+import {Query} from "hashmux"
 
 class Topbar extends Component {
 	static contextTypes = {
 		logout: PropTypes.func,
 		isAuthenticated: PropTypes.func,
+		search: PropTypes.func,
 	}
+
+	static searchFieldRegex = /([A-Za-z]+)=(".+?"|[^\s]+)(?:\s+)?/g
 
 	constructor(props, context) {
 		super(props, context)
-		this.state = Object.assign({search: ""})
+		this.state = Object.assign({search: this.queryToSearch()})
 		this.searchQueryChanged = this.searchQueryChanged.bind(this)
+		this.searchTimeout = -1
 	}
 
 	searchQueryChanged(event) {
+		clearTimeout(this.searchTimeout)
+		this.searchTimeout = setTimeout(() => this.searchEntered(), 500)
 		this.setState({search: event.target.value})
+	}
+
+	searchEntered(event) {
+		if (event && event.key !== "enter") {
+			return
+		}
+
+		clearTimeout(this.searchTimeout)
+		this.searchToQuery().setCurrentURL(true)
+		window.onhashchange(window.location.hash)
+	}
+
+	/**
+	 * Convert the search string in the topbar into a Hashmux Query object that can be passed to the lindeb API.
+	 *
+	 * @returns {Query} The Hashmux Query object.
+	 */
+	searchToQuery() {
+		const query = new Query()
+		let search = this.state.search.replace(Topbar.searchFieldRegex, (_, key, value) => {
+			if (value.charAt(0) === '"' && value.charAt(value.length -1) === '"') {
+				value = value.substr(1, value.length - 2)
+			}
+			query.add(key, value)
+			return ""
+		})
+		if (search.includes("exclusive-tags")) {
+			query.set("exclusivetags", "true")
+			search = search.replace("exclusive-tags", "")
+		}
+		search = search.trim()
+		if (search.length > 0) {
+			query.set("search", search)
+		}
+		return query
+	}
+
+	/**
+	 * Update the search string in the topbar with the values in the given Hashmux Query object.
+	 *
+	 * @param   {Query}  [query] The Hashmux Query object to use. If undefined, Query.parse() is used as the value.
+	 * @returns {string}         The search string that matches the given Query object.
+	 */
+	queryToSearch(query) {
+		if (!query) {
+			query = Query.parse()
+		}
+		let search = ""
+		for (const domain of query.getAll("domain")) {
+			search += `domain=${domain} `
+		}
+		if (query.get("exclusivetags")) {
+			search += "exclusive-tags "
+		}
+		for (const tag of query.getAll("tag")) {
+			search += `tag=${tag} `
+		}
+		search += query.get("search") || ""
+		search = search.trim()
+		return search
 	}
 
 	render() {
@@ -46,7 +113,7 @@ class Topbar extends Component {
 				<div className="search-wrapper">
 					<div className="centered-search-wrapper">
 						<SearchIcon/>
-						<input type="text" className="search" placeholder="Search" onChange={this.searchQueryChanged}/>
+						<input type="text" className="search" placeholder="Search" value={this.state.search} onKeyPress={this.searchEntered} onChange={this.searchQueryChanged}/>
 					</div>
 				</div>
 				<div className="control-buttons">

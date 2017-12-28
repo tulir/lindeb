@@ -54,6 +54,10 @@ class Lindeb extends Component {
 		}
 		window.app = this
 
+		if (!window.location.hash.startsWith("#/")) {
+			window.location.hash = "#/"
+		}
+
 		this.router = new Hashmux()
 		this.router.handle("/", (_, query) => this.openLinkList(query))
 		this.router.handle("/tags", () => this.setState({view: VIEW_TAGS}))
@@ -127,7 +131,7 @@ class Lindeb extends Component {
 		this.setState({
 			view: VIEW_LINKS,
 			links,
-			pages: Math.ceil(totalCount / +query.get("pagesize"))
+			pages: Math.ceil(totalCount / +query.get("pagesize")),
 		})
 	}
 
@@ -149,7 +153,7 @@ class Lindeb extends Component {
 	render() {
 		return (
 			<div className="lindeb">
-				<Topbar/>
+				<Topbar ref={topbar => this.topbar = topbar}/>
 
 				<main className={this.isAuthenticated() ? "authenticated" : ""}>
 					{this.getView()}
