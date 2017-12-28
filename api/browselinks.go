@@ -78,9 +78,8 @@ func filterLinks(r *http.Request, links []*db.Link) (filtered []apiLink, totalCo
 	return
 }
 
-func paginate(w http.ResponseWriter, r *http.Request, links []apiLink) (paginated []apiLink) {
+func paginate(w http.ResponseWriter, r *http.Request, links []apiLink) (paginated []apiLink, ok bool) {
 	var page, pageSize int
-	var ok bool
 	if page, ok = getQueryInt(w, r, "page", 0); !ok {
 		return
 	}
@@ -105,6 +104,8 @@ func paginate(w http.ResponseWriter, r *http.Request, links []apiLink) (paginate
 		}
 	}
 
+	ok = true
+
 	return
 }
 
@@ -116,28 +117,23 @@ func stringToInterfaceSlice(slice []string) []interface{} {
 	return new
 }
 
-func (api *API) buildQuery(user *db.User, search string, domains []string, tags []string, exclusiveTags bool, fields ...string) elastic.Query {
-	if len(fields) == 0 {
-		fields = []string{"url", "title", "description", "html"}
-	}
+func (api *API) buildQuery(user *db.User, search string, domains []string, tags []string, exclusiveTags bool) elastic.Query {
 	query := elastic.NewBoolQuery()
 	query.Filter(elastic.NewTermQuery("owner", user.ID))
-	var must []elastic.Query
-	must = append(must, elastic.NewMultiMatchQuery(search, fields...))
+	query.Should(elastic.NewFuzzyQuery("html", search).Boost(0.1))
+	query.Must(elastic.NewMultiMatchQuery(search, "url", "title", "description"))
 	if len(tags) > 0 {
 		if exclusiveTags {
 			for _, tag := range tags {
-				must = append(must, elastic.NewTermQuery("tags", tag))
+				query.Must(elastic.NewTermQuery("tags", tag))
 			}
 		} else {
-
-			must = append(must, elastic.NewTermsQuery("tags", stringToInterfaceSlice(tags)...))
+			query.Must(elastic.NewTermsQuery("tags", stringToInterfaceSlice(tags)...))
 		}
 	}
 	if len(domains) > 0 {
-		must = append(must, elastic.NewTermsQuery("domain", stringToInterfaceSlice(domains)))
+		query.Must(elastic.NewTermsQuery("domain", stringToInterfaceSlice(domains)))
 	}
-	query.Must(must...)
 	return query
 }
 
@@ -194,6 +190,11 @@ func (api *API) BrowseLinks(w http.ResponseWriter, r *http.Request) {
 		if !ok {
 			return
 		}
+	}
+
+	links, ok := paginate(w, r, links)
+	if !ok {
+		return
 	}
 
 	writeJSON(w, http.StatusOK, listResponse{
