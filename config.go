@@ -66,6 +66,9 @@ const elasticMapping = `
 				"domain": {
 					"type": "text"
 				},
+				"tags": {
+					"type": "text"
+				},
 				"title": {
 					"type": "text"
 				},
