@@ -137,7 +137,7 @@ class Lindeb extends Component {
 			headers: this.headers,
 			method: "DELETE"
 		})
-
+		// TODO handle errors
 		for (const [index, link] of Object.entries(this.state.links)) {
 			if (link.id === id) {
 				const links = this.state.links.slice()
@@ -153,11 +153,12 @@ class Lindeb extends Component {
 			return
 		}
 
-		const response = await fetch(`api/link/save`, {
+		await fetch(`api/link/save`, {
 			headers: this.headers,
 			method: "POST",
 			body: JSON.stringify(data),
 		})
+		// TODO handle errors
 		window.location.href = "#/"
 	}
 
@@ -171,6 +172,7 @@ class Lindeb extends Component {
 			method: "PUT",
 			body: JSON.stringify(data),
 		})
+		// TODO handle errors
 		const body = await response.json()
 		for (const [index, link] of Object.entries(this.state.links)) {
 			if (link.id === body.id) {
@@ -180,8 +182,6 @@ class Lindeb extends Component {
 				break
 			}
 		}
-		// TODO handle errors
-//		setTimeout(() => this.router.update(), 200)
 	}
 
 	async openLinkList(query) {

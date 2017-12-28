@@ -130,7 +130,7 @@ class Topbar extends Component {
 		return (
 			<header className="topbar">
 				<div className="brand-wrapper">
-					<h1 className="brand">lindeb</h1>
+					<a href="#/"><h1 className="brand">lindeb</h1></a>
 				</div>
 				{this.context.showSearch ? (
 					<div className="search-wrapper">
