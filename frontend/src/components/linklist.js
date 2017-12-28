@@ -14,27 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import React, {Component} from "react"
+import React, {PureComponent} from "react"
 import Link from "./link"
 
-class LinkListView extends Component {
-	static contextTypes = {}
-
-	constructor(props, context) {
-		super(props, context)
-		this.state = {
-			username: "",
-			password: "",
-		}
-	}
-
-	handleInputChange(event) {
-		this.setState({[event.target.name]: event.target.value})
-	}
-
+class LinkListView extends PureComponent {
 	render() {
 		if (!this.props.links) {
-			return <div></div>
+			return <div className="links"></div>
 		}
 		return (
 			<div className="links">

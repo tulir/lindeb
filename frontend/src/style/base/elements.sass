@@ -17,7 +17,7 @@
 button
 	font-family: $font-stack
 	padding: .375rem 1rem
-	background-color: $main-color
+	background-color: $background-color
 	border: none
 	border-radius: .25rem
 	color: $inverted-text-color
@@ -26,7 +26,12 @@ button
 	cursor: pointer
 
 	&:hover
-		background-color: $dark-color
+		background-color: darken($background-color, 10%)
+
+	&.main-color
+		background-color: $main-color
+		&:hover
+			background-color: $dark-color
 
 =button-group()
 	> button
@@ -35,6 +40,8 @@ button
 			border-radius: .25rem 0 0 .25rem
 		&:last-of-type
 			border-radius: 0 .25rem .25rem 0
+		&:first-of-type:last-of-type
+			border-radius: .25rem
 
 =vertical-button-group()
 	> button
@@ -43,11 +50,18 @@ button
 			border-radius: .25rem .25rem 0 0
 		&:last-of-type
 			border-radius: 0 0 .25rem .25rem
+		&:first-of-type:last-of-type
+			border-radius: .25rem
 
 input, textarea
-	border: none
-	background-color: $light-color
+	font-family: $font-stack
+	border: 1px solid #CCC
+	background-color: $background-color
+	color: $text-color
+	box-sizing: border-box
 	border-radius: .25rem
 	padding: .375rem 1rem
 	font-size: 1rem
-	color: white
+
+	&:hover, &:focus
+		border: 1px solid $main-color

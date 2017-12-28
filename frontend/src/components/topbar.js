@@ -139,7 +139,7 @@ class Topbar extends Component {
 					</div>
 				</div>
 				<div className="control-buttons">
-					<button type="button" className="logout" onClick={this.context.logout}>Sign out</button>
+					<button type="button" className="main-color logout" onClick={this.context.logout}>Sign out</button>
 				</div>
 			</header>
 		)

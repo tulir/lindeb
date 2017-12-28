@@ -17,24 +17,87 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import Tag from "./tag"
+import EditButton from "../res/edit.svg"
+import SaveButton from "../res/save.svg"
+import CancelButton from "../res/cancel.svg"
+import DeleteButton from "../res/delete.svg"
 
 class Link extends Component {
 	static contextTypes = {
 		topbar: PropTypes.object,
+		deleteLink: PropTypes.func,
+		updateLink: PropTypes.func,
 	}
 
 	constructor(props, context) {
 		super(props, context)
-		this.state = {}
+		this.state = {
+			editing: false,
+		}
+		this.edit = this.edit.bind(this)
+		this.finishEdit = this.finishEdit.bind(this)
+		this.saveEdit = this.saveEdit.bind(this)
+		this.delete = this.delete.bind(this)
+		this.handleInputChange = this.handleInputChange.bind(this)
 	}
 
 	handleInputChange(event) {
 		this.setState({[event.target.name]: event.target.value})
 	}
 
+	edit() {
+		const newState = Object.assign({editing: true}, this.props)
+		newState.tags = newState.tags.join(", ")
+		this.setState(newState)
+	}
+
+	finishEdit() {
+		this.setState({editing: false})
+	}
+
+	saveEdit() {
+		this.finishEdit()
+		const link = Object.assign({}, this.state)
+		link.tags = link.tags.split(",").map(tag => tag.trim()).filter(tag => !!tag)
+		delete link.editing
+		delete link.html
+		this.context.updateLink(link)
+	}
+
+	delete() {
+		this.finishEdit()
+		this.context.deleteLink(this.props.id)
+	}
+
 	render() {
+		if (this.state.editing) {
+			return (
+				<article className={`link ${this.state.editing ? "editing" : ""}`}>
+					<div className="buttons">
+						<button className="delete" type="button" onClick={this.delete}>
+							<DeleteButton/>
+						</button>
+						<button className="save" type="button" onClick={this.saveEdit}>
+							<SaveButton/>
+						</button>
+						<button className="cancel" type="button" onClick={this.finishEdit}>
+							<CancelButton/>
+						</button>
+					</div>
+					<input name="title" placeholder="Title" type="text" className="title" value={this.state.title} onChange={this.handleInputChange}/>
+					<input name="tags" placeholder="Comma-separated tags" type="text" className="tags-editor" value={this.state.tags} onChange={this.handleInputChange}/>
+					<input name="url" placeholder="URL" type="text" className="url" value={this.state.url} onChange={this.handleInputChange}/>
+					<textarea rows="4" name="description" placeholder="Description" className="description" value={this.state.description} onChange={this.handleInputChange}/>
+				</article>
+			)
+		}
 		return (
-			<article className="link">
+			<article className={`link ${this.state.editing ? "editing" : ""}`}>
+				<div className="buttons">
+					<button className="hover-only edit" type="button" onClick={this.edit}>
+						<EditButton/>
+					</button>
+				</div>
 				<header><h1 className="title">
 					<a href={this.props.url}>{this.props.title}</a>
 				</h1></header>

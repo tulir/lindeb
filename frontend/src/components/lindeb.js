@@ -30,6 +30,8 @@ class Lindeb extends Component {
 	static childContextTypes = {
 		login: PropTypes.func,
 		logout: PropTypes.func,
+		deleteLink: PropTypes.func,
+		updateLink: PropTypes.func,
 		tagsByID: PropTypes.object,
 		tagsByName: PropTypes.object,
 		isAuthenticated: PropTypes.func,
@@ -40,6 +42,8 @@ class Lindeb extends Component {
 		return {
 			login: this.login.bind(this),
 			logout: this.logout.bind(this),
+			deleteLink: this.deleteLink.bind(this),
+			updateLink: this.updateLink.bind(this),
 			tagsByID: this.state.tagsByID,
 			tagsByName: this.state.tagsByName,
 			isAuthenticated: this.isAuthenticated.bind(this),
@@ -113,6 +117,49 @@ class Lindeb extends Component {
 		delete localStorage.user
 		this.setState({user: undefined})
 		window.location.hash = "#/"
+	}
+
+	async deleteLink(id) {
+		if (!this.isAuthenticated()) {
+			return
+		}
+
+		await fetch(`api/link/${id}`, {
+			headers: this.headers,
+			method: "DELETE"
+		})
+
+		for (const [index, link] of Object.entries(this.state.links)) {
+			if (link.id === id) {
+				const links = this.state.links.slice()
+				links.splice(index, 1)
+				this.setState({links})
+				break
+			}
+		}
+	}
+
+	async updateLink(data) {
+		if (!this.isAuthenticated()) {
+			return
+		}
+
+		const response = await fetch(`api/link/${data.id}`, {
+			headers: this.headers,
+			method: "PUT",
+			body: JSON.stringify(data),
+		})
+		const body = await response.json()
+		for (const [index, link] of Object.entries(this.state.links)) {
+			if (link.id === body.id) {
+				const links = this.state.links.slice()
+				links[index] = body
+				this.setState({links})
+				break
+			}
+		}
+		// TODO handle errors
+//		setTimeout(() => this.router.update(), 200)
 	}
 
 	async openLinkList(query) {
