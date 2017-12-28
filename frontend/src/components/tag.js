@@ -20,20 +20,26 @@ import PropTypes from "prop-types"
 class Tag extends Component {
 	static contextTypes = {
 		tagsByName: PropTypes.object,
+		topbar: PropTypes.object,
 	}
 
 	constructor(props, context) {
 		super(props, context)
 		this.data = this.context.tagsByName.get(this.props.name)
+		this.click = this.click.bind(this)
 	}
 
 	handleInputChange(event) {
 		this.setState({[event.target.name]: event.target.value})
 	}
 
+	click() {
+		this.context.topbar.toggle("tag", this.props.name)
+	}
+
 	render() {
 		return (
-			<div className="tag" title={this.data.description}>
+			<div className="tag" onClick={this.click} title={this.data.description}>
 				{this.props.name}
 			</div>
 		)

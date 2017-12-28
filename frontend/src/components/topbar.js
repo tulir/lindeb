@@ -32,6 +32,7 @@ class Topbar extends Component {
 		super(props, context)
 		this.state = Object.assign({search: this.queryToSearch()})
 		this.searchQueryChanged = this.searchQueryChanged.bind(this)
+		this.searchEntered = this.searchEntered.bind(this)
 		this.searchTimeout = -1
 	}
 
@@ -48,7 +49,19 @@ class Topbar extends Component {
 
 		clearTimeout(this.searchTimeout)
 		this.searchToQuery().setCurrentURL(true)
-		window.onhashchange(window.location.hash)
+		window.onhashchange()
+	}
+
+	toggle(key, value) {
+		const str = value.includes(" ") ? `${key}="${value}"` : `${key}=${value}`
+		let search = this.state.search
+		if (search.includes(str)) {
+			search = search.replace(str, "")
+		} else {
+			search += ` ${str}`
+		}
+		search = search.trim()
+		this.setState({search}, this.searchEntered)
 	}
 
 	/**

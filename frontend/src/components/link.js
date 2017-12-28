@@ -15,10 +15,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import React, {Component} from "react"
+import PropTypes from "prop-types"
 import Tag from "./tag"
 
 class Link extends Component {
-	static contextTypes = {}
+	static contextTypes = {
+		topbar: PropTypes.object,
+	}
 
 	constructor(props, context) {
 		super(props, context)
@@ -38,7 +41,9 @@ class Link extends Component {
 				<div className="tags">
 					{this.props.tags.map(tag => <Tag key={tag} name={tag}/>)}
 				</div>
-				<address>{this.props.domain}</address>
+				<address onClick={() => this.context.topbar.toggle("domain", this.props.domain)}>
+					{this.props.domain}
+				</address>
 				<p>{this.props.description}</p>
 			</article>
 		)

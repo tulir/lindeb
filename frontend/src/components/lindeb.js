@@ -33,6 +33,7 @@ class Lindeb extends Component {
 		tagsByID: PropTypes.object,
 		tagsByName: PropTypes.object,
 		isAuthenticated: PropTypes.func,
+		topbar: PropTypes.object,
 	}
 
 	getChildContext() {
@@ -42,6 +43,7 @@ class Lindeb extends Component {
 			tagsByID: this.state.tagsByID,
 			tagsByName: this.state.tagsByName,
 			isAuthenticated: this.isAuthenticated.bind(this),
+			topbar: this.topbar,
 		}
 	}
 
