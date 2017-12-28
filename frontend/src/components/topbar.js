@@ -59,7 +59,7 @@ class Topbar extends Component {
 	searchToQuery() {
 		const query = new Query()
 		let search = this.state.search.replace(Topbar.searchFieldRegex, (_, key, value) => {
-			if (value.charAt(0) === '"' && value.charAt(value.length -1) === '"') {
+			if (value.charAt(0) === `#` && value.charAt(value.length - 1) === `#`) {
 				value = value.substr(1, value.length - 2)
 			}
 			query.add(key, value)
@@ -84,17 +84,25 @@ class Topbar extends Component {
 	 */
 	queryToSearch(query) {
 		if (!query) {
-			query = Query.parse()
+			query = Query.parse(decodeURIComponent(window.location.hash))
 		}
 		let search = ""
 		for (const domain of query.getAll("domain")) {
-			search += `domain=${domain} `
+			if (domain.includes(" ")) {
+				search += `domain="${domain}" `
+			} else {
+				search += `domain=${domain} `
+			}
 		}
 		if (query.get("exclusivetags")) {
 			search += "exclusive-tags "
 		}
 		for (const tag of query.getAll("tag")) {
-			search += `tag=${tag} `
+			if (tag.includes(" ")) {
+				search += `tag="${tag}" `
+			} else {
+				search += `tag=${tag} `
+			}
 		}
 		search += query.get("search") || ""
 		search = search.trim()
@@ -113,7 +121,8 @@ class Topbar extends Component {
 				<div className="search-wrapper">
 					<div className="centered-search-wrapper">
 						<SearchIcon/>
-						<input type="text" className="search" placeholder="Search" value={this.state.search} onKeyPress={this.searchEntered} onChange={this.searchQueryChanged}/>
+						<input type="text" className="search" placeholder="Search" value={this.state.search}
+							   onKeyPress={this.searchEntered} onChange={this.searchQueryChanged}/>
 					</div>
 				</div>
 				<div className="control-buttons">
