@@ -7,6 +7,7 @@ This is also a database exercise project.
 For the duration of the exercise project course, the repository will contain some useless files/readme sections, such as
 the [course documentation](https://github.com/tulir/lindeb/blob/master/docs/course.pdf)
 (also in [Google Docs](https://docs.google.com/document/d/1LhNw1F7La3O9GysxXFnXPuQvzvQhpxS3Gmd0t6iF50I)),
+[course progress](https://github.com/tulir/lindeb/blob/master/docs/course-progress.md),
 [SQL query files](https://github.com/tulir/lindeb/tree/master/docs/sql) and
 the following links to some React components:
 * [Kirjautumissivu](https://github.com/tulir/lindeb/blob/master/frontend/src/commponents/login.js)
