@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+main > .empty.links
+	margin-top: 3rem
+	text-align: center
+
 main > .links > .link
 	padding: 1rem .5rem
 	border-bottom: 1px solid #AAA
@@ -72,6 +76,11 @@ main > .links > .link
 
 	.bookmarklet
 		margin-top: 2rem
+		> a
+			text-decoration: none
+			color: white
+			background-color: $main-color
+			padding: .125rem .25rem
 
 .link.editing, .add-link
 	input, textarea

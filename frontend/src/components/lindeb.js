@@ -74,6 +74,10 @@ class Lindeb extends Component {
 			window.location.hash = "#/"
 		}
 
+		if (!this.state.user && localStorage.user) {
+			this.login(JSON.parse(localStorage.user))
+		}
+
 		this.router = new Hashmux()
 		this.router.handle("/", (_, query) => this.openLinkList(query))
 		this.router.handle("/save", (_, query) => this.openLinkAdder(query))
@@ -82,9 +86,6 @@ class Lindeb extends Component {
 	}
 
 	async componentDidMount() {
-		if (!this.state.user && localStorage.user) {
-			await this.login(JSON.parse(localStorage.user))
-		}
 		this.router.listen()
 	}
 

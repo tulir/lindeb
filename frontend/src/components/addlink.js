@@ -53,7 +53,7 @@ class LinkAddView extends Component {
 			<div className="add-link">
 				<input name="title" placeholder="Title" type="text" className="title" value={this.state.title} onChange={this.handleInputChange}/>
 				<input name="tags" placeholder="Comma-separated tags" type="text" className="tags-editor" value={this.state.tags} onChange={this.handleInputChange}/>
-				<input name="url" placeholder="URL" type="text" className="url" value={this.state.url} onChange={this.handleInputChange}/>
+				<input name="url" placeholder="URL (required)" required type="text" className="url" value={this.state.url} onChange={this.handleInputChange}/>
 				<textarea rows="4" name="description" placeholder="Description" className="description" value={this.state.description} onChange={this.handleInputChange}/>
 
 				<div className="buttons">
@@ -66,7 +66,7 @@ class LinkAddView extends Component {
 				</div>
 
 				<p className="bookmarklet">
-					P.S. You can quickly open this link adder by dragging this link to your bookmark toolbar: <a href={this.bookmarklet}>Save to lindeb</a>.
+					You can quickly open this link adder by dragging this link to your bookmark toolbar: <a href={this.bookmarklet}>Save to lindeb</a>.
 				</p>
 			</div>
 		)

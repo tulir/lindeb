@@ -20,8 +20,11 @@ import PageSwitcher from "./pageswitcher"
 
 class LinkListView extends PureComponent {
 	render() {
-		if (!this.props.links) {
-			return <div className="links"></div>
+		if (!this.props.links || this.props.links.length === 0) {
+			return <div className="empty links">
+				<h1>It's quite empty here.</h1>
+				<h3>Would you like to <a href="#/save">save a link</a>?</h3>
+			</div>
 		}
 		return (
 			<div className="links">
