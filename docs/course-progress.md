@@ -15,13 +15,13 @@
 ## Viikko 2
 1. [ ] Suunnittele käyttöliittymäsi ja toteuta **ne** ~~niistä staattiset HTML-sivut~~. Muista lisätä linkit toteuttamiisi sivuihin reposi README.md-tiedostoon. (1,5p)
    * [x] Suunnittele etusivu
-   * [x] Suunnittele kaikki listaussivut
+   * [ ] Suunnittele kaikki listaussivut
    * [ ] Suunnittele kaikki muokkaus- ja esittelysivut
 2. [x] Ota tietokanta käyttöön ja dokumentoi se. (1,5p)
    * [x] Lisää dokumentaatioon järjestelmän tietosisältö osio ja relaatiotietokantakaavio
    * [x] Lisää tietokantataulujen pystytyslauseet create_tables.sql-tiedostoon. Pystytä näillä taulut tietokantaan.
    * [x] Lisää tietokantataulujen poistolauseet drop_tables.sql-tiedostoon
-   * [x] Lisää testidatan lisäyslauseet add_test_data.sql-tiedostoon. Aja testidata tietokantaan.
+   * [x] Lisää testidatan lisäyslauseet add_test_data.sql-tiedostoon. ~~Aja testidata tietokantaan.~~
 
 ## Viikko 3
 1. [x] Toteuta sovellukseesi vähintään yksi malliluokka, jossa on kaikki tietokohteen oliot tietokannasta hakeva metodi (esim. all), tietyllä id:llä varustetun tietokohteen olion tietokannasta hakeva metodi (esim. find) ja tietokohteen olion tietokantaan lisäävä metodi (esim. save). (1,5p)
