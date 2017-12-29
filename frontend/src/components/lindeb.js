@@ -16,7 +16,7 @@
 
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import {Hashmux} from "hashmux"
+import {Hashmux, Query} from "hashmux"
 import Topbar from "./topbar"
 import LoginView from "./login"
 import LinkView from "./linklist"
@@ -35,6 +35,7 @@ class Lindeb extends Component {
 		deleteLink: PropTypes.func,
 		updateLink: PropTypes.func,
 		addLink: PropTypes.func,
+		switchPage: PropTypes.func,
 		tagsByID: PropTypes.object,
 		tagsByName: PropTypes.object,
 		isAuthenticated: PropTypes.func,
@@ -50,6 +51,7 @@ class Lindeb extends Component {
 			deleteLink: this.deleteLink.bind(this),
 			updateLink: this.updateLink.bind(this),
 			addLink: this.addLink.bind(this),
+			switchPage: this.switchPage.bind(this),
 			tagsByID: this.state.tagsByID,
 			tagsByName: this.state.tagsByName,
 			isAuthenticated: this.isAuthenticated.bind(this),
@@ -202,8 +204,13 @@ class Lindeb extends Component {
 		this.setState({
 			view: VIEW_LINKS,
 			links,
+			page: +query.get("page"),
 			pages: Math.ceil(totalCount / +query.get("pagesize")),
 		})
+	}
+
+	switchPage(to) {
+		Query.set("page", to)
 	}
 
 	openLinkAdder(query) {
@@ -235,7 +242,7 @@ class Lindeb extends Component {
 			return <LinkAddView {...this.state.newLink}/>
 		default:
 		case VIEW_LINKS:
-			return <LinkView links={this.state.links}/>
+			return <LinkView links={this.state.links} page={this.state.page} pageCount={this.state.pages}/>
 		}
 	}
 
