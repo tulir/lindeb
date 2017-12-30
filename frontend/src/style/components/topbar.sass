@@ -17,11 +17,13 @@
 header.topbar
 	display: flex
 	align-items: center
+	justify-content: space-between
 	background-color: $main-color
 	color: white
 
 	> .brand-wrapper
 		padding: 0 1rem
+		box-sizing: border-box
 		> a
 			text-decoration: none
 			> .brand
@@ -30,35 +32,34 @@ header.topbar
 				font-weight: normal
 
 	> .search-wrapper
-		flex: 1
-		text-align: center
 		height: 2.25rem
 
-		> .centered-search-wrapper
-			display: inline-flex
-			align-items: center
-			border-radius: .25rem
-			max-width: $max-width
+		display: inline-flex
+		align-items: center
+		margin-right: 1rem
+		border-radius: .25rem
+		max-width: $max-width
+		width: 100%
+		background-color: $light-color
+
+		> svg
+			margin-left: .5rem
+			width: 24px
+			fill: #ACEAB7
+
+		> input
+			padding: .5rem
 			width: 100%
+			box-sizing: border-box
 			height: 100%
+			border: none
 			background-color: $light-color
-
-			> svg
-				margin-left: .5rem
-				width: 24px
-				fill: #ACEAB7
-
-			> input
-				padding: .5rem
-				width: 100%
-				box-sizing: border-box
-				height: 100%
-				border: none
-				background-color: $light-color
-				color: white
+			color: white
 
 	> .control-buttons
 		padding: 0 .5rem
 		height: 2.25rem
+		box-sizing: border-box
 		> button
+			white-space: nowrap
 			height: 100%

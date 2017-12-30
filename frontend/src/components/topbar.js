@@ -134,11 +134,9 @@ class Topbar extends Component {
 				</div>
 				{this.context.showSearch ? (
 					<div className="search-wrapper">
-						<div className="centered-search-wrapper">
 							<SearchIcon/>
 							<input type="text" className="search" placeholder="Search" value={this.state.search}
 								   onKeyPress={this.searchEntered} onChange={this.searchQueryChanged}/>
-						</div>
 					</div>
 				) : (
 					<div className="search-wrapper"/>
