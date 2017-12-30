@@ -73,7 +73,7 @@ class Topbar extends Component {
 	searchToQuery() {
 		const query = new Query()
 		let search = this.state.search.replace(Topbar.searchFieldRegex, (_, key, value) => {
-			if (value.charAt(0) === `#` && value.charAt(value.length - 1) === `#`) {
+			if (value.charAt(0) === `"` && value.charAt(value.length - 1) === `"`) {
 				value = value.substr(1, value.length - 2)
 			}
 			query.add(key, value)
@@ -91,14 +91,14 @@ class Topbar extends Component {
 	}
 
 	/**
-	 * Update the search string in the topbar with the values in the given Hashmux Query object.
+	 * Convert the values in a Hashmux Query object into a search bar query.
 	 *
 	 * @param   {Query}  [query] The Hashmux Query object to use. If undefined, Query.parse() is used as the value.
 	 * @returns {string}         The search string that matches the given Query object.
 	 */
 	queryToSearch(query) {
 		if (!query) {
-			query = Query.parse(window.location.hash)
+			query = Query.parse()
 		}
 		let search = ""
 		for (const domain of query.getAll("domain")) {
@@ -130,7 +130,7 @@ class Topbar extends Component {
 		return (
 			<header className="topbar">
 				<div className="brand-wrapper">
-					<a href="#/"><h1 className="brand">lindeb</h1></a>
+					<a href="#/" onClick={() => this.setState({search: ""})}><h1 className="brand">lindeb</h1></a>
 				</div>
 				{this.context.showSearch ? (
 					<div className="search-wrapper">
