@@ -42,6 +42,7 @@ class Lindeb extends Component {
 		topbar: PropTypes.object,
 		user: PropTypes.object,
 		showSearch: PropTypes.bool,
+		error: PropTypes.func,
 	}
 
 	getChildContext() {
@@ -55,6 +56,7 @@ class Lindeb extends Component {
 			tagsByID: this.state.tagsByID,
 			tagsByName: this.state.tagsByName,
 			isAuthenticated: this.isAuthenticated.bind(this),
+			error: this.error.bind(this),
 			topbar: this.topbar,
 			user: this.state.user,
 			showSearch: this.state.view === VIEW_LINKS,
@@ -105,6 +107,29 @@ class Lindeb extends Component {
 		return !!this.state.user
 	}
 
+	async error(action, result) {
+		console.error(`Error while ${action}: ${await result.text()}`)
+		console.error(result)
+		switch (result.status) {
+			case 401:
+				if (action === "logging in") {
+					this.setState({error: "Invalid username or password"})
+				}
+				// Invalid authentication.
+				delete localStorage.user
+				return
+			case 500:
+				this.setState({error: "Internal server error"})
+				return
+			case 502:
+				this.setState({error: "Could not connect to lindeb backend"})
+				return
+			default:
+				this.setState({error: `Unknown error: ${result.statusText}`})
+				return
+		}
+	}
+
 	async login(userData) {
 		localStorage.user = JSON.stringify(userData)
 
@@ -115,7 +140,7 @@ class Lindeb extends Component {
 			},
 		})
 		if (!tagFetchResult.ok) {
-			console.log("Unhandled error fetching tags:", await tagFetchResult.text())
+			await this.error("fetching tags", tagFetchResult)
 			return
 		}
 		const rawTags = await tagFetchResult.json() || []
@@ -136,11 +161,14 @@ class Lindeb extends Component {
 			return
 		}
 
-		await fetch(`api/link/${id}`, {
+		const response = await fetch(`api/link/${id}`, {
 			headers: this.headers,
 			method: "DELETE"
 		})
-		// TODO handle errors
+		if (!response.ok) {
+			await this.error("deleting link", response)
+			return
+		}
 		for (const [index, link] of Object.entries(this.state.links)) {
 			if (link.id === id) {
 				const links = this.state.links.slice()
@@ -156,12 +184,15 @@ class Lindeb extends Component {
 			return
 		}
 
-		await fetch(`api/link/save`, {
+		const response = await fetch(`api/link/save`, {
 			headers: this.headers,
 			method: "POST",
 			body: JSON.stringify(data),
 		})
-		// TODO handle errors
+		if (!response.ok) {
+			await this.error("saving link", response)
+			return
+		}
 		window.location.href = "#/"
 	}
 
@@ -175,7 +206,10 @@ class Lindeb extends Component {
 			method: "PUT",
 			body: JSON.stringify(data),
 		})
-		// TODO handle errors
+		if (!response.ok) {
+			await this.error("updating link", response)
+			return
+		}
 		const body = await response.json()
 		for (const [index, link] of Object.entries(this.state.links)) {
 			if (link.id === body.id) {
@@ -201,6 +235,10 @@ class Lindeb extends Component {
 		const linkResponse = await fetch(`api/links?${query.toString()}`, {
 			headers: this.headers,
 		})
+		if (!linkResponse.ok) {
+			await this.error("fetching links", linkResponse)
+			return
+		}
 		const {links, totalCount} = await linkResponse.json()
 		this.setState({
 			view: VIEW_LINKS,
@@ -232,18 +270,22 @@ class Lindeb extends Component {
 
 	getView() {
 		if (!this.state.user) {
-			return <LoginView/>
+			return <LoginView error={this.state.error}/>
 		}
 		switch (this.state.view) {
-		case VIEW_TAGS:
-			return undefined // <TagView/>
-		case VIEW_SETTINGS:
-			return undefined // <SettingsView/>
-		case VIEW_LINK_ADD:
-			return <LinkAddView {...this.state.newLink}/>
-		default:
-		case VIEW_LINKS:
-			return <LinkView links={this.state.links} page={this.state.page} pageCount={this.state.pages}/>
+			case VIEW_TAGS:
+				return undefined // <TagView/>
+			case VIEW_SETTINGS:
+				return undefined // <SettingsView/>
+			case VIEW_LINK_ADD:
+				return <LinkAddView error={this.state.error} {...this.state.newLink}/>
+			default:
+			case VIEW_LINKS:
+				return <LinkView
+					error={this.state.error}
+					links={this.state.links}
+					page={this.state.page}
+					pageCount={this.state.pages}/>
 		}
 	}
 

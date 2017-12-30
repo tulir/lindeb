@@ -51,6 +51,7 @@ class LinkAddView extends Component {
 	render() {
 		return (
 			<div className="add-link">
+				<div className="error">{this.props.error}</div>
 				<input name="title" placeholder="Title" type="text" className="title" value={this.state.title} onChange={this.handleInputChange}/>
 				<input name="tags" placeholder="Comma-separated tags" type="text" className="tags-editor" value={this.state.tags} onChange={this.handleInputChange}/>
 				<input name="url" placeholder="URL (required)" required type="text" className="url" value={this.state.url} onChange={this.handleInputChange}/>

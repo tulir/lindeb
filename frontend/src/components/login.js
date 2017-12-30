@@ -20,6 +20,7 @@ import PropTypes from "prop-types"
 class LoginView extends Component {
 	static contextTypes = {
 		login: PropTypes.func,
+		error: PropTypes.func,
 	}
 
 	constructor(props, context) {
@@ -44,6 +45,10 @@ class LoginView extends Component {
 				method: "POST",
 				body: JSON.stringify(this.state),
 			})
+			if (!response.ok) {
+				await this.context.error("logging in", response)
+				return
+			}
 			const data = await response.json()
 			this.context.login(data)
 		} catch (err) {
@@ -55,11 +60,12 @@ class LoginView extends Component {
 		return (
 			<div className="login">
 				<h1>lindeb</h1>
-				<input type="text" name="username" className="username"
+				<div className="error">{this.props.error}</div>
+				<input required type="text" name="username" className="username"
 					   placeholder="Username"
 					   value={this.state.username}
 					   onChange={this.handleInputChange}/>
-				<input type="password" name="password" className="password"
+				<input required type="password" name="password" className="password"
 					   placeholder="Password"
 					   value={this.state.password}
 					   onChange={this.handleInputChange}/>

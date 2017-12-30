@@ -29,6 +29,7 @@ class LinkListView extends PureComponent {
 		return (
 			<div className="links">
 				<PageSwitcher {...this.props}/>
+				<div className="error">{this.props.error}</div>
 				{this.props.links.map(link => <Link key={link.id} {...link}/>)}
 				<PageSwitcher {...this.props}/>
 			</div>
