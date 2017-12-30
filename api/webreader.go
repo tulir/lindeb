@@ -45,6 +45,9 @@ func scrapeLink(link *db.Link) (body string) {
 
 	body = string(rawBody)
 	link.Title, link.Description = findMetadata(body)
+	if len(link.Title) == 0 {
+		link.Title = link.URL.String()
+	}
 	return
 }
 
