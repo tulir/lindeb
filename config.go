@@ -44,7 +44,17 @@ const elasticMapping = `
 {
 	"settings": {
 		"number_of_shards": 1,
-		"number_of_replicas": 0
+		"number_of_replicas": 0,
+		"analysis": {
+			"analyzer": {
+				"html_analyzer": {
+					"char_filter": ["html_strip"]
+				},
+				"tag_analyzer": {
+					"tokenizer": "keyword"
+				}
+			}
+		}
 	},
 	"mappings": {
 		"link": {
@@ -67,7 +77,8 @@ const elasticMapping = `
 					"type": "text"
 				},
 				"tags": {
-					"type": "text"
+					"type": "text",
+					"analyzer": "tag_analyzer"
 				},
 				"title": {
 					"type": "text"
@@ -76,10 +87,8 @@ const elasticMapping = `
 					"type": "text"
 				},
 				"html": {
-					"type": "text"
-				},
-				"timestamp": {
-					"type": "date"
+					"type": "text",
+					"analyzer": "html_analyzer"
 				}
 			}
 		}
