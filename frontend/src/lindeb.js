@@ -17,10 +17,10 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {Hashmux, Query} from "hashmux"
-import Topbar from "./topbar"
-import LoginView from "./login"
-import LinkView from "./linklist"
-import LinkAddView from "./addlink"
+import Topbar from "./components/topbar"
+import LoginView from "./components/login"
+import LinkView from "./components/linklist"
+import LinkAddView from "./components/addlink"
 
 const
 	VIEW_LINKS = "links",
