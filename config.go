@@ -48,6 +48,7 @@ const elasticMapping = `
 		"analysis": {
 			"analyzer": {
 				"html_analyzer": {
+					"tokenizer": "standard",
 					"char_filter": ["html_strip"]
 				},
 				"tag_analyzer": {
