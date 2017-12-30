@@ -110,13 +110,23 @@ class Lindeb extends Component {
 	async error(action, result) {
 		console.error(`Error while ${action}: ${await result.text()}`)
 		console.error(result)
+		if (action === "logging in") {
+			switch (result.status) {
+				case 401:
+					this.setState({error: "Invalid username or password"})
+					return
+				case 409:
+					this.setState({error: "Username is already in use"})
+					return
+			}
+		}
 		switch (result.status) {
 			case 401:
-				if (action === "logging in") {
-					this.setState({error: "Invalid username or password"})
-				}
 				// Invalid authentication.
 				delete localStorage.user
+				return
+			case 429:
+				this.setState({error: "Rate limit encountered: Please wait before re-sending request"})
 				return
 			case 500:
 				this.setState({error: "Internal server error"})
@@ -163,7 +173,7 @@ class Lindeb extends Component {
 
 		const response = await fetch(`api/link/${id}`, {
 			headers: this.headers,
-			method: "DELETE"
+			method: "DELETE",
 		})
 		if (!response.ok) {
 			await this.error("deleting link", response)
