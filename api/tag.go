@@ -105,7 +105,7 @@ func (api *API) EditTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(inputTag.Name) > 0 {
+	if len(inputTag.Name) > 0 && inputTag.Name != tag.Name {
 		duplicateTag := user.GetTagByName(inputTag.Name)
 		if duplicateTag != nil {
 			http.Error(w, fmt.Sprintf("New name conflicts with tag %d", duplicateTag.ID), http.StatusConflict)
