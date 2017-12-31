@@ -13,10 +13,10 @@
 4. [x] Rekisteröidy labtooliin. Valitse kurssiksi Tsoha2017-joulu.
 
 ## Viikko 2
-1. [ ] Suunnittele käyttöliittymäsi ja toteuta **ne** ~~niistä staattiset HTML-sivut~~. Muista lisätä linkit toteuttamiisi sivuihin reposi README.md-tiedostoon. (1,5p)
-   * [x] Suunnittele etusivu
-   * [ ] Suunnittele kaikki listaussivut
-   * [ ] Suunnittele kaikki muokkaus- ja esittelysivut
+1. [x] Suunnittele käyttöliittymäsi ja toteuta **ne** ~~niistä staattiset HTML-sivut~~. Muista lisätä linkit toteuttamiisi sivuihin reposi README.md-tiedostoon. (1,5p)
+   * [x] Toteuta etusivu
+   * [x] Toteuta kaikki listaussivut
+   * [x] Toteuta kaikki muokkaus- ja esittelysivut
 2. [x] Ota tietokanta käyttöön ja dokumentoi se. (1,5p)
    * [x] Lisää dokumentaatioon järjestelmän tietosisältö osio ja relaatiotietokantakaavio
    * [x] Lisää tietokantataulujen pystytyslauseet create_tables.sql-tiedostoon. Pystytä näillä taulut tietokantaan.

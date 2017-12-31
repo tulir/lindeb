@@ -13,6 +13,7 @@ the following links to some React components:
 * [Kirjautumissivu](https://github.com/tulir/lindeb/blob/master/frontend/src/components/login.js)
 * [Linkkilista (etusivu, linkkien muokkaus ja linkkien poisto)](https://github.com/tulir/lindeb/blob/master/frontend/src/components/linklist.js)
 * [Linkin lisäys](https://github.com/tulir/lindeb/blob/master/frontend/src/components/addlink.js)
+* [Tagilista (tagien listaus, lisäys, muokkaus ja poisto)](https://github.com/tulir/lindeb/blob/master/frontend/src/components/taglist.js)
 
 ## Objective
 The goal of this project is to create an easy-to-use system for saving links and searching saved links.
