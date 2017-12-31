@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-button
+=button()
 	font-family: $font-stack
 	padding: .375rem 1rem
 	background-color: $background-color
@@ -28,13 +28,24 @@ button
 	&:hover
 		background-color: darken($background-color, 10%)
 
+=link-button()
+	display: inline-block
+	text-align: center
+	text-decoration: none
+
+=main-color-button()
+	background-color: $main-color
+	&:hover
+		background-color: $dark-color
+
+button, .button
+	+button
+
 	&.main-color
-		background-color: $main-color
-		&:hover
-			background-color: $dark-color
+		+main-color-button
 
 =button-group()
-	> button
+	> button, > .button
 		border-radius: 0
 		&:first-of-type
 			border-radius: .25rem 0 0 .25rem
@@ -44,7 +55,7 @@ button
 			border-radius: .25rem
 
 =vertical-button-group()
-	> button
+	> button, > .button
 		border-radius: 0
 		&:first-of-type
 			border-radius: .25rem .25rem 0 0

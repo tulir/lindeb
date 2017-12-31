@@ -138,9 +138,7 @@ class Topbar extends Component {
 							<input type="text" className="search" placeholder="Search" value={this.state.search}
 								   onKeyPress={this.searchEntered} onChange={this.searchQueryChanged}/>
 					</div>
-				) : (
-					<div className="search-wrapper"/>
-				)}
+				) : ""}
 				<div className="control-buttons">
 					<button type="button" className="main-color logout" onClick={this.context.logout}>Sign out</button>
 				</div>

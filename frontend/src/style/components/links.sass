@@ -14,11 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-main > .empty.links
-	margin-top: 3rem
-	text-align: center
+main > .links
+	&.empty
+		margin-top: 3rem
+		text-align: center
 
-main > .links > .link
+	> .buttons
+		margin-top: .5rem
+		margin-bottom: -.5rem
+		width: 100%
+		> a
+			border-radius: 0
+			+main-color-button
+			+link-button
+			width: 50%
+
+.links > .link
 	padding: 1rem .5rem
 	border-bottom: 1px solid #AAA
 
