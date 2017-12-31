@@ -51,25 +51,6 @@ main > .links
 	p
 		margin: .25rem 0
 
-	&:not(:hover) > .buttons > button.hover-only
-		display: none
-
-	.buttons
-		float: right
-		text-align: center
-		margin-top: .5rem
-
-		> button
-			padding: .5rem
-			font-size: 0
-
-			&.small
-				padding: .25rem
-
-			> svg
-				fill: $light-color
-				width: 100%
-
 .add-link
 	margin-top: 2rem
 
@@ -92,27 +73,3 @@ main > .links
 			color: white
 			background-color: $main-color
 			padding: .125rem .25rem
-
-.link.editing, .add-link
-	input, textarea
-		background-color: white
-		width: 100%
-		margin: .25rem 0
-
-	.title
-		width: calc(100% - 8rem)
-		font-size: 1.4rem
-		border: none
-		border-bottom: 1px solid $main-color
-		margin-bottom: calc(.25rem + 1px)
-		border-radius: 0
-		padding: .375rem 0
-		background: none
-		resize: vertical
-
-		&:hover
-			border-bottom: 1px solid $dark-color
-
-		&:focus
-			border-bottom: 2px solid $dark-color
-			margin-bottom: .25rem

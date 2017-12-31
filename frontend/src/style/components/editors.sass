@@ -14,30 +14,43 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-.link > .tags
-	color: $alt-color
-	display: inline-block
+.link.editing, .add-link, .full.tag.editing
+	input, textarea
+		background-color: white
+		width: 100%
+		margin: .25rem 0
 
-	&:empty
-		display: none
-
-	.tag
-		cursor: pointer
-		display: inline-block
-		font-size: 1.1rem
-
-		margin-right: .25rem
-
-		&::before
-			content: "#"
-
-.full.tag
-	padding: 1rem .5rem
-	border-bottom: 1px solid #AAA
-
-	.name
+	.title, .name
+		width: calc(100% - 8rem)
 		font-size: 1.4rem
-		color: $main-color
+		border: none
+		border-bottom: 1px solid $main-color
+		margin-bottom: calc(.25rem + 1px)
+		border-radius: 0
+		padding: .375rem 0
+		background: none
 
-main > .taglist
+		&:hover
+			border-bottom: 1px solid $dark-color
 
+		&:focus
+			border-bottom: 2px solid $dark-color
+			margin-bottom: .25rem
+
+.link, .full.tag
+	&:not(:hover) > .buttons > button.hover-only
+		display: none
+	> .buttons
+		float: right
+		text-align: center
+
+		> button
+			padding: .5rem
+			font-size: 0
+
+			&.overflow-padding
+				margin: -.25rem -.25rem 0 0
+
+			> svg
+				fill: $light-color
+				width: 100%

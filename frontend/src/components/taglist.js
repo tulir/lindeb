@@ -14,13 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
+import React, {PureComponent} from "react"
+import FullTag from "./fulltag"
 
-@import components/login
-@import components/topbar
-@import components/pageswitcher
-@import components/links
-@import components/tags
-@import components/editors
+class TagListView extends PureComponent {
+	render() {
+		return (
+			<div className="taglist">
+				<div className="error">{this.props.error}</div>
+				{this.props.tags.map(tag => <FullTag key={tag.id} {...tag}/>)}
+			</div>
+		)
+	}
+}
+
+export default TagListView

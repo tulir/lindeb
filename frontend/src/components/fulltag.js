@@ -16,17 +16,15 @@
 
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import Tag from "./tag"
 import EditButton from "../res/edit.svg"
 import SaveButton from "../res/save.svg"
 import CancelButton from "../res/cancel.svg"
 import DeleteButton from "../res/delete.svg"
 
-class Link extends Component {
+class FullTag extends Component {
 	static contextTypes = {
-		topbar: PropTypes.object,
-		deleteLink: PropTypes.func,
-		updateLink: PropTypes.func,
+		saveTag: PropTypes.func,
+		deleteTag: PropTypes.func,
 	}
 
 	constructor(props, context) {
@@ -46,9 +44,7 @@ class Link extends Component {
 	}
 
 	edit() {
-		const newState = Object.assign({editing: true}, this.props)
-		newState.tags = newState.tags.join(", ")
-		this.setState(newState)
+		this.setState(Object.assign({editing: true}, this.props))
 	}
 
 	finishEdit() {
@@ -57,22 +53,20 @@ class Link extends Component {
 
 	saveEdit() {
 		this.finishEdit()
-		const link = Object.assign({}, this.state)
-		link.tags = link.tags.split(",").map(tag => tag.trim()).filter(tag => !!tag)
-		delete link.editing
-		delete link.html
-		this.context.updateLink(link)
+		const tag = Object.assign({}, this.state)
+		delete tag.editing
+		this.context.saveTag(tag)
 	}
 
 	delete() {
 		this.finishEdit()
-		this.context.deleteLink(this.props.id)
+		this.context.deleteTag(this.props.id)
 	}
 
 	render() {
 		if (this.state.editing) {
 			return (
-				<div className="link editing">
+				<div className="editing full tag">
 					<div className="buttons">
 						<button className="delete" type="button" onClick={this.delete}>
 							<DeleteButton/>
@@ -84,33 +78,23 @@ class Link extends Component {
 							<CancelButton/>
 						</button>
 					</div>
-					<input name="title" placeholder="Title" type="text" className="title" value={this.state.title} onChange={this.handleInputChange}/>
-					<input name="tags" placeholder="Comma-separated tags" type="text" className="tags-editor" value={this.state.tags} onChange={this.handleInputChange}/>
-					<input name="url" placeholder="URL" type="text" className="url" value={this.state.url} onChange={this.handleInputChange}/>
-					<textarea rows="4" name="description" placeholder="Description" className="description" value={this.state.description} onChange={this.handleInputChange}/>
+					<input placeholder="Name" required name="name" className="name" value={this.state.name} onChange={this.handleInputChange}/>
+					<textarea placeholder="Description" name="description" rows="3" className="description" value={this.state.description} onChange={this.handleInputChange}/>
 				</div>
 			)
 		}
 		return (
-			<article className="link">
+			<div className="full tag">
 				<div className="buttons">
-					<button className="hover-only edit" type="button" onClick={this.edit}>
+					<button className="overflow-padding hover-only edit" type="button" onClick={this.edit}>
 						<EditButton/>
 					</button>
 				</div>
-				<header><h1 className="title">
-					<a href={this.props.url}>{this.props.title}</a>
-				</h1></header>
-				<div className="tags">
-					{this.props.tags.map(tag => <Tag key={tag} name={tag}/>)}
-				</div>
-				<address onClick={() => this.context.topbar.toggle("domain", this.props.domain)}>
-					{this.props.domain}
-				</address>
-				<p>{this.props.description}</p>
-			</article>
+				<div className="name">{this.props.name}</div>
+				<div className="description">{this.props.description}</div>
+			</div>
 		)
 	}
 }
 
-export default Link
+export default FullTag

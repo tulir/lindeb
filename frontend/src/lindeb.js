@@ -16,9 +16,11 @@
 
 import React, {Component} from "react"
 import PropTypes from "prop-types"
+import update from 'immutability-helper'
 import {Hashmux, Query} from "hashmux"
 import Topbar from "./components/topbar"
 import LoginView from "./components/login"
+import TagView from "./components/taglist"
 import LinkView from "./components/linklist"
 import LinkAddView from "./components/addlink"
 
@@ -38,6 +40,8 @@ class Lindeb extends Component {
 		deleteLink: PropTypes.func,
 		updateLink: PropTypes.func,
 		addLink: PropTypes.func,
+		saveTag: PropTypes.func,
+		deleteTag: PropTypes.func,
 		switchPage: PropTypes.func,
 		isAuthenticated: PropTypes.func,
 		error: PropTypes.func,
@@ -56,6 +60,8 @@ class Lindeb extends Component {
 			deleteLink: this.deleteLink.bind(this),
 			updateLink: this.updateLink.bind(this),
 			addLink: this.addLink.bind(this),
+			saveTag: this.saveTag.bind(this),
+			deleteTag: this.deleteTag.bind(this),
 			switchPage: this.switchPage.bind(this),
 			isAuthenticated: this.isAuthenticated.bind(this),
 			error: this.error.bind(this),
@@ -90,6 +96,10 @@ class Lindeb extends Component {
 		this.router.handle("/save", (_, query) => this.openLinkAdder(query))
 		this.router.handle("/tags", () => this.setState({view: VIEW_TAGS}))
 		this.router.handle("/settings", () => this.setState({view: VIEW_SETTINGS}))
+	}
+
+	componentDidMount() {
+		// If we do this in the constructor, it may trigger a setState() call before the component is mounted.
 		this.router.listen()
 	}
 
@@ -135,7 +145,7 @@ class Lindeb extends Component {
 					this.setState({error: "Username is already in use"})
 					return
 				default:
-					// continue to next switch
+				// continue to next switch
 			}
 		}
 		switch (result.status) {
@@ -202,6 +212,62 @@ class Lindeb extends Component {
 		window.location.hash = "#/"
 	}
 
+	async saveTag(tag) {
+		if (!this.isAuthenticated()) {
+			return
+		}
+
+		const action = tag.id ? "updating tag" : "adding tag"
+
+		try {
+			const response = await fetch(`api/tag/${tag.id || "save"}`, {
+				headers: this.headers,
+				method: tag.id ? "PUT" : "POST",
+				body: JSON.stringify(tag),
+			})
+			if (!response.ok) {
+				await this.error(action, response)
+				return
+			}
+			const newTag = await response.json()
+			const tagsByID = new Map(this.state.tagsByID)
+			const tagsByName = new Map(this.state.tagsByName)
+			tagsByID.set(newTag.id, tag)
+			if (tag.id) {
+				// If tag existed before, delete it from the tags by name map.
+				tagsByName.delete(tag.name)
+			}
+			tagsByName.set(newTag.name, tag)
+			this.setState({tagsByID, tagsByName})
+		} catch (err) {
+			console.error(`Fatal error while ${action}:`, err)
+		}
+	}
+
+	async deleteTag(id) {
+		if (!this.isAuthenticated()) {
+			return
+		}
+
+		try {
+			const response = await fetch(`api/tag/${id}`, {
+				headers: this.headers,
+				method: "DELETE",
+			})
+			if (!response.ok) {
+				await this.error("deleting tag", response)
+				return
+			}
+			const deletedTag = this.state.tagsByID.get(id)
+			this.setState({
+				tagsByName: update(this.state.tagsByName, {$remove: [deletedTag.name]}),
+				tagsByID: update(this.state.tagsByID, {$remove: [id]}),
+			})
+		} catch (err) {
+			console.error("Fatal error while deleting link:", err)
+		}
+	}
+
 	/**
 	 * Delete a link.
 	 *
@@ -223,9 +289,7 @@ class Lindeb extends Component {
 			}
 			for (const [index, link] of Object.entries(this.state.links)) {
 				if (link.id === id) {
-					const links = this.state.links.slice()
-					links.splice(index, 1)
-					this.setState({links})
+					this.setState({links: update(this.state.links, {$splice: [[index, 1]]})})
 					break
 				}
 			}
@@ -379,7 +443,7 @@ class Lindeb extends Component {
 		}
 		switch (this.state.view) {
 			case VIEW_TAGS:
-				return undefined // <TagView/>
+				return <TagView tags={this.state.tagsByID}/>
 			case VIEW_SETTINGS:
 				return undefined // <SettingsView/>
 			case VIEW_LINK_ADD:

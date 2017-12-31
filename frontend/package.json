@@ -43,6 +43,7 @@
     "fs-extra": "3.0.1",
     "hashmux": "^2.3.2",
     "html-webpack-plugin": "2.29.0",
+    "immutability-helper": "^2.6.2",
     "jest": "20.0.4",
     "node-sass": "^4.7.2",
     "object-assign": "4.1.1",

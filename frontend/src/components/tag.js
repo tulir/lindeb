@@ -29,10 +29,6 @@ class Tag extends Component {
 		this.click = this.click.bind(this)
 	}
 
-	handleInputChange(event) {
-		this.setState({[event.target.name]: event.target.value})
-	}
-
 	click() {
 		this.context.topbar.toggle("tag", this.props.name)
 	}
