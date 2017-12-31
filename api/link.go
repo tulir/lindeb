@@ -181,11 +181,6 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 	}
 
 	htmlBody := scrapeLink(link)
-	err = link.Update()
-	if err != nil {
-		internalError(w, "Failed to update link %d in database: %v", link.ID, err)
-		return
-	}
 	if len(inputLink.Title) > 0 {
 		link.Title = inputLink.Title
 	}
@@ -193,6 +188,11 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 		link.Description = inputLink.Description
 	}
 
+	err = link.Update()
+	if err != nil {
+		internalError(w, "Failed to update link %d in database: %v", link.ID, err)
+		return
+	}
 
 	err = link.UpdateTags(inputLink.Tags)
 	if err != nil {
