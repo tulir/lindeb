@@ -25,13 +25,16 @@ class FullTag extends Component {
 	static contextTypes = {
 		saveTag: PropTypes.func,
 		deleteTag: PropTypes.func,
+		finishEditingTag: PropTypes.func,
 	}
 
 	constructor(props, context) {
 		super(props, context)
-		this.state = {
+		this.state = Object.assign({
 			editing: false,
-		}
+			name: "",
+			description: "",
+		}, props)
 		this.edit = this.edit.bind(this)
 		this.finishEdit = this.finishEdit.bind(this)
 		this.saveEdit = this.saveEdit.bind(this)
@@ -44,10 +47,11 @@ class FullTag extends Component {
 	}
 
 	edit() {
-		this.setState(Object.assign({editing: true}, this.props))
+		this.setState(Object.assign({editing: true, name: "", description: ""}, this.props))
 	}
 
 	finishEdit() {
+		this.context.finishEditingTag(this)
 		this.setState({editing: false})
 	}
 

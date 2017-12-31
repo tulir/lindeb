@@ -220,7 +220,7 @@ class Lindeb extends Component {
 		const action = tag.id ? "updating tag" : "adding tag"
 
 		try {
-			const response = await fetch(`api/tag/${tag.id || "save"}`, {
+			const response = await fetch(`api/tag/${tag.id || "add"}`, {
 				headers: this.headers,
 				method: tag.id ? "PUT" : "POST",
 				body: JSON.stringify(tag),
@@ -232,12 +232,12 @@ class Lindeb extends Component {
 			const newTag = await response.json()
 			const tagsByID = new Map(this.state.tagsByID)
 			const tagsByName = new Map(this.state.tagsByName)
-			tagsByID.set(newTag.id, tag)
+			tagsByID.set(newTag.id, newTag)
 			if (tag.id) {
 				// If tag existed before, delete it from the tags by name map.
 				tagsByName.delete(tag.name)
 			}
-			tagsByName.set(newTag.name, tag)
+			tagsByName.set(newTag.name, newTag)
 			this.setState({tagsByID, tagsByName})
 		} catch (err) {
 			console.error(`Fatal error while ${action}:`, err)

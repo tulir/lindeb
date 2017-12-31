@@ -14,14 +14,44 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import React, {PureComponent} from "react"
+import React, {Component} from "react"
+import PropTypes from "prop-types"
 import FullTag from "./fulltag"
 
-class TagListView extends PureComponent {
+class TagListView extends Component {
+	static childContextTypes = {
+		finishEditingTag: PropTypes.func,
+	}
+
+	getChildContext() {
+		return {
+			finishEditingTag: this.finishEditingTag.bind(this),
+		}
+	}
+
+	constructor(props, context) {
+		super(props, context)
+		this.state = {
+			creating: false
+		}
+	}
+
+	finishEditingTag(tag) {
+		if (!tag.id) {
+			this.setState({creating: false})
+		}
+	}
+
+	newTag() {
+		this.setState({creating: true})
+	}
+
 	render() {
 		return (
 			<div className="taglist">
+				<button type="button" className="main-color newtag" onClick={() => this.newTag()}>New tag</button>
 				<div className="error">{this.props.error}</div>
+				{this.state.creating ? <FullTag editing={true}/> : ""}
 				{this.props.tags.map(tag => <FullTag key={tag.id} {...tag}/>)}
 			</div>
 		)
