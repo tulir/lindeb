@@ -28,6 +28,9 @@ const
 	VIEW_TAGS = "tags",
 	VIEW_SETTINGS = "settings"
 
+/**
+ * The main component of lindeb. Contains most of API communication and decides what to render.
+ */
 class Lindeb extends Component {
 	static childContextTypes = {
 		login: PropTypes.func,
@@ -36,13 +39,14 @@ class Lindeb extends Component {
 		updateLink: PropTypes.func,
 		addLink: PropTypes.func,
 		switchPage: PropTypes.func,
+		isAuthenticated: PropTypes.func,
+		error: PropTypes.func,
+
 		tagsByID: PropTypes.object,
 		tagsByName: PropTypes.object,
-		isAuthenticated: PropTypes.func,
 		topbar: PropTypes.object,
 		user: PropTypes.object,
 		showSearch: PropTypes.bool,
-		error: PropTypes.func,
 	}
 
 	getChildContext() {
@@ -53,10 +57,11 @@ class Lindeb extends Component {
 			updateLink: this.updateLink.bind(this),
 			addLink: this.addLink.bind(this),
 			switchPage: this.switchPage.bind(this),
-			tagsByID: this.state.tagsByID,
-			tagsByName: this.state.tagsByName,
 			isAuthenticated: this.isAuthenticated.bind(this),
 			error: this.error.bind(this),
+
+			tagsByID: this.state.tagsByID,
+			tagsByName: this.state.tagsByName,
 			topbar: this.topbar,
 			user: this.state.user,
 			showSearch: this.state.view === VIEW_LINKS,
@@ -85,12 +90,12 @@ class Lindeb extends Component {
 		this.router.handle("/save", (_, query) => this.openLinkAdder(query))
 		this.router.handle("/tags", () => this.setState({view: VIEW_TAGS}))
 		this.router.handle("/settings", () => this.setState({view: VIEW_SETTINGS}))
-	}
-
-	async componentDidMount() {
 		this.router.listen()
 	}
 
+	/**
+	 * The headers that should be used for all API requests.
+	 */
 	get headers() {
 		if (!this.state.user) {
 			return {
@@ -103,10 +108,21 @@ class Lindeb extends Component {
 		}
 	}
 
+	/**
+	 * Locally check if the user is currently logged in.
+	 *
+	 * This only checks for the existence of auth information, not the validity of it.
+	 */
 	isAuthenticated() {
 		return !!this.state.user
 	}
 
+	/**
+	 * Log and display an API request error.
+	 *
+	 * @param {string} action The action that caused this error.
+	 * @param {Object} result The response from {@code fetch()}
+	 */
 	async error(action, result) {
 		console.error(`Error while ${action}: ${await result.text()}`)
 		console.error(result)
@@ -118,6 +134,8 @@ class Lindeb extends Component {
 				case 409:
 					this.setState({error: "Username is already in use"})
 					return
+				default:
+					// continue to next switch
 			}
 		}
 		switch (result.status) {
@@ -140,97 +158,154 @@ class Lindeb extends Component {
 		}
 	}
 
+	/**
+	 * Log in and fetch tags with the given user data.
+	 *
+	 * @param {Object} userData           The user authentication information.
+	 * @param {number} userData.id        The ID of the user.
+	 * @param {string} userData.authtoken The authentication token to use with the API.
+	 * @param {string} [userData.name]    The username of the user.
+	 */
 	async login(userData) {
+		if (!userData.id || !userData.authtoken) {
+			throw new Error("Invalid argument: User data does not contain user and auth token.")
+		}
 		localStorage.user = JSON.stringify(userData)
 
-		const tagFetchResult = await fetch("api/tags", {
-			headers: {
-				"Authorization": `LINDEB-TOKEN user=${userData.id} token=${userData.authtoken}`,
-				"Content-Type": "application/json",
-			},
-		})
-		if (!tagFetchResult.ok) {
-			await this.error("fetching tags", tagFetchResult)
-			return
-		}
-		const rawTags = await tagFetchResult.json() || []
-		const tagsByID = new Map(rawTags.map(tag => [tag.id, tag]))
-		const tagsByName = new Map(rawTags.map(tag => [tag.name, tag]))
+		try {
+			const tagFetchResult = await fetch("api/tags", {
+				headers: {
+					"Authorization": `LINDEB-TOKEN user=${userData.id} token=${userData.authtoken}`,
+					"Content-Type": "application/json",
+				},
+			})
+			if (!tagFetchResult.ok) {
+				await this.error("fetching tags", tagFetchResult)
+				return
+			}
+			const rawTags = await tagFetchResult.json() || []
+			const tagsByID = new Map(rawTags.map(tag => [tag.id, tag]))
+			const tagsByName = new Map(rawTags.map(tag => [tag.name, tag]))
 
-		this.setState({user: userData, tagsByID, tagsByName}, () => this.router.update())
+			this.setState({user: userData, tagsByID, tagsByName}, () => this.router.update())
+		} catch (err) {
+			console.error("Fatal error while fetching tags:", err)
+		}
 	}
 
+	/**
+	 * Delete stored authentication information.
+	 */
 	logout() {
 		delete localStorage.user
 		this.setState({user: undefined})
 		window.location.hash = "#/"
 	}
 
+	/**
+	 * Delete a link.
+	 *
+	 * @param {number} id The ID of the link to delete.
+	 */
 	async deleteLink(id) {
 		if (!this.isAuthenticated()) {
 			return
 		}
 
-		const response = await fetch(`api/link/${id}`, {
-			headers: this.headers,
-			method: "DELETE",
-		})
-		if (!response.ok) {
-			await this.error("deleting link", response)
-			return
-		}
-		for (const [index, link] of Object.entries(this.state.links)) {
-			if (link.id === id) {
-				const links = this.state.links.slice()
-				links.splice(index, 1)
-				this.setState({links})
-				break
+		try {
+			const response = await fetch(`api/link/${id}`, {
+				headers: this.headers,
+				method: "DELETE",
+			})
+			if (!response.ok) {
+				await this.error("deleting link", response)
+				return
 			}
+			for (const [index, link] of Object.entries(this.state.links)) {
+				if (link.id === id) {
+					const links = this.state.links.slice()
+					links.splice(index, 1)
+					this.setState({links})
+					break
+				}
+			}
+		} catch (err) {
+			console.error("Fatal error while deleting link:", err)
 		}
 	}
 
+	/**
+	 * Save a link.
+	 *
+	 * @param {Object} data The data of the link. Passed directly to the lindeb API.
+	 * @param {string} data.url           The URL to save.
+	 * @param {string} [data.title]       The title to give to the link.
+	 * @param {string} [data.description] A brief description of the link.
+	 */
 	async addLink(data) {
 		if (!this.isAuthenticated()) {
 			return
 		}
 
-		const response = await fetch(`api/link/save`, {
-			headers: this.headers,
-			method: "POST",
-			body: JSON.stringify(data),
-		})
-		if (!response.ok) {
-			await this.error("saving link", response)
-			return
+		try {
+			const response = await fetch(`api/link/save`, {
+				headers: this.headers,
+				method: "POST",
+				body: JSON.stringify(data),
+			})
+			if (!response.ok) {
+				await this.error("saving link", response)
+				return
+			}
+			window.location.href = "#/"
+		} catch (err) {
+			console.error("Fatal error while saving link:", err)
 		}
-		window.location.href = "#/"
 	}
 
+	/**
+	 * Update a link.
+	 *
+	 * @param {Object} data The updated data of the link. Passed directly to the lindeb API.
+	 * @param {number} data.id            The ID of the link to update.
+	 * @param {string} [data.url]         The new URL.
+	 * @param {string} [data.title]       The new title for the link.
+	 * @param {string} [data.description] The new description for the link.
+	 */
 	async updateLink(data) {
 		if (!this.isAuthenticated()) {
 			return
 		}
 
-		const response = await fetch(`api/link/${data.id}`, {
-			headers: this.headers,
-			method: "PUT",
-			body: JSON.stringify(data),
-		})
-		if (!response.ok) {
-			await this.error("updating link", response)
-			return
-		}
-		const body = await response.json()
-		for (const [index, link] of Object.entries(this.state.links)) {
-			if (link.id === body.id) {
-				const links = this.state.links.slice()
-				links[index] = body
-				this.setState({links})
-				break
+		try {
+			const response = await fetch(`api/link/${data.id}`, {
+				headers: this.headers,
+				method: "PUT",
+				body: JSON.stringify(data),
+			})
+			if (!response.ok) {
+				await this.error("updating link", response)
+				return
 			}
+			const body = await response.json()
+			for (const [index, link] of Object.entries(this.state.links)) {
+				if (link.id === body.id) {
+					const links = this.state.links.slice()
+					links[index] = body
+					this.setState({links})
+					break
+				}
+			}
+		} catch (err) {
+			console.error("Fatal error while editing link:", err)
 		}
 	}
 
+	/**
+	 * Open the link list with a specific query.
+	 *
+	 * @param {Query} query A Hashmux query object.
+	 */
 	async openLinkList(query) {
 		if (!this.isAuthenticated()) {
 			return
@@ -242,29 +317,49 @@ class Lindeb extends Component {
 		if (!query.has("pagesize")) {
 			query.set("pagesize", 10)
 		}
-		const linkResponse = await fetch(`api/links?${query.toString()}`, {
-			headers: this.headers,
-		})
-		if (!linkResponse.ok) {
-			await this.error("fetching links", linkResponse)
-			return
+		try {
+			const linkResponse = await fetch(`api/links?${query.toString()}`, {
+				headers: this.headers,
+			})
+			if (!linkResponse.ok) {
+				await this.error("fetching links", linkResponse)
+				return
+			}
+			const {links, totalCount} = await linkResponse.json()
+			this.setState({
+				view: VIEW_LINKS,
+				links,
+				page: +query.get("page"),
+				pages: Math.ceil(totalCount / +query.get("pagesize")),
+			})
+		} catch (err) {
+			console.error("Fatal error while fetching links:", err)
 		}
-		const {links, totalCount} = await linkResponse.json()
-		this.setState({
-			view: VIEW_LINKS,
-			links,
-			page: +query.get("page"),
-			pages: Math.ceil(totalCount / +query.get("pagesize")),
-		})
 	}
 
+	/**
+	 * Switch to a certain page in the current link list.
+	 *
+	 * @param {number} to The page to switch to.
+	 */
 	switchPage(to) {
+		if (to < 1 || to > this.state.pages) {
+			throw new Error("Invalid argument: Page number out of bounds.")
+		}
 		Query.set("page", to)
 	}
 
+	/**
+	 * Open the link saving view.
+	 *
+	 * @param {Query} [query=Query.parse()] The Hashmux query object to get the default data from.
+	 */
 	openLinkAdder(query) {
 		if (!this.isAuthenticated()) {
 			return
+		}
+		if (!query) {
+			query = Query.parse()
 		}
 
 		this.setState({
