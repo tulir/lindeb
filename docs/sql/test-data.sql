@@ -1,6 +1,13 @@
--- N.B. This file does not add data to Elasticsearch.
+-- N.B. This file does not add data to Elasticsearch (-> the search function will not work)
 --      Use test-data-api.sh instead if you want the data to be added to Elasticsearch as well.
-INSERT INTO User (id, username, password) VALUES (1, 'root', '');
+--      The test data script will add the same data as these SQL queries, but the metadata will be fetched directly from
+--      the websites and the link entries will be stored into Elasticsearch.
+
+-- Accounts: ID / username / password
+--           1  / root     / password
+--           2  / user     / maumau
+INSERT INTO User (id, username, password) VALUES (1, 'root', '$2a$10$6O4CJAOi4/dnejyGdxQjxuH8SxEO1jtVHREOh6Y53oj9VEeDBHKxm');
+INSERT INTO User (id, username, password) VALUES (2, 'maumau', '$2a$10$F/bSI4vNXGbg.XDryWL9GecrL7jxzqWY.tTJo0Cz5ACz5msTV1bQO');
 
 INSERT INTO Link(id, url, title, description, timestamp, owner) VALUES
   (1, 'https://lindeb.mau.lu/apidocs/#/', 'lindeb API', '', 1513973821, 1),
@@ -11,7 +18,8 @@ INSERT INTO Link(id, url, title, description, timestamp, owner) VALUES
   (6, 'https://stackoverflow.com/questions/47946631/what-is-a-simple-way-to-duplicate-and-transform-an-extracted-css-file-in-webpack', 'What is a simple way to duplicate and transform an extracted CSS file in Webpack? - Stack Overflow', 'Using the css loader to create a .css file in a dist folder, how would you then copy this file to a new file name and apply a transform?', 1513975032, 1),
   (7, 'https://mau.lu/', 'mau.lu', '', 1513975655, 1),
   (8, 'https://matrix.org/', 'Home | Matrix.org', '', 1513976126, 1),
-  (9, 'https://matrix.org/docs/spec/', 'Matrix Specification', '', 1513976130, 1);
+  (9, 'https://matrix.org/docs/spec/', 'Matrix Specification', '', 1513976130, 1),
+  (10, 'https://github.com/tulir/lindeb', 'tulir/lindeb: A simple link manager with powerful search', '', 1514742907, 2);
 
 INSERT INTO Tag(id, name, description, owner) VALUES
   (1, 'stackoverflow', 'Possibly relevant Stack Overflow questions/answers', 1),

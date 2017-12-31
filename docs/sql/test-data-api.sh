@@ -1,26 +1,12 @@
 #!/bin/bash
-echo "All the APIs required by this script have not yet been implemented."
-exit 0
-register="$(curl -XPOST -d '{"username": "testdatauser", "password": "password"} http://localhost:29315/api/auth/register')"
-authtoken="$(echo $register | jq -r '.authtoken')"
-userID="$(echo $register | jq -r '.id')"
-authHeader="Authorization: LINDEB-TOKEN user=$userID token=$authtoken"
-
 function post {
     curl -XPOST "http://localhost:29315/api$1" -H "$authHeader" -d "$2"
 }
 
-function put {
-    curl -XPUT "http://localhost:29315/api$1" -H "$authHeader" -d "$2"
-}
-
-function get {
-    curl "http://localhost:29315/api$1" -H "$authHeader"
-}
-
-function delete {
-    curl -XDELETE "http://localhost:29315/api$1" -H "$authHeader"
-}
+register="$(curl -XPOST -d '{"username": "root", "password": "password"}' http://localhost:29315/api/auth/register)"
+authtoken="$(echo $register | jq -r '.authtoken')"
+userID="$(echo $register | jq -r '.id')"
+authHeader="Authorization: LINDEB-TOKEN user=$userID token=$authtoken"
 
 post "/tag/add" '{"name": "stackoverflow", "description": "Possibly relevant Stack Overflow questions/answers"}'
 post "/tag/add" '{"name": "github", "description": "Everything GitHub"}'
@@ -40,3 +26,10 @@ post "/link/save" '{"url": "https://stackoverflow.com/questions/47946631/what-is
 post "/link/save" '{"url": "https://mau.lu/", "tags": ["maunium", "website"]}'
 post "/link/save" '{"url": "https://matrix.org/", "tags": ["website", "matrix.org"]}'
 post "/link/save" '{"url": "https://matrix.org/docs/spec/", "tags": ["apidoc", "matrix.org"]}'
+
+register="$(curl -XPOST -d '{"username": "user", "password": "maumau"}' http://localhost:29315/api/auth/register)"
+authtoken="$(echo $register | jq -r '.authtoken')"
+userID="$(echo $register | jq -r '.id')"
+authHeader="Authorization: LINDEB-TOKEN user=$userID token=$authtoken"
+
+post "/link/save" '{"url": "https://github.com/tulir/lindeb"}'
