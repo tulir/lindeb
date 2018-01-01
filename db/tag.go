@@ -94,7 +94,7 @@ func (user *User) GetTagsByName(names []string) ([]*Tag, error) {
 	}
 	args := []interface{}{user.ID}
 	for _, name := range names {
-		args = append(args, name)
+		args = append(args, strings.ToLower(name))
 	}
 
 	results, err := user.DB.Query(
@@ -118,6 +118,7 @@ func (user *User) GetTags() ([]*Tag, error) {
 
 // Update updates the data of this tag in the database.
 func (tag *Tag) Update() (err error) {
+	tag.Name = strings.ToLower(tag.Name)
 	_, err = tag.DB.Exec(
 		"UPDATE Tag SET name=?,description=? WHERE id=? AND owner=?",
 		tag.Name, tag.Description, tag.ID, tag.Owner.ID)
@@ -127,6 +128,7 @@ func (tag *Tag) Update() (err error) {
 // Insert stores the data of this tag into the database and fills in the ID field of the struct with the ID of the
 // inserted row.
 func (tag *Tag) Insert() error {
+	tag.Name = strings.ToLower(tag.Name)
 	result, err := tag.DB.Exec(
 		"INSERT INTO Tag (name, description, owner) VALUES (?, ?, ?)",
 		tag.Name, tag.Description, tag.Owner.ID)
