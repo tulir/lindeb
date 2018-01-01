@@ -26,14 +26,3 @@ $inverted-text-color: $background-color
 $font-stack: "Raleway", "Roboto", sans-serif
 $max-width: 42.5rem
 $header-height: 3.5rem
-
-$breakpoint-min: "screen and (min-width: #{$max-width + 0.0625rem})"
-$breakpoint-max: "screen and (max-width: #{$max-width})"
-
-=if-big
-	@media #{$breakpoint-min}
-		@content
-
-=if-small
-	@media #{$breakpoint-max}
-		@content
