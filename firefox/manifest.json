@@ -7,7 +7,8 @@
 	"applications": {
 		"gecko": {
 			"id": "lindeb@maunium.net",
-			"strict_min_version": "52.0"
+			"strict_min_version": "52.0",
+			"update_url": "https://dl.maunium.net/firefox/lindeb/updates.json"
 		}
 	},
 	"icons": {
