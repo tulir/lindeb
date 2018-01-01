@@ -1,0 +1,45 @@
+<!--
+lindeb - mau\Lu Link Database
+Copyright (C) 2017 Maunium / Tulir Asokan
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="save.css"/>
+</head>
+<body>
+	<div id="not-logged-in" class="hidden">
+		<h1>Not logged in</h1>
+		<p>Visit <a href="https://lindeb.mau.lu">lindeb.mau.lu</a> to log in.</p>
+	</div>
+	<div id="link-save">
+		<input id="title" placeholder="Title" type="text"/>
+		<input id="tags" placeholder="Comma-separated tags" type="text"/>
+		<input id="url" placeholder="URL (required)" required type="text"/>
+		<textarea id="description" rows="4" placeholder="Description"></textarea>
+
+		<button id="save" type="button">
+			Save
+		</button>
+	</div>
+	<div id="link-saved" class="hidden">
+		✓
+	</div>
+
+	<script src="save.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+// lindeb - mau\Lu Link Database
+// Copyright (C) 2017 Maunium / Tulir Asokan
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+@import ../frontend/src/style/base/vars
+@import ../frontend/src/style/base/elements
+
+html, body
+	width: 30rem
+
+input, textarea
+	background-color: white
+	width: 100%
+	margin: .25rem 0
+	resize: none
+
+#title
+	font-size: 1.4rem
+	border: none
+	border-bottom: 1px solid $main-color
+	margin-bottom: calc(.25rem + 1px)
+	border-radius: 0
+	padding: .375rem 0
+	background: none
+
+	&:hover
+		border-bottom: 1px solid $dark-color
+
+	&:focus
+		border-bottom: 2px solid $dark-color
+		margin-bottom: .25rem
+
+button
+	+main-color-button
+	width: 100%
+
+.hidden
+	display: none
+
+#link-saved
+	text-align: center
+	font-size: 14rem
+	color: $main-color
+
+	&:not(.hidden)
+		animation: fadein 1.25s
+
+@keyframes fadein
+	0%
+		opacity: 0
+	33%
+		opacity: 1
+	100%
+		opacity: 0
+
+#not-logged-in
+	text-align: center

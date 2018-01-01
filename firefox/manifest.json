@@ -1,0 +1,32 @@
+{
+	"manifest_version": 2,
+	"name": "lindeb",
+	"version": "1.0.0",
+	"description": "A simple link manager with powerful search.",
+	"homepage_url": "https://lindeb.mau.lu",
+	"applications": {
+		"gecko": {
+			"id": "lindeb@maunium.net",
+			"strict_min_version": "52.0"
+		}
+	},
+	"icons": {
+		"50": "res/link-50.png",
+		"100": "res/link-100.png"
+	},
+	"browser_action": {
+		"default_icon": "res/add.png",
+		"default_title": "lindeb",
+		"default_popup": "save.html"
+	},
+	"content_scripts": [{
+		"matches": ["https://lindeb.mau.lu/*"],
+		"js": ["steal-authtoken.js"]
+	}],
+	"permissions": [
+		"webRequest",
+		"https://lindeb.mau.lu/api/*",
+		"tabs",
+		"storage"
+	]
+}
