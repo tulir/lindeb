@@ -13,13 +13,21 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-if (localStorage.user) {
-	const user = JSON.parse(localStorage.user)
-	browser.storage.local.set({
-		"authHeader": `LINDEB-TOKEN user=${user.id} token=${user.authtoken}`,
-	})
-} else {
-	browser.storage.local.set({
-		"authHeader": undefined,
-	})
+
+function stealAuthtoken() {
+	if (localStorage.user) {
+		const user = JSON.parse(localStorage.user)
+		browser.storage.local.set({
+			"authHeader": `LINDEB-TOKEN user=${user.id} token=${user.authtoken}`,
+		})
+	} else {
+		browser.storage.local.set({
+			"authHeader": undefined,
+		})
+	}
 }
+
+document.body.addEventListener("lindeb-login", stealAuthtoken)
+document.body.addEventListener("lindeb-logout", stealAuthtoken)
+
+stealAuthtoken()

@@ -198,6 +198,7 @@ class Lindeb extends Component {
 			const tagsByName = new Map(rawTags.map(tag => [tag.name, tag]))
 
 			this.setState({user: userData, tagsByID, tagsByName}, () => this.router.update())
+			document.body.dispatchEvent(new CustomEvent("lindeb-login", { detail: userData }))
 		} catch (err) {
 			console.error("Fatal error while fetching tags:", err)
 		}
@@ -206,10 +207,20 @@ class Lindeb extends Component {
 	/**
 	 * Delete stored authentication information.
 	 */
-	logout() {
+	async logout() {
+		try {
+			await fetch("api/auth/logout", {
+				headers: this.headers,
+				method: "POST",
+			})
+		} catch (err) {
+			console.error("Error logging out:", err)
+		}
 		delete localStorage.user
 		this.setState({user: undefined})
 		window.location.hash = "#/"
+
+		document.body.dispatchEvent(new Event("lindeb-logout"))
 	}
 
 	async saveTag(tag) {
