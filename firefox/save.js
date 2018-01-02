@@ -21,6 +21,10 @@ class PopupHandler {
 		this.url = document.getElementById("url")
 		this.description = document.getElementById("description")
 		document.getElementById("save").onclick = () => this.save()
+		document.getElementById("go-to-links").onclick = () => {
+			browser.tabs.create({url: "https://lindeb.mau.lu"})
+			window.close()
+		}
 		this.authHeader = authHeader
 		this.fillFields()
 	}
