@@ -72,12 +72,12 @@ class Link extends Component {
 	render() {
 		if (this.state.editing) {
 			return (
-				<div className="link editing">
+				<form className="link editing" onSubmit={this.saveEdit}>
 					<div className="buttons">
 						<button className="delete" type="button" onClick={this.delete}>
 							<DeleteButton/>
 						</button>
-						<button className="save" type="button" onClick={this.saveEdit}>
+						<button className="save" type="submit">
 							<SaveButton/>
 						</button>
 						<button className="cancel" type="button" onClick={this.finishEdit}>
@@ -88,7 +88,7 @@ class Link extends Component {
 					<input name="tags" placeholder="Comma-separated tags" type="text" className="tags-editor" value={this.state.tags} onChange={this.handleInputChange}/>
 					<input name="url" placeholder="URL" type="text" className="url" value={this.state.url} onChange={this.handleInputChange}/>
 					<textarea rows="4" name="description" placeholder="Description" className="description" value={this.state.description} onChange={this.handleInputChange}/>
-				</div>
+				</form>
 			)
 		}
 		return (

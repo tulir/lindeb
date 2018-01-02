@@ -70,12 +70,12 @@ class FullTag extends Component {
 	render() {
 		if (this.state.editing) {
 			return (
-				<div className="editing full tag">
+				<form className="editing full tag" onSubmit={this.saveEdit}>
 					<div className="buttons">
 						<button className="delete" type="button" onClick={this.delete}>
 							<DeleteButton/>
 						</button>
-						<button className="save" type="button" onClick={this.saveEdit}>
+						<button className="save" type="submit">
 							<SaveButton/>
 						</button>
 						<button className="cancel" type="button" onClick={this.finishEdit}>
@@ -84,7 +84,7 @@ class FullTag extends Component {
 					</div>
 					<input placeholder="Name" required name="name" className="name" value={this.state.name} onChange={this.handleInputChange}/>
 					<textarea placeholder="Description" name="description" rows="3" className="description" value={this.state.description} onChange={this.handleInputChange}/>
-				</div>
+				</form>
 			)
 		}
 		return (
