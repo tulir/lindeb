@@ -16,6 +16,8 @@
 
 import React, {Component} from "react"
 import PropTypes from "prop-types"
+import update from 'immutability-helper'
+import ReactTags from "react-tag-autocomplete"
 import Tag from "./tag"
 import EditButton from "../res/edit.svg"
 import SaveButton from "../res/save.svg"
@@ -27,6 +29,7 @@ class Link extends Component {
 		topbar: PropTypes.object,
 		deleteLink: PropTypes.func,
 		updateLink: PropTypes.func,
+		tagsByName: PropTypes.object,
 	}
 
 	constructor(props, context) {
@@ -39,6 +42,8 @@ class Link extends Component {
 		this.saveEdit = this.saveEdit.bind(this)
 		this.delete = this.delete.bind(this)
 		this.handleInputChange = this.handleInputChange.bind(this)
+		this.addTag = this.addTag.bind(this)
+		this.deleteTag = this.deleteTag.bind(this)
 	}
 
 	handleInputChange(event) {
@@ -47,7 +52,8 @@ class Link extends Component {
 
 	edit() {
 		const newState = Object.assign({editing: true}, this.props)
-		newState.tags = newState.tags.join(", ")
+		newState.tags = newState.tags.map(tag => this.context.tagsByName.get(tag) || { name: tag })
+		newState.tagSuggestions = Array.from(this.context.tagsByName.values())
 		this.setState(newState)
 	}
 
@@ -58,8 +64,9 @@ class Link extends Component {
 	saveEdit() {
 		this.finishEdit()
 		const link = Object.assign({}, this.state)
-		link.tags = link.tags.split(",").map(tag => tag.trim()).filter(tag => !!tag)
+		link.tags = link.tags.map(tag => tag.name)
 		delete link.editing
+		delete link.tagSuggestions
 		delete link.html
 		this.context.updateLink(link)
 	}
@@ -67,6 +74,22 @@ class Link extends Component {
 	delete() {
 		this.finishEdit()
 		this.context.deleteLink(this.props.id)
+	}
+
+	addTag(tag) {
+		// Don't allow duplicate tags
+		if (this.state.tags.some(existingTag => existingTag.name === tag.name)) {
+			return
+		}
+		this.setState({
+			tags: update(this.state.tags, {$push: [tag]}),
+		})
+	}
+
+	deleteTag(id) {
+		this.setState({
+			tags: update(this.state.tags, {$splice: [[id, 1]]})
+		})
 	}
 
 	render() {
@@ -85,7 +108,7 @@ class Link extends Component {
 						</button>
 					</div>
 					<input name="title" placeholder="Title" type="text" className="title" value={this.state.title} onChange={this.handleInputChange}/>
-					<input name="tags" placeholder="Comma-separated tags" type="text" className="tags-editor" value={this.state.tags} onChange={this.handleInputChange}/>
+					<ReactTags delimiterChars={[","]} tags={this.state.tags} suggestions={this.state.tagSuggestions} handleAddition={this.addTag} handleDelete={this.deleteTag} allowNew={true}/>
 					<input name="url" placeholder="URL" type="text" className="url" value={this.state.url} onChange={this.handleInputChange}/>
 					<textarea rows="4" name="description" placeholder="Description" className="description" value={this.state.description} onChange={this.handleInputChange}/>
 				</form>

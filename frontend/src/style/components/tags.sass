@@ -16,12 +16,11 @@
 
 .link > .tags
 	color: $alt-color
-	display: inline-block
 
 	&:empty
 		display: none
 
-	.tag
+	> .tag
 		cursor: pointer
 		display: inline-block
 		font-size: 1.1rem
@@ -35,13 +34,112 @@
 	padding: 1rem .5rem
 	border-bottom: 1px solid #AAA
 
-	.name
+	> .name
 		font-size: 1.4rem
 		color: $main-color
 
 main > .taglist
 	margin-bottom: 3rem
+
 	.newtag
 		width: 100%
 		border-radius: 0
 		margin-top: .5rem
+
+.react-tags
+	position: relative
+	box-sizing: border-box
+	padding: .375rem 0 0 1rem
+	border: 1px solid $border-color
+	border-radius: .25rem
+
+	cursor: text
+
+	&:hover, &.is-focused
+		border-color: $main-color
+
+	.react-tags__selected
+		display: inline
+
+		.react-tags__selected-tag
+			display: inline-block
+			box-sizing: border-box
+			margin: 0 .375rem .375rem 0
+			padding: .375rem .5rem
+			border: 1px solid $border-color
+			border-radius: .125rem
+			background: $background-color
+			color: $text-color
+
+			font-size: inherit
+			line-height: inherit
+
+			&:after
+				content: "\2715"
+				color: #AAA
+				margin-left: .5rem
+
+			&:hover, &:focus
+				border-color: $main-color
+
+	.react-tags__search
+		display: inline-block
+
+		padding: 7px 2px
+		margin-bottom: .375rem
+
+		max-width: 100%
+
+		input
+			max-width: 100%
+
+			margin: 0
+			padding: 0
+			border: 0
+			outline: none
+
+			font-size: inherit
+			line-height: inherit
+
+		@media screen and (min-width: 30rem)
+			position: relative
+
+	.react-tags__suggestions
+		position: absolute
+		top: 100%
+		left: 0
+		width: 100%
+
+		@media screen and (min-width: 30rem)
+			width: 15rem
+
+		ul
+			margin: .25rem -1px
+			padding: 0
+			list-style: none
+			background: white
+			border: 1px solid $border-color
+			border-radius: .125rem
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2)
+
+			li
+				border-bottom: 1px solid $border-color
+				padding: .375rem .5rem
+
+				mark
+					text-decoration: underline
+					background: none
+					font-weight: 600
+
+				&:hover
+					cursor: pointer
+					background: #eee
+
+				&.is-active
+					background: $light-color
+					border-bottom: 1px solid $light-color
+
+				&.is-disabled
+					opacity: 0.5
+					cursor: auto
+

@@ -33,7 +33,7 @@ main > .links
 	padding: 1rem .5rem
 	border-bottom: 1px solid #AAA
 
-	header .title
+	> header > .title
 		font-weight: normal
 		font-size: 1.4rem
 		margin: .25rem 0
@@ -42,19 +42,19 @@ main > .links
 			text-decoration: none
 			color: $main-color
 
-	address
+	> address
 		cursor: pointer
 		color: #AAA
 		font-style: normal
 		font-size: 0.9rem
 
-	p
+	> p
 		margin: .25rem 0
 
 .add-link
 	margin-top: 2rem
 
-	.buttons
+	> .buttons
 		+button-group
 		width: 100%
 		> button
@@ -63,10 +63,10 @@ main > .links
 			> svg
 				fill: white
 
-	.title
+	> .title
 		width: 100% !important
 
-	.bookmarklet
+	> .bookmarklet
 		margin-top: 2rem
 		> a
 			text-decoration: none
