@@ -3,8 +3,11 @@ A simple link manager with powerful search. Built using Go, React, Elasticsearch
 
 The official deployment will be available at [lindeb.mau.lu](https://lindeb.mau.lu).
 
+## Course info
 This is also a database exercise project.
-For the duration of the exercise project course, the repository will contain some useless files/readme sections, such as
+
+For the duration of the exercise project course, the repository will contain some useless files, such as
+this README section,
 the [course documentation](https://github.com/tulir/lindeb/blob/master/docs/course.pdf)
 (also in [Google Docs](https://docs.google.com/document/d/1LhNw1F7La3O9GysxXFnXPuQvzvQhpxS3Gmd0t6iF50I)),
 [SQL query files](https://github.com/tulir/lindeb/tree/master/docs/sql) and
@@ -21,19 +24,28 @@ The goal of this project is to create an easy-to-use system for saving links and
 ### Scope
 * Authentication. Saved links are always private.
 * Saving links and deleting saved links
-  * Saving a link should only require one click on the page being saved
+  * Saving a link should only require one or two clicks on the page being saved
 * Tagging and untagging links, managing tags
+  * Adding descriptions for tags
 * Browsing links
   * Sorting and filtering by different fields (e.g. date added, by-domain, by-tag)
   * Searching for links based on page data (e.g. body content, title)
 
 #### Extended scope
-* Adding metadata (e.g. description) for tags
 * Sharing links to external platforms
 * Shortening links using [mau\Lu](https://github.com/tulir/maulu)
+* Advanced authentication
+  * 2-factor auth (U2F and/or TOTP)
+  * Email verification
+    * Magic sign-in links
+	* Password resets
 
 ### Out of scope
 * All internal social features
+
+## API
+* [OpenAPI document](https://github.com/tulir/lindeb/blob/master/docs/api.yaml)
+* [API explorer](https://lindeb.mau.lu/apidocs)
 
 ## Technologies
 ### Backend
@@ -51,8 +63,3 @@ However, a DBMS instance and an Elasticsearch instance must be available.
 ### Frontend
 The frontend uses [React](https://reactjs.org/), [Sass](http://sass-lang.com/) and modern JavaScript syntax.
 Support for old browsers is not guaranteed. The latest version of Firefox is recommended, but Chrome will work too.
-
-## Specifications
-* [OpenAPI document](https://github.com/tulir/lindeb/blob/master/docs/api.yaml)
-* [API explorer](https://lindeb.mau.lu/apidocs)
-* [UI designs](https://github.com/tulir/lindeb/tree/master/docs/ui)
