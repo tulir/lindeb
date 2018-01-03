@@ -9,10 +9,11 @@ the [course documentation](https://github.com/tulir/lindeb/blob/master/docs/cour
 (also in [Google Docs](https://docs.google.com/document/d/1LhNw1F7La3O9GysxXFnXPuQvzvQhpxS3Gmd0t6iF50I)),
 [SQL query files](https://github.com/tulir/lindeb/tree/master/docs/sql) and
 the following links to some React components:
-* [Kirjautumissivu](https://github.com/tulir/lindeb/blob/master/frontend/src/components/login.js)
-* [Linkkilista (etusivu, linkkien muokkaus ja linkkien poisto)](https://github.com/tulir/lindeb/blob/master/frontend/src/components/linklist.js)
-* [Linkin lisäys](https://github.com/tulir/lindeb/blob/master/frontend/src/components/addlink.js)
-* [Tagilista (tagien listaus, lisäys, muokkaus ja poisto)](https://github.com/tulir/lindeb/blob/master/frontend/src/components/taglist.js)
+* HUOM: kirjautumissivu toimii vain, jos et ole kirjautunut. Loput sivut toimivat vain, jos olet kirjautunut.
+* Kirjautumissivu [verkossa](https://lindeb.mau.lu) ja [repossa](https://github.com/tulir/lindeb/blob/master/frontend/src/components/login.js)
+* Linkkilista [verkossa](https://lindeb.mau.lu) ja [repossa](https://github.com/tulir/lindeb/blob/master/frontend/src/components/linklist.js) (etusivu, linkkien muokkaus ja linkkien poisto)
+* Linkin lisäys [verkossa](https://lindeb.mau.lu/#/save) ja [repossa](https://github.com/tulir/lindeb/blob/master/frontend/src/components/addlink.js)
+* Tagilista [verkossa](https://lindeb.mau.lu/#/tags) ja [repossa](https://github.com/tulir/lindeb/blob/master/frontend/src/components/taglist.js) (tagien listaus, lisäys, muokkaus ja poisto)
 
 ## Objective
 The goal of this project is to create an easy-to-use system for saving links and searching saved links.
