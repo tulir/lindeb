@@ -170,6 +170,10 @@ class Lindeb extends Component {
 		}
 	}
 
+	clearError() {
+		this.setState({error: undefined})
+	}
+
 	/**
 	 * Log in and fetch tags with the given user data.
 	 *
@@ -182,6 +186,7 @@ class Lindeb extends Component {
 		if (!userData.id || !userData.authtoken) {
 			throw new Error("Invalid argument: User data does not contain user and auth token.")
 		}
+		this.clearError()
 		localStorage.user = JSON.stringify(userData)
 
 		try {
@@ -210,6 +215,7 @@ class Lindeb extends Component {
 	 * Delete stored authentication information.
 	 */
 	async logout() {
+		this.clearError()
 		try {
 			await fetch("api/auth/logout", {
 				headers: this.headers,
@@ -229,6 +235,7 @@ class Lindeb extends Component {
 		if (!this.isAuthenticated()) {
 			return
 		}
+		this.clearError()
 
 		const action = tag.id ? "updating tag" : "adding tag"
 
@@ -261,6 +268,7 @@ class Lindeb extends Component {
 		if (!this.isAuthenticated()) {
 			return
 		}
+		this.clearError()
 
 		try {
 			const response = await fetch(`api/tag/${id}`, {
@@ -290,6 +298,7 @@ class Lindeb extends Component {
 		if (!this.isAuthenticated()) {
 			return
 		}
+		this.clearError()
 
 		try {
 			const response = await fetch(`api/link/${id}`, {
@@ -323,6 +332,7 @@ class Lindeb extends Component {
 		if (!this.isAuthenticated()) {
 			return
 		}
+		this.clearError()
 
 		try {
 			const response = await fetch(`api/link/save`, {
@@ -353,6 +363,7 @@ class Lindeb extends Component {
 		if (!this.isAuthenticated()) {
 			return
 		}
+		this.clearError()
 
 		try {
 			const response = await fetch(`api/link/${data.id}`, {
@@ -387,6 +398,7 @@ class Lindeb extends Component {
 		if (!this.isAuthenticated()) {
 			return
 		}
+		this.clearError()
 
 		if (!query.has("page")) {
 			query.set("page", 1)
@@ -435,6 +447,7 @@ class Lindeb extends Component {
 		if (!this.isAuthenticated()) {
 			return
 		}
+		this.clearError()
 		if (!query) {
 			query = Query.parse()
 		}
