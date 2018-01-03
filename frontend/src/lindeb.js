@@ -101,6 +101,7 @@ class Lindeb extends Component {
 	}
 
 	componentDidMount() {
+		this.setState({mounted: true})
 		// If we do this in the constructor, it may trigger a setState() call before the component is mounted.
 		this.router.listen()
 	}
@@ -171,6 +172,9 @@ class Lindeb extends Component {
 	}
 
 	clearError() {
+		if (!this.state.mounted) {
+			return
+		}
 		this.setState({error: undefined})
 	}
 
