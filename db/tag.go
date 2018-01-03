@@ -150,7 +150,7 @@ func (tag *Tag) GetTaggedLinks() ([]*Link, error) {
 		LEFT JOIN LinkTag AllLinkTags ON AllLinkTags.link = Link.id
 		LEFT JOIN Tag AllTags ON AllLinkTags.tag = AllTags.id
 		WHERE Tag.owner=? AND Tag.id=?
-		GROUP BY Link.id`, tag.Owner.ID, tag.ID)
+		GROUP BY Link.id ORDER BY Link.ID DESC`, tag.Owner.ID, tag.ID)
 	if err != nil {
 		return nil, err
 	}

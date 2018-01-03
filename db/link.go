@@ -107,7 +107,7 @@ func (user *User) GetLinks() ([]*Link, error) {
 		LEFT JOIN LinkTag ON LinkTag.link = Link.id
 		LEFT JOIN Tag ON LinkTag.tag = Tag.id
 		WHERE Link.owner = ?
-		GROUP BY Link.id`, user.ID)
+		GROUP BY Link.id ORDER BY Link.ID DESC`, user.ID)
 	if err != nil {
 		return nil, err
 	}
