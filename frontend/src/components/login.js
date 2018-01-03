@@ -39,6 +39,9 @@ class LoginView extends Component {
 		this.setState({[event.target.name]: event.target.value})
 	}
 
+	/**
+	 * Add some default links for new users.
+	 */
 	async addDefaultLinks() {
 		await this.context.saveTag({name: "lindeb", description: "A few pre-added links."})
 		await Promise.all([
@@ -56,6 +59,11 @@ class LoginView extends Component {
 		this.context.router.update()
 	}
 
+	/**
+	 * Log in or register with the values in the state of this component.
+	 *
+	 * @param {string} action Either {@code login} or {@code register}
+	 */
 	async auth(action = "login") {
 		try {
 			const response = await fetch(`api/auth/${action}`, {

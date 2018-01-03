@@ -91,6 +91,24 @@ class Topbar extends Component {
 	}
 
 	/**
+	 * Collect all values under a given key and return them as a search-compatible string.
+	 *
+	 * @private
+	 * @param   {Query}  query The Hashmux Query object to use.
+	 * @param   {string} key   The name of the key to look for.
+	 * @returns {string}       The search-compatible string of the query values.
+	 */
+	getQueryArray(query, key) {
+		let result = ""
+		for (const value of query.getAll(key)) {
+			result += value.includes(" ")
+				? `${key}="${value}"`
+				: `${key}=${value}`
+		}
+		return result
+	}
+
+	/**
 	 * Convert the values in a Hashmux Query object into a search bar query.
 	 *
 	 * @param   {Query}  [query] The Hashmux Query object to use. If undefined, Query.parse() is used as the value.
@@ -101,23 +119,11 @@ class Topbar extends Component {
 			query = Query.parse()
 		}
 		let search = ""
-		for (const domain of query.getAll("domain")) {
-			if (domain.includes(" ")) {
-				search += `domain="${domain}" `
-			} else {
-				search += `domain=${domain} `
-			}
-		}
+		search += this.getQueryArray(query, "domain")
 		if (query.get("exclusivetags")) {
 			search += "exclusive-tags "
 		}
-		for (const tag of query.getAll("tag")) {
-			if (tag.includes(" ")) {
-				search += `tag="${tag}" `
-			} else {
-				search += `tag=${tag} `
-			}
-		}
+		search += this.getQueryArray(query, "tag")
 		search += query.get("search") || ""
 		search = search.trim()
 		return search

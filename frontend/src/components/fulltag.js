@@ -67,25 +67,29 @@ class FullTag extends Component {
 		this.context.deleteTag(this.props.id)
 	}
 
+	renderEditor() {
+		return (
+			<form className="editing full tag" onSubmit={this.saveEdit}>
+				<div className="buttons">
+					<button className="delete" type="button" onClick={this.delete}>
+						<DeleteButton/>
+					</button>
+					<button className="save" type="submit">
+						<SaveButton/>
+					</button>
+					<button className="cancel" type="button" onClick={this.finishEdit}>
+						<CancelButton/>
+					</button>
+				</div>
+				<input placeholder="Name" required name="name" className="name" value={this.state.name} onChange={this.handleInputChange}/>
+				<textarea placeholder="Description" name="description" rows="3" className="description" value={this.state.description} onChange={this.handleInputChange}/>
+			</form>
+		)
+	}
+
 	render() {
 		if (this.state.editing) {
-			return (
-				<form className="editing full tag" onSubmit={this.saveEdit}>
-					<div className="buttons">
-						<button className="delete" type="button" onClick={this.delete}>
-							<DeleteButton/>
-						</button>
-						<button className="save" type="submit">
-							<SaveButton/>
-						</button>
-						<button className="cancel" type="button" onClick={this.finishEdit}>
-							<CancelButton/>
-						</button>
-					</div>
-					<input placeholder="Name" required name="name" className="name" value={this.state.name} onChange={this.handleInputChange}/>
-					<textarea placeholder="Description" name="description" rows="3" className="description" value={this.state.description} onChange={this.handleInputChange}/>
-				</form>
-			)
+			return this.renderEditor()
 		}
 		return (
 			<div className="full tag">

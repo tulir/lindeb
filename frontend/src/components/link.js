@@ -92,27 +92,31 @@ class Link extends Component {
 		})
 	}
 
+	renderEditor() {
+		return (
+			<form className="link editing" onSubmit={this.saveEdit}>
+				<div className="buttons">
+					<button className="delete" type="button" onClick={this.delete}>
+						<DeleteButton/>
+					</button>
+					<button className="save" type="submit">
+						<SaveButton/>
+					</button>
+					<button className="cancel" type="button" onClick={this.finishEdit}>
+						<CancelButton/>
+					</button>
+				</div>
+				<input name="title" placeholder="Title" type="text" className="title" value={this.state.title} onChange={this.handleInputChange}/>
+				<ReactTags delimiterChars={[","]} tags={this.state.tags} suggestions={this.state.tagSuggestions} handleAddition={this.addTag} handleDelete={this.deleteTag} allowNew={true}/>
+				<input name="url" placeholder="URL" type="text" className="url" value={this.state.url} onChange={this.handleInputChange}/>
+				<textarea rows="4" name="description" placeholder="Description" className="description" value={this.state.description} onChange={this.handleInputChange}/>
+			</form>
+		)
+	}
+
 	render() {
 		if (this.state.editing) {
-			return (
-				<form className="link editing" onSubmit={this.saveEdit}>
-					<div className="buttons">
-						<button className="delete" type="button" onClick={this.delete}>
-							<DeleteButton/>
-						</button>
-						<button className="save" type="submit">
-							<SaveButton/>
-						</button>
-						<button className="cancel" type="button" onClick={this.finishEdit}>
-							<CancelButton/>
-						</button>
-					</div>
-					<input name="title" placeholder="Title" type="text" className="title" value={this.state.title} onChange={this.handleInputChange}/>
-					<ReactTags delimiterChars={[","]} tags={this.state.tags} suggestions={this.state.tagSuggestions} handleAddition={this.addTag} handleDelete={this.deleteTag} allowNew={true}/>
-					<input name="url" placeholder="URL" type="text" className="url" value={this.state.url} onChange={this.handleInputChange}/>
-					<textarea rows="4" name="description" placeholder="Description" className="description" value={this.state.description} onChange={this.handleInputChange}/>
-				</form>
-			)
+			return this.renderEditor()
 		}
 		return (
 			<article className="link">

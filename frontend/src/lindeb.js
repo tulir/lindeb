@@ -277,7 +277,7 @@ class Lindeb extends Component {
 				tagsByID: update(this.state.tagsByID, {$remove: [id]}),
 			})
 		} catch (err) {
-			console.error("Fatal error while deleting link:", err)
+			console.error("Fatal error while deleting tag:", err)
 		}
 	}
 
@@ -374,7 +374,7 @@ class Lindeb extends Component {
 				}
 			}
 		} catch (err) {
-			console.error("Fatal error while editing link:", err)
+			console.error("Fatal error while updating link:", err)
 		}
 	}
 
