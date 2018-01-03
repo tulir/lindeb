@@ -55,7 +55,10 @@ class FullTag extends Component {
 		this.setState({editing: false})
 	}
 
-	saveEdit() {
+	saveEdit(evt) {
+		if (evt) {
+			evt.preventDefault()
+		}
 		this.finishEdit()
 		const tag = Object.assign({}, this.state)
 		delete tag.editing

@@ -61,7 +61,10 @@ class Link extends Component {
 		this.setState({editing: false})
 	}
 
-	saveEdit() {
+	saveEdit(evt) {
+		if (evt) {
+			evt.preventDefault()
+		}
 		this.finishEdit()
 		const link = Object.assign({}, this.state)
 		link.tags = link.tags.map(tag => tag.name)
