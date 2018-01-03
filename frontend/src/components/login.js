@@ -21,6 +21,9 @@ class LoginView extends Component {
 	static contextTypes = {
 		login: PropTypes.func,
 		error: PropTypes.func,
+		addLink: PropTypes.func,
+		saveTag: PropTypes.func,
+		router: PropTypes.object,
 	}
 
 	constructor(props, context) {
@@ -34,6 +37,23 @@ class LoginView extends Component {
 
 	handleInputChange(event) {
 		this.setState({[event.target.name]: event.target.value})
+	}
+
+	async addDefaultLinks() {
+		await this.context.saveTag({name: "lindeb", description: "A few pre-added links."})
+		await Promise.all([
+			this.context.addLink({
+				url: "https://github.com/tulir/lindeb",
+				tags: ["lindeb"]
+			}),
+			this.context.addLink({
+				url: "https://github.com/tulir/lindeb/issues",
+				tags: ["lindeb"],
+				title: "Issues - tulir/lindeb",
+				description: "Complain about lindeb here."
+			})
+		])
+		this.context.router.update()
 	}
 
 	async auth(action = "login") {
@@ -50,7 +70,11 @@ class LoginView extends Component {
 				return
 			}
 			const data = await response.json()
-			this.context.login(data)
+			await this.context.login(data)
+
+			if (action === "register") {
+				this.addDefaultLinks()
+			}
 		} catch (err) {
 			console.error("Unhandled error while authenticating:", err)
 		}

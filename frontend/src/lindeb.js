@@ -50,6 +50,7 @@ class Lindeb extends Component {
 		tagsByName: PropTypes.object,
 		topbar: PropTypes.object,
 		user: PropTypes.object,
+		router: PropTypes.object,
 		showSearch: PropTypes.bool,
 	}
 
@@ -70,6 +71,7 @@ class Lindeb extends Component {
 			tagsByName: this.state.tagsByName,
 			topbar: this.topbar,
 			user: this.state.user,
+			router: this.router,
 			showSearch: this.state.view === VIEW_LINKS,
 		}
 	}
