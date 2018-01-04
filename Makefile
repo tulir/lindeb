@@ -31,6 +31,6 @@ tar: frontend backend
 	cp LICENSE packaging-tmp/
 
 	cd packaging-tmp; \
-		tar cvfJ lindeb_0.2.0.tar.xz *
+		tar cvfJ lindeb-0.2.0.tar.xz *
 	mv packaging-tmp/*.tar.xz .
 	rm -rf packaging-tmp
