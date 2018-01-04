@@ -20,9 +20,9 @@ import update from 'immutability-helper'
 import {Hashmux, Query} from "hashmux"
 import Topbar from "./components/topbar"
 import LoginView from "./components/login"
-import TagView from "./components/taglist"
-import LinkView from "./components/linklist"
-import LinkAddView from "./components/addlink"
+import TagView from "./components/tag/list"
+import LinkView from "./components/link/list"
+import LinkAddView from "./components/link/add"
 
 const
 	VIEW_LINKS = "links",
@@ -45,6 +45,7 @@ class Lindeb extends Component {
 		switchPage: PropTypes.func,
 		isAuthenticated: PropTypes.func,
 		error: PropTypes.func,
+		headers: PropTypes.func,
 
 		tagsByID: PropTypes.object,
 		tagsByName: PropTypes.object,
@@ -66,6 +67,7 @@ class Lindeb extends Component {
 			switchPage: this.switchPage.bind(this),
 			isAuthenticated: this.isAuthenticated.bind(this),
 			error: this.error.bind(this),
+			headers: () => this.headers,
 
 			tagsByID: this.state.tagsByID,
 			tagsByName: this.state.tagsByName,

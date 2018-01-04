@@ -15,8 +15,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import React, {PureComponent} from "react"
-import Link from "./link"
-import PageSwitcher from "./pageswitcher"
+import Link from "./full"
+import PageSwitcher from "../pageswitcher"
 
 class LinkListView extends PureComponent {
 	render() {

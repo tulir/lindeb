@@ -16,7 +16,7 @@
 
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import FullTag from "./fulltag"
+import FullTag from "./full"
 
 class TagListView extends Component {
 	static childContextTypes = {

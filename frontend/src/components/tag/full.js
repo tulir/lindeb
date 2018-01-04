@@ -16,11 +16,11 @@
 
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import EditButton from "../res/edit.svg"
-import SaveButton from "../res/save.svg"
-import CancelButton from "../res/cancel.svg"
-import DeleteButton from "../res/delete.svg"
-import Spinner from "../res/spinner.svg"
+import EditButton from "../../res/edit.svg"
+import SaveButton from "../../res/save.svg"
+import CancelButton from "../../res/cancel.svg"
+import DeleteButton from "../../res/delete.svg"
+import Spinner from "../../res/spinner.svg"
 
 class FullTag extends Component {
 	static contextTypes = {
