@@ -91,7 +91,6 @@ func readJSON(w http.ResponseWriter, r *http.Request, into interface{}) bool {
 
 	err := json.NewDecoder(r.Body).Decode(into)
 	if err != nil {
-		fmt.Println(err)
 		http.Error(w, "Malformed JSON.", http.StatusBadRequest)
 		return false
 	}
