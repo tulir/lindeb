@@ -46,6 +46,7 @@ func (api *API) AddHandler(router *mux.Router) {
 	router.Handle("/link/{id:[0-9]+}", api.AuthMiddleware(api.LinkMiddleware(http.HandlerFunc(api.AccessLink)))).
 		Methods(http.MethodGet, http.MethodPut, http.MethodDelete)
 	router.Handle("/links", api.AuthMiddleware(http.HandlerFunc(api.BrowseLinks))).Methods(http.MethodGet)
+	router.Handle("/links/import", api.AuthMiddleware(http.HandlerFunc(api.ImportLinks))).Methods(http.MethodPost)
 
 	router.Handle("/tag/add", api.AuthMiddleware(http.HandlerFunc(api.AddTag))).Methods(http.MethodPost)
 	router.Handle("/tag/{id:[0-9]+}", api.AuthMiddleware(api.TagMiddleware(http.HandlerFunc(api.AccessTag)))).

@@ -246,7 +246,38 @@ paths:
                       $ref: '#/components/schemas/Link'
         401:
           $ref: '#/components/responses/Unauthorized'
-
+  /links/import:
+    post:
+      summary: Import a link dump.
+      operationId: importLinks
+      tags: [ Links ]
+      parameters:
+      - name: format
+        in: query
+        description: The format of the dump.
+        schema:
+          type: string
+          enum:
+          - lindeb
+          - pinboard
+      requestBody:
+        description: The link dump.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+      responses:
+        200:
+          description: Links imported
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Link'
+        401:
+          $ref: '#/components/responses/Unauthorized'
   /auth/login:
     post:
       summary: Sign in to the application.
