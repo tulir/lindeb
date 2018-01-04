@@ -278,6 +278,8 @@ paths:
                   $ref: '#/components/schemas/Link'
         401:
           $ref: '#/components/responses/Unauthorized'
+        415:
+          description: Unsupported dump format.
   /auth/login:
     post:
       summary: Sign in to the application.
