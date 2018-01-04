@@ -1,0 +1,6 @@
+#!/bin/sh
+
+mkdir -p /etc/lindeb
+if [ ! -e /etc/lindeb/config.yaml ]; then
+	install /etc/default/lindeb /etc/lindeb/config.yaml -m 0640
+fi

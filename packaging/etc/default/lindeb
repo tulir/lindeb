@@ -1,0 +1,21 @@
+# The database DSN (Data Source Name) without the database type (mysql)
+database: root:password@tcp(127.0.0.1:3306)/database
+
+# The Elasticsearch URL
+elastic: http://localhost:9200
+
+# API host config
+api:
+  prefix: /api
+  # The address to listen on
+  address: :29315
+  # Whether or not TLS should be enabled
+  tls: false
+  # If TLS is enabled, you must also supply the following fields:
+  #tls_cert: /path/to/cert.pem
+  #tls_key: /path/to/key.pem
+
+# Static frontend file location
+frontend:
+  enabled: true
+  location: /var/www/lindeb

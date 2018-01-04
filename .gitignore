@@ -1,3 +1,5 @@
 config.yaml
 .vscode
 .idea
+*.deb
+*.tar.xz

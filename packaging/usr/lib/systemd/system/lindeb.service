@@ -1,0 +1,11 @@
+[Unit]
+Description=A simple link manager with powerful search.
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/lindeb
+WorkingDirectory=/etc/lindeb
+
+[Install]
+WantedBy=multi-user.target

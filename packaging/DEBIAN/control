@@ -1,0 +1,9 @@
+Package: lindeb
+Version: 0.2.0-1
+Maintainer: Tulir Asokan <tulir@maunium.net>
+Architecture: amd64
+Section: web
+Priority: optional
+Homepage: https://github.com/tulir/lindeb
+Description: A simple link manager with powerful search. Built using Go, React, Elasticsearch and MariaDB.
+Suggests: elasticsearch (>= 6.0.0), mariadb-server (>= 10.0.0)
