@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 @import ../frontend/src/style/base/vars
 @import ../frontend/src/style/base/elements
+@import ../frontend/src/style/components/spinner
 
 html, body
 	width: 30rem
@@ -50,7 +51,7 @@ button
 
 #link-saved
 	text-align: center
-	font-size: 14rem
+	font-size: 15.75rem
 	color: $main-color
 
 	&:not(.hidden)
@@ -63,6 +64,14 @@ button
 		opacity: 1
 	100%
 		opacity: 0
+
+#spinner
+	height: 10rem
+	padding: 4.5rem
+	overflow: hidden
+	> svg
+		height: 100%
+		width: 100%
 
 #not-logged-in
 	text-align: center

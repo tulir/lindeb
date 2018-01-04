@@ -56,6 +56,8 @@ class PopupHandler {
 		const tags = this.tags.value.split(",").map(tag => tag.trim()).filter(tag => !!tag)
 		const url = this.url.value
 		const description = this.description.value
+		document.getElementById("link-save").className += " hidden"
+		document.getElementById("spinner").className = ""
 		try {
 			const response = await fetch(`https://lindeb.mau.lu/api/link/save`, {
 				headers: {
@@ -70,7 +72,7 @@ class PopupHandler {
 				console.error(response)
 				return
 			}
-			document.getElementById("link-save").className += " hidden"
+			document.getElementById("spinner").className += " hidden"
 			document.getElementById("link-saved").className = ""
 			setTimeout(window.close, 1000)
 		} catch (err) {
