@@ -3,3 +3,5 @@ config.yaml
 .idea
 *.deb
 *.tar.xz
+*.zip
+*.xpi
