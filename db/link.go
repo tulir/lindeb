@@ -230,7 +230,6 @@ func (link *Link) Update() (err error) {
 // stores the data of this link into the database
 // and fills in the ID field of the struct with the ID of the inserted row.
 func (link *Link) Insert() error {
-	link.Timestamp = time.Now().Unix()
 	result, err := link.DB.Exec(
 		"INSERT INTO Link (url, domain, title, description, timestamp, owner) VALUES (?, ?, ?, ?, ?, ?)",
 		link.URL.String(), link.URL.Hostname(), link.Title, link.Description, link.Timestamp, link.Owner.ID)

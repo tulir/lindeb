@@ -65,12 +65,13 @@ func main() {
 
 	r := mux.NewRouter()
 
-	apiObj := &api.API{
-		DB:      db,
-		Elastic: search,
-	}
-	apiObj.AddHandler(r.PathPrefix(config.API.Prefix).Subrouter())
+	api := api.Create(db, search)
+	api.AddHandler(r.PathPrefix(config.API.Prefix).Subrouter())
 	config.Frontend.AddHandler(r)
+
+	go api.StartElasticQueue()
+	go api.StartElasticQueue()
+	go api.StartElasticQueue()
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -81,6 +82,7 @@ func main() {
 			fmt.Print("\nShutting down...\n")
 		}
 		db.Close()
+		api.Stop()
 		// TODO check if this does what's expected
 		search.Stop()
 		os.Exit(1)

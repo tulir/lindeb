@@ -30,8 +30,35 @@ import (
 
 // API contains objects needed by the API handlers to function.
 type API struct {
-	DB      *db.DB
-	Elastic *elastic.Client
+	DB           *db.DB
+	Elastic      *elastic.Client
+	elasticQueue chan func()
+	stop         chan bool
+}
+
+func Create(db *db.DB, elastic *elastic.Client) *API {
+	return &API{
+		DB:           db,
+		Elastic:      elastic,
+		elasticQueue: make(chan func(), 4096),
+		stop:         make(chan bool, 1),
+	}
+}
+
+func (api *API) Stop() {
+	api.stop <- true
+}
+
+func (api *API) StartElasticQueue() {
+	for {
+		select {
+		case elasticCall := <-api.elasticQueue:
+			elasticCall()
+		case <-api.stop:
+			api.stop <- true
+			return
+		}
+	}
 }
 
 // AddHandler registers all the API paths.
@@ -64,6 +91,7 @@ func readJSON(w http.ResponseWriter, r *http.Request, into interface{}) bool {
 
 	err := json.NewDecoder(r.Body).Decode(into)
 	if err != nil {
+		fmt.Println(err)
 		http.Error(w, "Malformed JSON.", http.StatusBadRequest)
 		return false
 	}

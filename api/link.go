@@ -19,6 +19,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"fmt"
 
@@ -74,6 +75,18 @@ func apiToDBLink(user *db.User, apiLink apiLink) *db.Link {
 	}
 }
 
+func (al apiLink) Copy() apiLink {
+	return apiLink{
+		ID:          al.ID,
+		Title:       al.Title,
+		Description: al.Description,
+		Timestamp:   al.Timestamp,
+		URLString:   al.URLString,
+		Domain:      al.Domain,
+		Tags:        al.Tags,
+	}
+}
+
 const ElasticIndex = "lindeb"
 const ElasticType = "link"
 
@@ -108,6 +121,7 @@ func (api *API) SaveLink(w http.ResponseWriter, r *http.Request) {
 	if len(inputLink.Description) > 0 {
 		link.Description = inputLink.Description
 	}
+	link.Timestamp = time.Now().Unix()
 
 	err = link.Insert()
 	if err != nil {
@@ -124,7 +138,7 @@ func (api *API) SaveLink(w http.ResponseWriter, r *http.Request) {
 	apiLink := dbToAPILink(link)
 	writeJSON(w, http.StatusCreated, apiLink)
 
-	go func() {
+	api.elasticQueue <- func() {
 		apiLink.HTML = htmlBody
 		apiLink.Owner = user.ID
 		_, err = api.Elastic.Index().
@@ -137,7 +151,7 @@ func (api *API) SaveLink(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Printf("Elasticsearch error while saving link %d from %d: %v", link.ID, user.ID, err)
 		}
-	}()
+	}
 }
 
 // AccessLink is a method proxy for the handlers of /api/link/<id>
@@ -203,7 +217,7 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 	apiLink := dbToAPILink(link)
 	writeJSON(w, http.StatusOK, apiLink)
 
-	go func() {
+	api.elasticQueue <- func() {
 		apiLink.HTML = htmlBody
 		apiLink.Owner = user.ID
 		_, err = api.Elastic.Update().
@@ -216,7 +230,7 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Printf("Elasticsearch error while updating link %d from %d: %v", link.ID, user.ID, err)
 		}
-	}()
+	}
 }
 
 // DeleteLink is the handler for DELETE /api/link/<id>

@@ -26,24 +26,30 @@ import (
 	"maunium.net/go/lindeb/db"
 )
 
-func scrapeLink(link *db.Link) (body string) {
-	resp, err := http.Get(link.URL.String())
+func readLink(url string) string {
+	resp, err := http.Get(url)
 	if err != nil {
-		link.Title = "Unreachable website"
-		link.Description = "The lindeb crawler could not reach this URL."
-		return
+		return ""
 	}
 
 	defer resp.Body.Close()
 
 	rawBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		return ""
+	}
+
+	return string(rawBody)
+}
+
+func scrapeLink(link *db.Link) (body string) {
+	body = readLink(link.URL.String())
+	if len(body) == 0 {
 		link.Title = "Unreachable website"
 		link.Description = "The lindeb crawler could not reach this URL."
 		return
 	}
 
-	body = string(rawBody)
 	link.Title, link.Description = findMetadata(body)
 	if len(link.Title) == 0 {
 		link.Title = link.URL.String()
