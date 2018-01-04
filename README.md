@@ -1,7 +1,7 @@
 # lindeb - mau\Lu Link Database
 A simple link manager with powerful search. Built using Go, React, Elasticsearch and MariaDB.
 
-The official deployment will be available at [lindeb.mau.lu](https://lindeb.mau.lu).
+The official deployment is available at [lindeb.mau.lu](https://lindeb.mau.lu).
 
 ## Course info
 This is also a database exercise project.
