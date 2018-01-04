@@ -32,6 +32,13 @@ func (dbConf Config) Connect() (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if conf.Params == nil {
+		conf.Params = make(map[string]string)
+	}
+	// Force utf8mb4 in the MySQL client as we use it when creating tables as well.
+	conf.Params["charset"] = "utf8mb4"
+
 	sqlDB, err := sql.Open("mysql", conf.FormatDSN())
 	if err != nil {
 		return nil, err
