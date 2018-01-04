@@ -281,6 +281,25 @@ paths:
           description: Signed out successfully.
         401:
           description: User was not signed in.
+  /auth/update:
+    post:
+      summary: Update authentication information
+      operationId: updateUser
+      tags: [ Authentication ]
+      requestBody:
+        description: User info update data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        200:
+          description: User info updated successfully.
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          description: Current password is incorrect.
   /auth/register:
     post:
       summary: Sign up to the application
@@ -353,6 +372,20 @@ components:
       example:
         username: linksaver123
         password: passw0rd!
+    UserUpdate:
+      required:
+      - currentPassword
+      properties:
+        currentPassword:
+          type: string
+          description: The current password of the user.
+          writeOnly: true
+        password:
+          type: string
+          description: The new password of the user. If empty or not present, password will not change.
+      example:
+        currentPassword: passw0rd!
+        password: p455w0rd!1!!1one!
     User:
       required:
       - username

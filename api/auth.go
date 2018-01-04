@@ -100,6 +100,10 @@ func (api *API) Register(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, userData)
 }
 
+func (api *API) UpdateAuth(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 var tokenRegex = regexp.MustCompile("LINDEB-TOKEN user=([0-9]+) token=([A-Za-z]+)")
 
 const authHeader = "LINDEB-TOKEN"
