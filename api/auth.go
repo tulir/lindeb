@@ -34,6 +34,11 @@ type apiUser struct {
 	AuthToken string `json:"authtoken,omitempty"`
 }
 
+type userUpdate struct {
+	CurrentPassword string `json:"currentPassword"`
+	Password        string `json:"password"`
+}
+
 func dbToAPIUser(dbUser *db.User) apiUser {
 	return apiUser{
 		ID:       dbUser.ID,
@@ -101,7 +106,23 @@ func (api *API) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) UpdateAuth(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+	user := api.GetUserFromContext(r)
+
+	update := userUpdate{}
+	if !readJSON(w, r, &update) {
+		return
+	}
+
+	if !user.CheckPassword(update.CurrentPassword) {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	if len(update.Password) > 0 {
+		user.SetPassword(update.Password)
+	}
+
+	user.Update()
 }
 
 var tokenRegex = regexp.MustCompile("LINDEB-TOKEN user=([0-9]+) token=([A-Za-z]+)")
