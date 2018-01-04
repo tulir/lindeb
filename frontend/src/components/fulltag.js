@@ -20,6 +20,7 @@ import EditButton from "../res/edit.svg"
 import SaveButton from "../res/save.svg"
 import CancelButton from "../res/cancel.svg"
 import DeleteButton from "../res/delete.svg"
+import Spinner from "../res/spinner.svg"
 
 class FullTag extends Component {
 	static contextTypes = {
@@ -52,21 +53,24 @@ class FullTag extends Component {
 
 	finishEdit() {
 		this.context.finishEditingTag(this)
-		this.setState({editing: false})
+		this.setState({editing: false, loading: false})
 	}
 
 	saveEdit(evt) {
+		if (this.state.loading) {
+			return
+		}
+		this.setState({loading: true})
 		if (evt) {
 			evt.preventDefault()
 		}
-		this.finishEdit()
 		const tag = Object.assign({}, this.state)
 		delete tag.editing
-		this.context.saveTag(tag)
+		this.context.saveTag(tag, this)
 	}
 
 	delete() {
-		this.finishEdit()
+		this.setState({editing: false, loading: false, deleting: true})
 		this.context.deleteTag(this.props.id)
 	}
 
@@ -75,10 +79,10 @@ class FullTag extends Component {
 			<form className="editing full tag" onSubmit={this.saveEdit}>
 				<div className="buttons">
 					<button className="delete" type="button" onClick={this.delete}>
-						<DeleteButton/>
+						{this.state.deleting ? <Spinner/> : <DeleteButton/>}
 					</button>
 					<button className="save" type="submit">
-						<SaveButton/>
+						{this.state.loading ? <Spinner/> : <SaveButton/>}
 					</button>
 					<button className="cancel" type="button" onClick={this.finishEdit}>
 						<CancelButton/>

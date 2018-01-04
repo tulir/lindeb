@@ -235,7 +235,7 @@ class Lindeb extends Component {
 		document.body.dispatchEvent(new Event("lindeb-logout"))
 	}
 
-	async saveTag(tag) {
+	async saveTag(tag, component) {
 		if (!this.isAuthenticated()) {
 			return
 		}
@@ -265,6 +265,10 @@ class Lindeb extends Component {
 			this.setState({tagsByID, tagsByName})
 		} catch (err) {
 			console.error(`Fatal error while ${action}:`, err)
+		} finally {
+			if (component) {
+				component.finishEdit()
+			}
 		}
 	}
 
@@ -362,8 +366,9 @@ class Lindeb extends Component {
 	 * @param {string} [data.url]         The new URL.
 	 * @param {string} [data.title]       The new title for the link.
 	 * @param {string} [data.description] The new description for the link.
+	 * @param {Link}   [component]        The component that triggered this call.
 	 */
-	async updateLink(data) {
+	async updateLink(data, component) {
 		if (!this.isAuthenticated()) {
 			return
 		}
@@ -390,6 +395,10 @@ class Lindeb extends Component {
 			}
 		} catch (err) {
 			console.error("Fatal error while updating link:", err)
+		} finally {
+			if (component) {
+				component.finishEdit()
+			}
 		}
 	}
 

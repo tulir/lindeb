@@ -18,6 +18,7 @@ import update from "immutability-helper"
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import ReactTags from "react-tag-autocomplete"
+import Spinner from "../res/spinner.svg"
 
 class LinkAddView extends Component {
 	static contextTypes = {
@@ -51,6 +52,7 @@ class LinkAddView extends Component {
 	}
 
 	save() {
+		this.setState({saving: true})
 		const link = Object.assign({}, this.state)
 		link.tags = link.tags.map(tag => tag.name)
 		this.context.addLink(link)
@@ -88,6 +90,7 @@ class LinkAddView extends Component {
 					<button className="main-color save" type="button" onClick={this.save}>
 						Save
 					</button>
+					{this.state.saving ? <Spinner style={{"margin-top": ".5rem"}}/> : ""}
 				</div>
 
 				<p className="bookmarklet">
