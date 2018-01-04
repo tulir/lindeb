@@ -14,15 +14,42 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-@import base/vars
-@import base/body
-@import base/elements
+main > .link-importer
+	> .dropzone
+		margin-top: .5rem
+		width: 100%
+		height: 15rem
+		border: 2px dashed $border-color
+		border-radius: .25rem
 
-@import components/spinner
-@import components/login
-@import components/topbar
-@import components/pageswitcher
-@import components/links
-@import components/tags
-@import components/editors
-@import components/import
+		display: flex
+		justify-content: space-around
+		align-items: center
+
+		> svg
+			width: 7.5rem
+			height: 7.5rem
+			fill: $border-color
+
+		&:hover
+			// Hovering without file
+			cursor: pointer
+			> svg
+				fill: $main-color
+
+		&.accept
+			// Hovering with valid file
+			border: 2px solid $main-color
+			background: lighten($main-color, 40%)
+
+			> svg
+				fill: $main-color
+
+		&.reject
+			// Hovering with invalid file
+			border: 2px solid $error-color
+			background: lighten($error-color, 35%)
+
+
+			> svg
+				fill: $error-color

@@ -23,11 +23,13 @@ import LoginView from "./components/login"
 import TagView from "./components/tag/list"
 import LinkView from "./components/link/list"
 import LinkAddView from "./components/link/add"
+import LinkImportView from "./components/link/import"
 
 const
 	VIEW_LINKS = "links",
 	VIEW_LINK_ADD = "link-add",
 	VIEW_TAGS = "tags",
+	VIEW_IMPORT_LINKS = "import-links",
 	VIEW_SETTINGS = "settings"
 
 /**
@@ -99,6 +101,7 @@ class Lindeb extends Component {
 		this.router.handle("/", (_, query) => this.openLinkList(query))
 		this.router.handle("/save", (_, query) => this.openLinkAdder(query))
 		this.router.handle("/tags", () => this.setState({view: VIEW_TAGS}))
+		this.router.handle("/import", () => this.setState({view: VIEW_IMPORT_LINKS}))
 		this.router.handle("/settings", () => this.setState({view: VIEW_SETTINGS}))
 	}
 
@@ -489,6 +492,8 @@ class Lindeb extends Component {
 				return undefined // <SettingsView/>
 			case VIEW_LINK_ADD:
 				return <LinkAddView error={this.state.error} {...this.state.newLink}/>
+			case VIEW_IMPORT_LINKS:
+				return <LinkImportView/>
 			default:
 			case VIEW_LINKS:
 				return <LinkView
