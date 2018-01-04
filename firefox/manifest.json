@@ -1,9 +1,9 @@
 {
 	"manifest_version": 2,
 	"name": "lindeb",
-	"version": "1.0.0",
+	"version": "0.2.0",
 	"description": "A simple link manager with powerful search.",
-	"homepage_url": "https://lindeb.mau.lu",
+	"homepage_url": "htgtps://lindeb.mau.lu",
 	"applications": {
 		"gecko": {
 			"id": "lindeb@maunium.net",
