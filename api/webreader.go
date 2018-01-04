@@ -83,10 +83,10 @@ func findMetadata(body string) (title string, description string) {
 			case "og:title":
 				title = content
 			case "og:description":
-				description = content
+				description = html.UnescapeString(content)
 			case "description":
 				if len(description) == 0 {
-					description = content
+					description = html.UnescapeString(content)
 				}
 			}
 		case "title":
