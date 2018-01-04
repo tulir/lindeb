@@ -5,7 +5,7 @@ default: frontend backend
 clean:
 	rm -rf packaging/usr/bin packaging/var
 	rm -rf frontend/dist
-	rm -f lindeb *.deb *.tar.xz
+	rm -f lindeb *.deb *.tar.xz *.zip *.xpi
 
 backend:
 	go build -o lindeb
