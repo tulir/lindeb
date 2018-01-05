@@ -24,6 +24,7 @@ import TagView from "./components/tag/list"
 import LinkView from "./components/link/list"
 import LinkAddView from "./components/link/add"
 import LinkImportView from "./components/link/import"
+import SettingsView from "./components/settings"
 
 const
 	VIEW_LINKS = "links",
@@ -489,7 +490,7 @@ class Lindeb extends Component {
 			case VIEW_TAGS:
 				return <TagView tags={this.state.tagsByID}/>
 			case VIEW_SETTINGS:
-				return undefined // <SettingsView/>
+				return <SettingsView/>
 			case VIEW_LINK_ADD:
 				return <LinkAddView error={this.state.error} {...this.state.newLink}/>
 			case VIEW_IMPORT_LINKS:
