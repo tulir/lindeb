@@ -14,38 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-.link > .tags
-	color: $alt-color
-
-	&:empty
-		display: none
-
-	> .tag
-		cursor: pointer
-		display: inline-block
-		font-size: 1.1rem
-
-		margin-right: .25rem
-
-		&::before
-			content: "#"
-
-.full.tag
-	padding: 1rem .5rem
-	border-bottom: 1px solid #AAA
-
-	> .name
-		font-size: 1.4rem
-		color: $main-color
-
-main > .taglist
-	margin-bottom: 3rem
-
-	.newtag
-		width: 100%
-		border-radius: 0
-		margin-top: .5rem
-
 .react-tags
 	position: relative
 	box-sizing: border-box
@@ -142,4 +110,3 @@ main > .taglist
 				&.is-disabled
 					opacity: 0.5
 					cursor: auto
-
