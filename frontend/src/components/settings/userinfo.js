@@ -45,7 +45,8 @@ class UserInfo extends Component {
 
 	render() {
 		return (
-			<form className="userinfo settings-tab" onSubmit={this.submit}>
+			<form className="userinfo section" onSubmit={this.submit}>
+				<h1>User info</h1>
 				<input placeholder="New password" required name="password"
 					   value={this.state.password} onChange={this.handleInputChange}/>
 

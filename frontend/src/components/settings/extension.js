@@ -19,7 +19,8 @@ import React, {Component} from "react"
 class ExtensionSettings extends Component {
 	render() {
 		return (
-			<div className="extension settings-tab">
+			<div className="extension section">
+				<h1>Extension</h1>
 			</div>
 		)
 	}

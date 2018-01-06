@@ -15,11 +15,49 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import React, {Component} from "react"
+import PropTypes from "prop-types"
 
 class WebsiteSettings extends Component {
+	static contextTypes = {
+		settings: PropTypes.object,
+	}
+
+	getScrollbarClass(type) {
+		if (type === "default" && !this.context.settings.scrollbar) {
+			return "active"
+		}
+		return this.context.settings.scrollbar === type ? "active" : ""
+	}
+
+	setScrollbar(type) {
+		this.context.settings.scrollbar = type
+		this.forceUpdate()
+	}
+
 	render() {
 		return (
-			<div className="website settings-tab">
+			<div className="website section">
+				<h1>Website</h1>
+				<div className="setting">
+					<div className="name">Scrollbar</div>
+					<div className="control activatable button-group">
+						<button onClick={() => this.setScrollbar("custom")}
+								className={this.getScrollbarClass("custom")}
+								title="Force custom scrollbar">
+							Force custom
+						</button>
+						<button onClick={() => this.setScrollbar("default")}
+								className={this.getScrollbarClass("default")}
+								title="Use custom scrollbar if native isn't nice">
+							Default
+						</button>
+						<button onClick={() => this.setScrollbar("native")}
+								className={this.getScrollbarClass("native")}
+								title="Force native scrollbar">
+							Force native
+						</button>
+					</div>
+				</div>
 			</div>
 		)
 	}

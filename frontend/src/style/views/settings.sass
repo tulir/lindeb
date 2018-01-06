@@ -15,9 +15,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 .settings
-	> .tabswitcher
-		+button-group
-		margin-top: .5rem
+	.section
+		padding: 1rem 0
 
 	input
 		width: 100%
@@ -25,3 +24,62 @@
 
 	button
 		+main-color-button
+
+	.setting
+		display: flex
+		align-items: center
+		text-align: center
+		padding: .5rem
+
+		&:nth-of-type(odd)
+			background-color: darken($background-color, 5%)
+
+		.name
+			flex: 1
+
+		.control
+			flex: 2
+
+.setting > .control
+	&.button-group
+		display: flex
+
+		button
+			flex: 1
+
+		&.activatable
+			button:not(.active)
+				background-color: inherit
+				color: $main-color
+
+.settings > .section.link-dump-manager
+	.wrapper-wrapper
+		display: flex
+
+		> .wrapper
+			flex: 1
+			box-sizing: border-box
+			height: 13rem
+
+			> h1
+				margin: 0
+				height: 3rem
+
+		> .import
+			padding-right: .5rem
+
+			> select
+				width: 100%
+				height: 2rem
+				margin-bottom: .5rem
+
+			> .dropzone
+				height: 7.5rem
+
+		> .export
+			padding-left: .5rem
+
+			> button
+				width: 100%
+				height: 10rem
+

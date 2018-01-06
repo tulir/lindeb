@@ -18,43 +18,16 @@ import React, {PureComponent} from "react"
 import UserInfo from "./userinfo"
 import ExtensionSettings from "./extension"
 import WebsiteSettings from "./website"
-
-const TAB_USER_INFO = "user",
-	TAB_EXTENSION = "extension",
-	TAB_WEBSITE = "website"
+import LinkDumpManager from "./dumps"
 
 class SettingsView extends PureComponent {
-	static DEFAULT_TAB = TAB_USER_INFO
-
-	switchTab(tab) {
-		window.location.href = `#/settings/${tab}`
-	}
-
-	renderTab() {
-		switch (this.props.tab) {
-			case TAB_USER_INFO:
-				return <UserInfo/>
-			case TAB_EXTENSION:
-				return <ExtensionSettings/>
-			case TAB_WEBSITE:
-				return <WebsiteSettings/>
-			default:
-				// Other tabs should be prevented at the router level.
-				throw new Error(`Unknown tab: ${this.props.tab}`)
-		}
-	}
-
 	render() {
 		return (
 			<div className="settings lindeb-content">
-				<div className="tabswitcher">
-					<button onClick={() => this.switchTab(TAB_USER_INFO)}>User info</button>
-					<button onClick={() => this.switchTab(TAB_WEBSITE)}>Website</button>
-					{this.props.showExtensionSettings
-						? <button onClick={() => this.switchTab(TAB_EXTENSION)}>Extension</button>
-						: ""}
-				</div>
-				{this.renderTab()}
+				<UserInfo/>
+				{this.props.showExtensionSettings ? <ExtensionSettings/> : ""}
+				<WebsiteSettings/>
+				<LinkDumpManager/>
 			</div>
 		)
 	}

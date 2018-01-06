@@ -25,14 +25,12 @@ import LoginView from "./components/login"
 import TagView from "./components/tag/list"
 import LinkView from "./components/link/list"
 import LinkAddView from "./components/link/add"
-import LinkImportView from "./components/link/import"
 import SettingsView from "./components/settings/view"
 
 const
 	VIEW_LINKS = "links",
 	VIEW_LINK_ADD = "link-add",
 	VIEW_TAGS = "tags",
-	VIEW_IMPORT_LINKS = "import-links",
 	VIEW_SETTINGS = "settings",
 	VIEW_NOT_FOUND = "404"
 
@@ -108,15 +106,7 @@ class Lindeb extends Component {
 		this.router.handle("/", (_, query) => this.openLinkList(query))
 		this.router.handle("/save", (_, query) => this.openLinkAdder(query))
 		this.router.handle("/tags", () => this.setState({view: VIEW_TAGS}))
-		this.router.handle("/import", () => this.setState({view: VIEW_IMPORT_LINKS}))
-		this.router.handle("/settings", () => {
-			this.router.redirect(`#/settings/${SettingsView.DEFAULT_TAB}`)
-			this.router.update()
-		})
-		this.router.handle("/settings/{tab:(user|extension|website)}", ({tab}) => this.setState({
-			view: VIEW_SETTINGS,
-			settingsTab: tab,
-		}))
+		this.router.handle("/settings", () => this.setState({view: VIEW_SETTINGS}))
 		this.router.handleError(404, () => this.setState({view: VIEW_NOT_FOUND}))
 	}
 
@@ -133,14 +123,15 @@ class Lindeb extends Component {
 	}
 
 	updateScrollbar() {
-		if (this.settings.forceNativeScrollbar) {
+		if (this.settings.scrollbar === "native") {
 			if (this.ps) {
 				this.ps.destroy(this.main)
+				this.ps = undefined
 				this.main.style["overflow-y"] = "auto"
 				this.main.style["-webkit-overflow-scrolling"] = "touch"
 			}
 			return
-		} else if (!this.hasNiceNativeScrollbar()) {
+		} else if (this.settings.scrollbar === "custom" || !this.hasNiceNativeScrollbar()) {
 			if (!this.ps) {
 				this.ps = new PerfectScrollbar(this.main)
 				this.main.style["overflow-y"] = "hidden"
@@ -563,12 +554,9 @@ class Lindeb extends Component {
 			case VIEW_TAGS:
 				return <TagView tags={this.state.tagsByID}/>
 			case VIEW_SETTINGS:
-				return <SettingsView tab={this.state.settingsTab} showExtensionSettings={this.state.hasExtension}
-									 settings={this.settings}/>
+				return <SettingsView showExtensionSettings={this.state.hasExtension} settings={this.settings}/>
 			case VIEW_LINK_ADD:
 				return <LinkAddView error={this.state.error} {...this.state.newLink}/>
-			case VIEW_IMPORT_LINKS:
-				return <LinkImportView/>
 			case VIEW_NOT_FOUND:
 				return (
 					<div style={{textAlign: "center", marginTop: "2rem"}}>
