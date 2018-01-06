@@ -27,7 +27,8 @@ function stealAuthtoken() {
 	}
 }
 
+document.body.classList.add("extension-exists")
+document.body.dispatchEvent(new Event("lindeb-extension-appeared"))
 document.body.addEventListener("lindeb-login", stealAuthtoken)
 document.body.addEventListener("lindeb-logout", stealAuthtoken)
-
 stealAuthtoken()
