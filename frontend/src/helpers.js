@@ -22,7 +22,7 @@ Map.prototype.map = function (...args) {
 
 // A helper function to find a key from a map based on a given filter.
 // eslint-disable-next-line
-Map.prototype.find = function(callback) {
+Map.prototype.find = function (callback) {
 	for (const [key, value] of this) {
 		if (callback(value)) {
 			return key

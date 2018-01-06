@@ -70,7 +70,7 @@ class LinkAddView extends Component {
 
 	deleteTag(id) {
 		this.setState({
-			tags: update(this.state.tags, {$splice: [[id, 1]]})
+			tags: update(this.state.tags, {$splice: [[id, 1]]}),
 		})
 	}
 
@@ -78,10 +78,14 @@ class LinkAddView extends Component {
 		return (
 			<div className="add-link lindeb-content">
 				<div className="error">{this.props.error}</div>
-				<input name="title" placeholder="Title" type="text" className="title" value={this.state.title} onChange={this.handleInputChange}/>
-				<ReactTags delimiterChars={[","]} tags={this.state.tags} suggestions={this.state.tagSuggestions} handleAddition={this.addTag} handleDelete={this.deleteTag} allowNew={true}/>
-				<input name="url" placeholder="URL (required)" required type="text" className="url" value={this.state.url} onChange={this.handleInputChange}/>
-				<textarea rows="4" name="description" placeholder="Description" className="description" value={this.state.description} onChange={this.handleInputChange}/>
+				<input name="title" placeholder="Title" type="text" className="title"
+					   value={this.state.title} onChange={this.handleInputChange}/>
+				<ReactTags delimiterChars={[","]} tags={this.state.tags} suggestions={this.state.tagSuggestions}
+						   handleAddition={this.addTag} handleDelete={this.deleteTag} allowNew={true}/>
+				<input name="url" placeholder="URL (required)" required type="text" className="url"
+					   value={this.state.url} onChange={this.handleInputChange}/>
+				<textarea rows="4" name="description" placeholder="Description" className="description"
+						  value={this.state.description} onChange={this.handleInputChange}/>
 
 				<div className="buttons">
 					<button className="main-color cancel" type="button" onClick={this.exit}>
@@ -94,7 +98,8 @@ class LinkAddView extends Component {
 				</div>
 
 				<p className="bookmarklet">
-					You can quickly open this link adder by dragging this link to your bookmark toolbar: <a href={this.bookmarklet}>Save to lindeb</a>.
+					You can quickly open this link adder by dragging this link to your bookmark toolbar: <a
+					href={this.bookmarklet}>Save to lindeb</a>.
 				</p>
 			</div>
 		)

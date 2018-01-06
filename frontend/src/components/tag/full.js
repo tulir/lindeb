@@ -88,8 +88,10 @@ class FullTag extends Component {
 						<CancelButton/>
 					</button>
 				</div>
-				<input placeholder="Name" required name="name" className="name" value={this.state.name} onChange={this.handleInputChange}/>
-				<textarea placeholder="Description" name="description" rows="3" className="description" value={this.state.description} onChange={this.handleInputChange}/>
+				<input placeholder="Name" required name="name" className="name"
+					   value={this.state.name} onChange={this.handleInputChange}/>
+				<textarea placeholder="Description" name="description" rows="3" className="description"
+						  value={this.state.description} onChange={this.handleInputChange}/>
 			</form>
 		)
 	}

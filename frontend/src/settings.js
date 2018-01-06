@@ -56,7 +56,7 @@ class Settings {
 				}
 				target.delete(key)
 				return true
-			}
+			},
 		})
 		return this.proxy
 	}
@@ -78,13 +78,13 @@ class Settings {
 		}
 		this.data = json
 		window.localStorage.settings = JSON.stringify(this.data)
-		document.body.dispatchEvent(new CustomEvent("lindeb-settings-fetch", { detail: this.data }))
+		document.body.dispatchEvent(new CustomEvent("lindeb-settings-fetch", {detail: this.data}))
 	}
 
 	set(key, value) {
 		this.data[key] = value
 		window.localStorage.settings = JSON.stringify(this.data)
-		document.body.dispatchEvent(new CustomEvent("lindeb-setting-set", { detail: [key, value] }))
+		document.body.dispatchEvent(new CustomEvent("lindeb-setting-set", {detail: [key, value]}))
 		return fetch(`api/setting/${key}`, {
 			headers: this.headers,
 			method: "PUT",
@@ -95,7 +95,7 @@ class Settings {
 	delete(key) {
 		delete this.data[key]
 		window.localStorage.settings = JSON.stringify(this.data)
-		document.body.dispatchEvent(new CustomEvent("lindeb-setting-delete", { detail: key }))
+		document.body.dispatchEvent(new CustomEvent("lindeb-setting-delete", {detail: key}))
 		return fetch(`api/setting/${key}`, {
 			headers: this.headers,
 			method: "DELETE",

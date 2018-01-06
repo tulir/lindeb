@@ -17,7 +17,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import update from "immutability-helper"
-import PerfectScrollbar from 'perfect-scrollbar';
+import PerfectScrollbar from "perfect-scrollbar"
 import {Hashmux, Query} from "hashmux"
 import Settings from "./settings"
 import Topbar from "./components/topbar"
@@ -58,8 +58,6 @@ class Lindeb extends Component {
 		topbar: PropTypes.object,
 		user: PropTypes.object,
 		router: PropTypes.object,
-		showSearch: PropTypes.bool,
-		hasExtension: PropTypes.bool,
 	}
 
 	getChildContext() {
@@ -82,8 +80,6 @@ class Lindeb extends Component {
 			topbar: this.topbar,
 			user: this.state.user,
 			router: this.router,
-			showSearch: this.state.view === VIEW_LINKS,
-			hasExtension: this.state.hasExtension,
 		}
 	}
 
@@ -93,10 +89,10 @@ class Lindeb extends Component {
 			user: undefined,
 			page: 1,
 			pageSize: 10,
-			hasExtension: document.body.classList.contains("extension-exists")
+			hasExtension: document.body.classList.contains("extension-exists"),
 		}
 		document.body.addEventListener("lindeb-extension-appeared", () => this.setState({hasExtension: true}))
-		this.settings = new Proxy({}, { get: () => undefined })
+		this.settings = new Proxy({}, {get: () => undefined})
 		window.app = this
 
 		if (!window.location.hash.startsWith("#/")) {
@@ -112,8 +108,14 @@ class Lindeb extends Component {
 		this.router.handle("/save", (_, query) => this.openLinkAdder(query))
 		this.router.handle("/tags", () => this.setState({view: VIEW_TAGS}))
 		this.router.handle("/import", () => this.setState({view: VIEW_IMPORT_LINKS}))
-		this.router.handleRedirect("/settings", "#/settings/user")
-		this.router.handle("/settings/{tab}", ({tab}) => this.setState({view: VIEW_SETTINGS, settingsTab: tab}))
+		this.router.handle("/settings", () => {
+			this.router.redirect("#/settings/user")
+			this.router.update()
+		})
+		this.router.handle("/settings/{tab:(user|extension)}", ({tab}) => this.setState({
+			view: VIEW_SETTINGS,
+			settingsTab: tab,
+		}))
 	}
 
 	hasNiceNativeScrollbar() {
@@ -284,7 +286,7 @@ class Lindeb extends Component {
 			await Promise.all([this.updateTags(headers), this.settings.update()])
 			await this.setStateAsync({user: userData})
 			this.router.update()
-			document.body.dispatchEvent(new CustomEvent("lindeb-login", { detail: userData }))
+			document.body.dispatchEvent(new CustomEvent("lindeb-login", {detail: userData}))
 		} catch (err) {
 			console.error("Fatal error while fetching tags:", err)
 		}
@@ -585,7 +587,9 @@ class Lindeb extends Component {
 		}
 		return (
 			<div className="lindeb">
-				<Topbar ref={topbar => this.topbar = topbar}/>
+				<Topbar ref={topbar => this.topbar = topbar}
+						showSearch={this.state.view === VIEW_LINKS}
+						showSettings={this.state.view !== VIEW_SETTINGS}/>
 
 				<main ref={ref => this.main = ref} className={classNames}>
 					{this.getView()}

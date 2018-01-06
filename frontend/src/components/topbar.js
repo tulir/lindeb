@@ -23,7 +23,6 @@ class Topbar extends Component {
 	static contextTypes = {
 		logout: PropTypes.func,
 		isAuthenticated: PropTypes.func,
-		showSearch: PropTypes.bool,
 		search: PropTypes.func,
 	}
 
@@ -138,7 +137,7 @@ class Topbar extends Component {
 				<div className="brand-wrapper">
 					<a href="#/" onClick={() => this.setState({search: ""})}><h1 className="brand">lindeb</h1></a>
 				</div>
-				{this.context.showSearch ? (
+				{this.props.showSearch ? (
 					<div className="search-wrapper">
 						<SearchIcon/>
 						<input type="text" className="search" placeholder="Search" value={this.state.search}
@@ -146,7 +145,12 @@ class Topbar extends Component {
 					</div>
 				) : ""}
 				<div className="control-buttons">
-					<button type="button" className="main-color settings" onClick={() => window.location.href = "#/settings"}>Settings</button>
+					{this.props.showSettings ? (
+						<button type="button" className="main-color settings"
+								onClick={() => window.location.href = "#/settings"}>
+							Settings
+						</button>
+					) : ""}
 					<button type="button" className="main-color logout" onClick={this.context.logout}>Sign out</button>
 				</div>
 			</header>

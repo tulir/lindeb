@@ -32,7 +32,7 @@ class TagListView extends Component {
 	constructor(props, context) {
 		super(props, context)
 		this.state = {
-			creating: false
+			creating: false,
 		}
 	}
 

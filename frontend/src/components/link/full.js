@@ -16,7 +16,7 @@
 
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import update from 'immutability-helper'
+import update from "immutability-helper"
 import ReactTags from "react-tag-autocomplete"
 import Tag from "../tag/partial"
 import EditButton from "../../res/edit.svg"
@@ -53,7 +53,7 @@ class Link extends Component {
 
 	edit() {
 		const newState = Object.assign({editing: true}, this.props)
-		newState.tags = newState.tags.map(tag => this.context.tagsByName.get(tag) || { name: tag })
+		newState.tags = newState.tags.map(tag => this.context.tagsByName.get(tag) || {name: tag})
 		newState.tagSuggestions = Array.from(this.context.tagsByName.values())
 		this.setState(newState)
 	}
@@ -95,7 +95,7 @@ class Link extends Component {
 
 	deleteTag(id) {
 		this.setState({
-			tags: update(this.state.tags, {$splice: [[id, 1]]})
+			tags: update(this.state.tags, {$splice: [[id, 1]]}),
 		})
 	}
 
@@ -113,10 +113,14 @@ class Link extends Component {
 						<CancelButton/>
 					</button>
 				</div>
-				<input name="title" placeholder="Title" type="text" className="title" value={this.state.title} onChange={this.handleInputChange}/>
-				<ReactTags delimiterChars={[","]} tags={this.state.tags} suggestions={this.state.tagSuggestions} handleAddition={this.addTag} handleDelete={this.deleteTag} allowNew={true}/>
-				<input name="url" placeholder="URL" type="text" className="url" value={this.state.url} onChange={this.handleInputChange}/>
-				<textarea rows="4" name="description" placeholder="Description" className="description" value={this.state.description} onChange={this.handleInputChange}/>
+				<input name="title" placeholder="Title" type="text" className="title"
+					   value={this.state.title} onChange={this.handleInputChange}/>
+				<ReactTags delimiterChars={[","]} tags={this.state.tags} suggestions={this.state.tagSuggestions}
+						   handleAddition={this.addTag} handleDelete={this.deleteTag} allowNew={true}/>
+				<input name="url" placeholder="URL" type="text" className="url"
+					   value={this.state.url} onChange={this.handleInputChange}/>
+				<textarea rows="4" name="description" placeholder="Description" className="description"
+						  value={this.state.description} onChange={this.handleInputChange}/>
 			</form>
 		)
 	}
