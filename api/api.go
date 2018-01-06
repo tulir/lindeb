@@ -79,6 +79,10 @@ func (api *API) AddHandler(router *mux.Router) {
 	router.Handle("/tag/{id:[0-9]+}", api.AuthMiddleware(api.TagMiddleware(http.HandlerFunc(api.AccessTag)))).
 		Methods(http.MethodGet, http.MethodPut, http.MethodDelete)
 	router.Handle("/tags", api.AuthMiddleware(http.HandlerFunc(api.ListTags))).Methods(http.MethodGet)
+
+	router.Handle("/settings", api.AuthMiddleware(http.HandlerFunc(api.GetSettings))).Methods(http.MethodGet)
+	router.Handle("/setting/{key}", api.AuthMiddleware(http.HandlerFunc(api.AccessSetting))).
+		Methods(http.MethodGet, http.MethodPut, http.MethodDelete)
 }
 
 func internalError(w http.ResponseWriter, message string, args ...interface{}) {

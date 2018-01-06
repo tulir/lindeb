@@ -14,7 +14,72 @@ tags:
   description: Methods to manage authentication.
 - name: Tags
   description: Methods to list and manage tags.
+- name: Settings
+  description: Methods to read and edit user settings.
 paths:
+  /settings:
+    get:
+      summary: Get all settings.
+      operationId: getSettings
+      tags: [ Settings ]
+      responses:
+        200:
+          description: Settings fetched.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /setting/{key}:
+    parameters:
+    - name: key
+      in: path
+      description: The key of the setting to access.
+      schema:
+        type: string
+    put:
+      summary: Set or update a setting
+      operationId: setSetting
+      tags: [ Settings ]
+      requestBody:
+        description: The value for the setting.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Setting'
+      responses:
+        200:
+          description: Setting updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Setting'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      summary: Delete a setting
+      operationId: deleteSetting
+      tags: [ Settings ]
+      responses:
+        204:
+          description: Setting deleted.
+        401:
+          $ref: '#/components/responses/Unauthorized'
+    get:
+      summary: Get a setting
+      operationId: getSetting
+      tags: [ Settings ]
+      responses:
+        200:
+          description: Setting found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Setting'
+        401:
+          $ref: '#/components/responses/Unauthorized'
   /tags:
     get:
       summary: Get all tags.
@@ -389,6 +454,13 @@ components:
         default: 10
         example: 10
   schemas:
+    Setting:
+      type: object
+      description: Any JSON-serializable value.
+    Settings:
+      additionalProperties:
+        $ref: '#/components/schemas/Setting'
+
     UserCredentials:
       required:
       - username
@@ -442,6 +514,7 @@ components:
         id: 123
         username: linksaver123
         authtoken: UTqIVgvyfRyYRrlEmJugTagqhyhODjDPiCwrMbXqNlPXrhJwtAOVhYAVKWDNiMgk
+
     Tag:
       required:
       - name
@@ -468,6 +541,7 @@ components:
         id: 2
         name: openapi
         description: API specs that may be useful
+
     Link:
       required:
       - url
