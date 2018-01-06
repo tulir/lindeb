@@ -17,18 +17,33 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
+const TAB_USER_INFO = "user",
+	TAB_EXTENSION = "extension"
+
 class SettingsView extends Component {
-	static contextTypes = {
+	switchTab(tab) {
+		window.location.href = `#/settings/${tab}`
 	}
 
-	constructor(props, context) {
-		super(props, context)
+	renderTab() {
+		switch (this.props.tab) {
+			case TAB_USER_INFO:
+				return "Not yet implemented (User info)"
+			case TAB_EXTENSION:
+				return "Not yet implemented (Extension)"
+		}
 	}
 
 	render() {
 		return (
 			<div className="settings">
-				<h1>Not yet implemented</h1>
+				<div className="tabswitcher">
+					<button onClick={() => this.switchTab(TAB_USER_INFO)}>User info</button>
+					{this.props.showExtensionSettings
+						? <button onClick={() => this.switchTab(TAB_EXTENSION)}>Extension</button>
+						: ""}
+				</div>
+				{this.renderTab()}
 			</div>
 		)
 	}

@@ -58,6 +58,7 @@ class Lindeb extends Component {
 		user: PropTypes.object,
 		router: PropTypes.object,
 		showSearch: PropTypes.bool,
+		hasExtension: PropTypes.bool,
 	}
 
 	getChildContext() {
@@ -81,6 +82,7 @@ class Lindeb extends Component {
 			user: this.state.user,
 			router: this.router,
 			showSearch: this.state.view === VIEW_LINKS,
+			hasExtension: this.state.hasExtension,
 		}
 	}
 
@@ -90,7 +92,9 @@ class Lindeb extends Component {
 			user: undefined,
 			page: 1,
 			pageSize: 10,
+			hasExtension: document.body.classList.contains("extension-exists")
 		}
+		document.body.addEventListener("lindeb-extension-appeared", () => this.setState({hasExtension: true}))
 		this.settings = undefined
 		window.app = this
 
@@ -107,7 +111,8 @@ class Lindeb extends Component {
 		this.router.handle("/save", (_, query) => this.openLinkAdder(query))
 		this.router.handle("/tags", () => this.setState({view: VIEW_TAGS}))
 		this.router.handle("/import", () => this.setState({view: VIEW_IMPORT_LINKS}))
-		this.router.handle("/settings", () => this.setState({view: VIEW_SETTINGS}))
+		this.router.handleRedirect("/settings", "#/settings/user")
+		this.router.handle("/settings/{tab}", ({tab}) => this.setState({view: VIEW_SETTINGS, settingsTab: tab}))
 	}
 
 	componentDidMount() {
@@ -503,7 +508,7 @@ class Lindeb extends Component {
 			case VIEW_TAGS:
 				return <TagView tags={this.state.tagsByID}/>
 			case VIEW_SETTINGS:
-				return <SettingsView/>
+				return <SettingsView tab={this.state.settingsTab} showExtensionSettings={this.state.hasExtension} settings={this.settings}/>
 			case VIEW_LINK_ADD:
 				return <LinkAddView error={this.state.error} {...this.state.newLink}/>
 			case VIEW_IMPORT_LINKS:
