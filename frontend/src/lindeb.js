@@ -18,6 +18,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 import update from 'immutability-helper'
 import {Hashmux, Query} from "hashmux"
+import Settings from "./settings"
 import Topbar from "./components/topbar"
 import LoginView from "./components/login"
 import TagView from "./components/tag/list"
@@ -52,6 +53,7 @@ class Lindeb extends Component {
 
 		tagsByID: PropTypes.object,
 		tagsByName: PropTypes.object,
+		settings: PropTypes.object,
 		topbar: PropTypes.object,
 		user: PropTypes.object,
 		router: PropTypes.object,
@@ -74,6 +76,7 @@ class Lindeb extends Component {
 
 			tagsByID: this.state.tagsByID,
 			tagsByName: this.state.tagsByName,
+			settings: this.settings,
 			topbar: this.topbar,
 			user: this.state.user,
 			router: this.router,
@@ -88,6 +91,7 @@ class Lindeb extends Component {
 			page: 1,
 			pageSize: 10,
 		}
+		this.settings = undefined
 		window.app = this
 
 		if (!window.location.hash.startsWith("#/")) {
@@ -184,6 +188,22 @@ class Lindeb extends Component {
 		this.setState({error: undefined})
 	}
 
+	setStateAsync(data) {
+		return new Promise(resolve => this.setState(data, resolve))
+	}
+
+	async updateTags(headers = this.headers) {
+		const tagResponse = await fetch("api/tags", {headers})
+		if (!tagResponse.ok) {
+			await this.error("fetching tags", tagResponse)
+			return
+		}
+		const rawTags = await tagResponse.json() || []
+		const tagsByID = new Map(rawTags.map(tag => [tag.id, tag]))
+		const tagsByName = new Map(rawTags.map(tag => [tag.name, tag]))
+		await this.setStateAsync({tagsByID, tagsByName})
+	}
+
 	/**
 	 * Log in and fetch tags with the given user data.
 	 *
@@ -200,21 +220,14 @@ class Lindeb extends Component {
 		localStorage.user = JSON.stringify(userData)
 
 		try {
-			const tagFetchResult = await fetch("api/tags", {
-				headers: {
-					"Authorization": `LINDEB-TOKEN user=${userData.id} token=${userData.authtoken}`,
-					"Content-Type": "application/json",
-				},
-			})
-			if (!tagFetchResult.ok) {
-				await this.error("fetching tags", tagFetchResult)
-				return
+			const headers = {
+				"Authorization": `LINDEB-TOKEN user=${userData.id} token=${userData.authtoken}`,
+				"Content-Type": "application/json",
 			}
-			const rawTags = await tagFetchResult.json() || []
-			const tagsByID = new Map(rawTags.map(tag => [tag.id, tag]))
-			const tagsByName = new Map(rawTags.map(tag => [tag.name, tag]))
-
-			this.setState({user: userData, tagsByID, tagsByName}, () => this.router.update())
+			this.settings = new Settings(this, userData.id, userData.authtoken)
+			await Promise.all([this.updateTags(headers), this.settings.update()])
+			await this.setStateAsync({user: userData})
+			this.router.update()
 			document.body.dispatchEvent(new CustomEvent("lindeb-login", { detail: userData }))
 		} catch (err) {
 			console.error("Fatal error while fetching tags:", err)
