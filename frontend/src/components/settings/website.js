@@ -16,38 +16,13 @@
 
 import React, {Component} from "react"
 
-const TAB_USER_INFO = "user",
-	TAB_EXTENSION = "extension"
-
-class SettingsView extends Component {
-	switchTab(tab) {
-		window.location.href = `#/settings/${tab}`
-	}
-
-	renderTab() {
-		switch (this.props.tab) {
-			case TAB_USER_INFO:
-				return "Not yet implemented (User info)"
-			case TAB_EXTENSION:
-				return "Not yet implemented (Extension)"
-			default:
-				return "Unknown settings page"
-		}
-	}
-
+class WebsiteSettings extends Component {
 	render() {
 		return (
-			<div className="settings lindeb-content">
-				<div className="tabswitcher">
-					<button onClick={() => this.switchTab(TAB_USER_INFO)}>User info</button>
-					{this.props.showExtensionSettings
-						? <button onClick={() => this.switchTab(TAB_EXTENSION)}>Extension</button>
-						: ""}
-				</div>
-				{this.renderTab()}
+			<div className="website settings-tab">
 			</div>
 		)
 	}
 }
 
-export default SettingsView
+export default WebsiteSettings

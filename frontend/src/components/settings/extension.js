@@ -14,14 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-.settings
-	> .tabswitcher
-		+button-group
-		margin-top: .5rem
+import React, {Component} from "react"
 
-	input
-		width: 100%
-		margin-top: .5rem
+class ExtensionSettings extends Component {
+	render() {
+		return (
+			<div className="extension settings-tab">
+			</div>
+		)
+	}
+}
 
-	button
-		+main-color-button
+export default ExtensionSettings

@@ -26,14 +26,15 @@ import TagView from "./components/tag/list"
 import LinkView from "./components/link/list"
 import LinkAddView from "./components/link/add"
 import LinkImportView from "./components/link/import"
-import SettingsView from "./components/settings"
+import SettingsView from "./components/settings/view"
 
 const
 	VIEW_LINKS = "links",
 	VIEW_LINK_ADD = "link-add",
 	VIEW_TAGS = "tags",
 	VIEW_IMPORT_LINKS = "import-links",
-	VIEW_SETTINGS = "settings"
+	VIEW_SETTINGS = "settings",
+	VIEW_NOT_FOUND = "404"
 
 /**
  * The main component of lindeb. Contains most of API communication and decides what to render.
@@ -109,13 +110,14 @@ class Lindeb extends Component {
 		this.router.handle("/tags", () => this.setState({view: VIEW_TAGS}))
 		this.router.handle("/import", () => this.setState({view: VIEW_IMPORT_LINKS}))
 		this.router.handle("/settings", () => {
-			this.router.redirect("#/settings/user")
+			this.router.redirect(`#/settings/${SettingsView.DEFAULT_TAB}`)
 			this.router.update()
 		})
-		this.router.handle("/settings/{tab:(user|extension)}", ({tab}) => this.setState({
+		this.router.handle("/settings/{tab:(user|extension|website)}", ({tab}) => this.setState({
 			view: VIEW_SETTINGS,
 			settingsTab: tab,
 		}))
+		this.router.handleError(404, () => this.setState({view: VIEW_NOT_FOUND}))
 	}
 
 	hasNiceNativeScrollbar() {
@@ -567,6 +569,13 @@ class Lindeb extends Component {
 				return <LinkAddView error={this.state.error} {...this.state.newLink}/>
 			case VIEW_IMPORT_LINKS:
 				return <LinkImportView/>
+			case VIEW_NOT_FOUND:
+				return (
+					<div style={{textAlign: "center", marginTop: "2rem"}}>
+						<h1>Oh noes!</h1>
+						<img src="https://http.cat/404" alt="http.cat/404"/>
+					</div>
+				)
 			default:
 			case VIEW_LINKS:
 				return <LinkView
@@ -578,20 +587,13 @@ class Lindeb extends Component {
 	}
 
 	render() {
-		let classNames = ""
-		if (this.isAuthenticated()) {
-			classNames += " authenticated"
-		}
-		if (this.state.ps) {
-			classNames += " ps"
-		}
 		return (
 			<div className="lindeb">
 				<Topbar ref={topbar => this.topbar = topbar}
 						showSearch={this.state.view === VIEW_LINKS}
 						showSettings={this.state.view !== VIEW_SETTINGS}/>
 
-				<main ref={ref => this.main = ref} className={classNames}>
+				<main ref={ref => this.main = ref} className={this.isAuthenticated() ? "authenticated" : ""}>
 					{this.getView()}
 				</main>
 			</div>
