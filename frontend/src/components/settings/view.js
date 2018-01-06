@@ -28,6 +28,13 @@ class SettingsView extends PureComponent {
 				{this.props.showExtensionSettings ? <ExtensionSettings/> : ""}
 				<WebsiteSettings/>
 				<LinkDumpManager/>
+
+				<div className="credits section">
+					<h3>Credits</h3>
+					<p>
+						Favicon and Firefox extension icons from <a href="http://icons8.com/">icons8.com</a>.
+					</p>
+				</div>
 			</div>
 		)
 	}
