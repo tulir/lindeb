@@ -99,6 +99,8 @@ func paginate(w http.ResponseWriter, r *http.Request, links []apiLink) (paginate
 			// From is outside the list -> no results.
 			paginated = []apiLink{}
 		}
+	} else {
+		paginated = links
 	}
 
 	ok = true
