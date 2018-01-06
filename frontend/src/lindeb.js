@@ -16,7 +16,8 @@
 
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import update from 'immutability-helper'
+import update from "immutability-helper"
+import PerfectScrollbar from 'perfect-scrollbar';
 import {Hashmux, Query} from "hashmux"
 import Settings from "./settings"
 import Topbar from "./components/topbar"
@@ -95,7 +96,7 @@ class Lindeb extends Component {
 			hasExtension: document.body.classList.contains("extension-exists")
 		}
 		document.body.addEventListener("lindeb-extension-appeared", () => this.setState({hasExtension: true}))
-		this.settings = undefined
+		this.settings = new Proxy({}, { get: () => undefined })
 		window.app = this
 
 		if (!window.location.hash.startsWith("#/")) {
@@ -115,10 +116,60 @@ class Lindeb extends Component {
 		this.router.handle("/settings/{tab}", ({tab}) => this.setState({view: VIEW_SETTINGS, settingsTab: tab}))
 	}
 
+	hasNiceNativeScrollbar() {
+		if (navigator.userAgent.match(/Android|iPhone|iPad|iPod/i)) {
+			// Mobile browsers usually make scrolling very nice.
+			return true
+		} else if (navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome")) {
+			// Safari is also fine.
+			return true
+		}
+		// Chrome and Firefox on desktop aren't nice :(
+		return false
+	}
+
+	updateScrollbar() {
+		if (this.settings.forceNativeScrollbar) {
+			if (this.ps) {
+				this.ps.destroy(this.main)
+				this.main.style["overflow-y"] = "auto"
+				this.main.style["-webkit-overflow-scrolling"] = "touch"
+			}
+			return
+		} else if (!this.hasNiceNativeScrollbar()) {
+			if (!this.ps) {
+				this.ps = new PerfectScrollbar(this.main)
+				this.main.style["overflow-y"] = "hidden"
+				delete this.main.style["-webkit-overflow-scrolling"]
+			} else {
+				this.ps.update()
+			}
+		}
+	}
+
 	componentDidMount() {
 		this.setState({mounted: true})
 		// If we do this in the constructor, it may trigger a setState() call before the component is mounted.
 		this.router.listen()
+
+		// If the native scrollbar isn't nice, use a PerfectScrollbar instead.
+		if (!this.settings.forceNativeScrollbar && !this.hasNiceNativeScrollbar()) {
+			this.ps = new PerfectScrollbar(this.main)
+			this.main.style["overflow-y"] = "hidden"
+		} else {
+			this.main.style["overflow-y"] = "auto"
+			this.main.style["-webkit-overflow-scrolling"] = "touch"
+		}
+	}
+
+	componentDidUpdate() {
+		this.updateScrollbar()
+	}
+
+	componentWillUnmount() {
+		if (this.ps) {
+			this.ps.destroy()
+		}
 	}
 
 	/**
@@ -508,7 +559,8 @@ class Lindeb extends Component {
 			case VIEW_TAGS:
 				return <TagView tags={this.state.tagsByID}/>
 			case VIEW_SETTINGS:
-				return <SettingsView tab={this.state.settingsTab} showExtensionSettings={this.state.hasExtension} settings={this.settings}/>
+				return <SettingsView tab={this.state.settingsTab} showExtensionSettings={this.state.hasExtension}
+									 settings={this.settings}/>
 			case VIEW_LINK_ADD:
 				return <LinkAddView error={this.state.error} {...this.state.newLink}/>
 			case VIEW_IMPORT_LINKS:
@@ -524,11 +576,18 @@ class Lindeb extends Component {
 	}
 
 	render() {
+		let classNames = ""
+		if (this.isAuthenticated()) {
+			classNames += " authenticated"
+		}
+		if (this.state.ps) {
+			classNames += " ps"
+		}
 		return (
 			<div className="lindeb">
 				<Topbar ref={topbar => this.topbar = topbar}/>
 
-				<main className={this.isAuthenticated() ? "authenticated" : ""}>
+				<main ref={ref => this.main = ref} className={classNames}>
 					{this.getView()}
 				</main>
 			</div>

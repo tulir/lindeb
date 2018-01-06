@@ -15,7 +15,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import React, {Component} from "react"
-import PropTypes from "prop-types"
 
 const TAB_USER_INFO = "user",
 	TAB_EXTENSION = "extension"
@@ -31,12 +30,14 @@ class SettingsView extends Component {
 				return "Not yet implemented (User info)"
 			case TAB_EXTENSION:
 				return "Not yet implemented (Extension)"
+			default:
+				return "Unknown settings page"
 		}
 	}
 
 	render() {
 		return (
-			<div className="settings">
+			<div className="settings lindeb-content">
 				<div className="tabswitcher">
 					<button onClick={() => this.switchTab(TAB_USER_INFO)}>User info</button>
 					{this.props.showExtensionSettings

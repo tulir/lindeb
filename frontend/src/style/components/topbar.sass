@@ -23,22 +23,22 @@ header.topbar
 
 	> .brand-wrapper
 		padding: 0 1rem
+		flex: 1
 		box-sizing: border-box
 		> a
 			text-decoration: none
 			> .brand
-				margin: 0
 				color: white
 				font-weight: normal
+				margin: 0
 
 	> .search-wrapper
 		height: 2.25rem
-
-		display: inline-flex
+		margin: 0 2rem 0 1rem
+		display: flex
 		align-items: center
-		margin-right: 1rem
 		border-radius: .25rem
-		max-width: $max-width
+		max-width: calc(#{$max-width} - 2rem)
 		width: 100%
 		background-color: $light-color
 
@@ -57,9 +57,14 @@ header.topbar
 			color: white
 
 	> .control-buttons
-		padding: 0 .5rem
-		height: 2.25rem
+		flex: 1
+		margin: 0 .5rem
 		box-sizing: border-box
+		height: 2.25rem
+		text-align: right
+		// TODO remove this once the right-hand buttons on the topbar have a dropdown menu on small screens
+		white-space: nowrap
+
 		> button
 			white-space: nowrap
 			height: 100%

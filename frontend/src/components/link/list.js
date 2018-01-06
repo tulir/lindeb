@@ -27,7 +27,7 @@ class LinkListView extends PureComponent {
 			</div>
 		}
 		return (
-			<div className="links">
+			<div className="links lindeb-content">
 				<div className="buttons">
 					<a className="button" href="#/tags">Manage tags</a>
 					<a className="button" href="#/save">New link</a>

@@ -76,7 +76,7 @@ class LinkAddView extends Component {
 
 	render() {
 		return (
-			<div className="add-link">
+			<div className="add-link lindeb-content">
 				<div className="error">{this.props.error}</div>
 				<input name="title" placeholder="Title" type="text" className="title" value={this.state.title} onChange={this.handleInputChange}/>
 				<ReactTags delimiterChars={[","]} tags={this.state.tags} suggestions={this.state.tagSuggestions} handleAddition={this.addTag} handleDelete={this.deleteTag} allowNew={true}/>

@@ -140,12 +140,13 @@ class Topbar extends Component {
 				</div>
 				{this.context.showSearch ? (
 					<div className="search-wrapper">
-							<SearchIcon/>
-							<input type="text" className="search" placeholder="Search" value={this.state.search}
-								   onKeyPress={this.searchEntered} onChange={this.searchQueryChanged}/>
+						<SearchIcon/>
+						<input type="text" className="search" placeholder="Search" value={this.state.search}
+							   onKeyPress={this.searchEntered} onChange={this.searchQueryChanged}/>
 					</div>
 				) : ""}
 				<div className="control-buttons">
+					<button type="button" className="main-color settings" onClick={() => window.location.href = "#/settings"}>Settings</button>
 					<button type="button" className="main-color logout" onClick={this.context.logout}>Sign out</button>
 				</div>
 			</header>

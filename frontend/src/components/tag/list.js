@@ -48,7 +48,7 @@ class TagListView extends Component {
 
 	render() {
 		return (
-			<div className="taglist">
+			<div className="taglist lindeb-content">
 				<button type="button" className="main-color newtag" onClick={() => this.newTag()}>New tag</button>
 				<div className="error">{this.props.error}</div>
 				{this.state.creating ? <FullTag editing={true}/> : ""}
