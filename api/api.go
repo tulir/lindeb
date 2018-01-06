@@ -115,6 +115,15 @@ func writeJSON(w http.ResponseWriter, status int, data interface{}) bool {
 	return true
 }
 
+func getMuxVar(w http.ResponseWriter, r *http.Request, field, name string) (val string, ok bool) {
+	vars := mux.Vars(r)
+	val, ok = vars[field]
+	if !ok {
+		http.Error(w, fmt.Sprintf("%s not given.", name), http.StatusBadRequest)
+	}
+	return
+}
+
 func getMuxIntVar(w http.ResponseWriter, r *http.Request, field, name string) (val int, ok bool) {
 	ok = false
 

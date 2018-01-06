@@ -17,11 +17,24 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 )
 
 func (api *API) GetSettings(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+	user := api.GetUserFromContext(r)
+
+	settings, err := user.GetSettings()
+	if err != nil {
+		internalError(w, "Failed to get settings: %v", err)
+		return
+	}
+
+	var jsonSettings = make(map[string]json.RawMessage)
+	for key, value := range settings {
+		jsonSettings[key] = json.RawMessage(value)
+	}
+	writeJSON(w, http.StatusOK, jsonSettings)
 }
 
 func (api *API) AccessSetting(w http.ResponseWriter, r *http.Request) {
@@ -39,13 +52,51 @@ func (api *API) AccessSetting(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) UpdateSetting(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+	user := api.GetUserFromContext(r)
+
+	key, ok := getMuxVar(w, r, "key", "Setting key")
+	if !ok {
+		return
+	}
+
+	var data interface{}
+	if !readJSON(w, r, &data) {
+		return
+	}
+
+	validData, err := json.Marshal(&data)
+	if err != nil {
+		internalError(w, "Failed to marshal setting: %v", err)
+		return
+	}
+
+	user.SetSetting(key, string(validData))
 }
 
 func (api *API) GetSetting(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+	user := api.GetUserFromContext(r)
+
+	key, ok := getMuxVar(w, r, "key", "Setting key")
+	if !ok {
+		return
+	}
+
+	val := user.GetSetting(key)
+	if len(val) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	writeJSON(w, http.StatusOK, json.RawMessage(val))
 }
 
 func (api *API) DeleteSetting(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+	user := api.GetUserFromContext(r)
+
+	key, ok := getMuxVar(w, r, "key", "Setting key")
+	if !ok {
+		return
+	}
+
+	user.DeleteSetting(key)
+	w.WriteHeader(http.StatusNoContent)
 }
