@@ -27,8 +27,31 @@ function stealAuthtoken() {
 	}
 }
 
+function readSettings({detail}) {
+	console.log("Eating settings", detail)
+	if (detail.type === "update") {
+		browser.storage.local.set({
+			settings: detail.data.extension || {},
+		})
+	} else if (detail.type === "delete") {
+		if (detail.key === "extension") {
+			browser.storage.local.set({settings: {}})
+		}
+	} else if (detail.type === "set") {
+		if (detail.key === "extension") {
+			browser.storage.local.set({settings: detail.value})
+		}
+	}
+}
+
 document.body.classList.add("extension-exists")
 document.body.dispatchEvent(new Event("lindeb-extension-appeared"))
 document.body.addEventListener("lindeb-login", stealAuthtoken)
-document.body.addEventListener("lindeb-logout", stealAuthtoken)
+document.body.addEventListener("lindeb-setting-change", readSettings)
 stealAuthtoken()
+readSettings({
+	detail: {
+		type: "update",
+		data: JSON.parse(localStorage.settings || "{}") || {},
+	},
+})

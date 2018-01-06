@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+const LINDEB_SERVER = "https://lindeb.mau.lu"
 
 class PopupHandler {
 	constructor(authHeader) {
@@ -22,11 +23,10 @@ class PopupHandler {
 		this.description = document.getElementById("description")
 		document.getElementById("save").onclick = () => this.save()
 		document.getElementById("go-to-links").onclick = () => {
-			browser.tabs.create({url: "https://lindeb.mau.lu"})
+			browser.tabs.create({url: LINDEB_SERVER})
 			window.close()
 		}
 		this.authHeader = authHeader
-		this.fillFields()
 	}
 
 	async getCurrentTab() {
@@ -59,7 +59,7 @@ class PopupHandler {
 		document.getElementById("link-save").className += " hidden"
 		document.getElementById("spinner").className = ""
 		try {
-			const response = await fetch(`https://lindeb.mau.lu/api/link/save`, {
+			const response = await fetch(`${LINDEB_SERVER}/api/link/save`, {
 				headers: {
 					"Authorization": this.authHeader,
 					"Content-Type": "application/json",
@@ -83,9 +83,13 @@ class PopupHandler {
 
 async function init() {
 	try {
-		const { authHeader } = await browser.storage.local.get()
+		const { authHeader, settings } = await browser.storage.local.get()
 		if (authHeader) {
 			window.popup = new PopupHandler(authHeader)
+			await window.popup.fillFields()
+			if (settings && settings.buttonAction === "save") {
+				await window.popup.save()
+			}
 			return
 		}
 	} catch (err) {
