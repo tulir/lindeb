@@ -28,7 +28,6 @@ function stealAuthtoken() {
 }
 
 function readSettings({detail}) {
-	console.log("Eating settings", detail)
 	if (detail.type === "update") {
 		browser.storage.local.set({
 			settings: detail.data.extension || {},
