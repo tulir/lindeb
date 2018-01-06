@@ -76,6 +76,18 @@ func (db *DB) CreateTables() {
 	if err != nil {
 		fmt.Println("Failed to create table AuthToken:", err)
 	}
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS Setting (
+		user  INTEGER,
+		vkey  VARCHAR(32),
+		value TEXT,
+
+		PRIMARY KEY (user, vkey),
+		FOREIGN KEY (user) REFERENCES User(id)
+			ON DELETE CASCADE ON UPDATE RESTRICT
+	) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`)
+	if err != nil {
+		fmt.Println("Failed to create table Setting:", err)
+	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS Link (
 		id          INTEGER       PRIMARY KEY AUTO_INCREMENT,
 		url         VARCHAR(2047) NOT NULL,
