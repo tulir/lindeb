@@ -59,12 +59,9 @@ class LinkDumpManager extends Component {
 				console.error("Import rejected:", response)
 				return
 			}
-			const links = await response.json()
-			// TODO display success properly
-			console.log("Unhandled fetch success:", response)
-			console.log(links)
-			this.setState({uploading: false, uploadSuccess: true})
-			setTimeout(() => this.setState({uploadSuccess: false}), 1000)
+			this.setState({uploading: false, uploadSuccess: true}, () => {
+				setTimeout(() => this.setState({uploadSuccess: false}), 1000)
+			})
 		} catch (err) {
 			console.error("Fatal error while fetching links:", err)
 		}
@@ -109,11 +106,11 @@ class LinkDumpManager extends Component {
 
 	dropzoneChildren() {
 		if (this.state.uploading) {
-			return <Spinner/>
+			return <Spinner className="spinner"/>
 		} else if (this.state.uploadSuccess) {
 			return <div className="success">✓</div>
 		}
-		return <UploadIcon/>
+		return <UploadIcon className="icon"/>
 	}
 
 	render() {

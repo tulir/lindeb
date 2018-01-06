@@ -30,6 +30,10 @@
 		height: 7.5rem
 		fill: $border-color
 
+		&.spinner
+			width: 6rem
+			height: 6rem
+
 	> .success
 		text-align: center
 		font-size: 10rem
@@ -46,7 +50,7 @@
 			100%
 				opacity: 0
 
-	&.disabled > svg
+	&.disabled > .icon
 		visibility: hidden
 
 	&:not(.disabled)
