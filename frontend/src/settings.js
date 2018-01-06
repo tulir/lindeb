@@ -21,14 +21,14 @@ class Settings {
 			"Authorization": `LINDEB-TOKEN user=${userID} token=${authtoken}`,
 			"Content-Type": "application/json",
 		}
-		this.data = {}
+		this.data = JSON.parse(window.localStorage.settings || "{}") || {}
 		this.update = this.update.bind(this)
 		this.set = this.set.bind(this)
 		this.delete = this.delete.bind(this)
 		this.toJSON = this.toJSON.bind(this)
 
 		const target = this
-		return new Proxy(this, {
+		this.proxy = new Proxy(this, {
 			set(_, key, value) {
 				if (key in target) {
 					return false
@@ -58,6 +58,7 @@ class Settings {
 				return true
 			}
 		})
+		return this.proxy
 	}
 
 	toJSON() {
@@ -71,11 +72,19 @@ class Settings {
 			err.response = response
 			throw err
 		}
-		this.data = await response.json() || {}
+		const json = await response.json()
+		if (!json) {
+			return
+		}
+		this.data = json
+		window.localStorage.settings = JSON.stringify(this.data)
+		document.body.dispatchEvent(new CustomEvent("lindeb-settings-fetch", { detail: this.data }))
 	}
 
 	set(key, value) {
 		this.data[key] = value
+		window.localStorage.settings = JSON.stringify(this.data)
+		document.body.dispatchEvent(new CustomEvent("lindeb-setting-set", { detail: [key, value] }))
 		return fetch(`api/setting/${key}`, {
 			headers: this.headers,
 			method: "PUT",
@@ -85,6 +94,8 @@ class Settings {
 
 	delete(key) {
 		delete this.data[key]
+		window.localStorage.settings = JSON.stringify(this.data)
+		document.body.dispatchEvent(new CustomEvent("lindeb-setting-delete", { detail: key }))
 		return fetch(`api/setting/${key}`, {
 			headers: this.headers,
 			method: "DELETE",
