@@ -3,7 +3,7 @@
 	"name": "lindeb",
 	"version": "0.2.0",
 	"description": "A simple link manager with powerful search.",
-	"homepage_url": "htgtps://lindeb.mau.lu",
+	"homepage_url": "https://lindeb.mau.lu",
 	"applications": {
 		"gecko": {
 			"id": "lindeb@maunium.net",
