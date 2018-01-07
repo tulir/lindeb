@@ -6,3 +6,6 @@ sass:
 
 watch:
 	../frontend/node_modules/.bin/node-sass *.sass -wo .
+
+clean:
+	rm -f *.zip *.xpi
