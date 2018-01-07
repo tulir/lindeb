@@ -37,17 +37,17 @@ class ExtensionSettings extends Component {
 		this.context.settings.set("extension", this.settings)
 	}
 
-	setButtonAction(mode) {
-		this.settings.buttonAction = mode
+	set(key, value) {
+		this.settings[key] = value
 		this.updateSettings()
 		this.forceUpdate()
 	}
 
-	getButtonActionClass(mode) {
-		if (mode === "popup" && !this.settings.buttonAction) {
+	getClass(key, value, isDefault) {
+		if (isDefault && this.settings[key] === undefined) {
 			return "active"
 		}
-		return this.settings.buttonAction === mode ? "active" : ""
+		return this.settings[key] === value ? "active" : ""
 	}
 
 	render() {
@@ -57,15 +57,30 @@ class ExtensionSettings extends Component {
 				<div className="setting">
 					<div className="name">Button action</div>
 					<div className="control activatable button-group">
-						<button onClick={() => this.setButtonAction("save")}
-								className={this.getButtonActionClass("save")}
-								title="Force custom scrollbar">
+						<button onClick={() => this.set("buttonAction", "save")}
+								className={this.getClass("buttonAction", "save")}
+								title="Send link save request immediately when clicking toolbar button">
 							Save immediately
 						</button>
-						<button onClick={() => this.setButtonAction("popup")}
-								className={this.getButtonActionClass("popup")}
-								title="Use custom scrollbar if native isn't nice">
+						<button onClick={() => this.set("buttonAction", "popup")}
+								className={this.getClass("buttonAction", "popup", true)}
+								title="Open popup that allows you to edit values before saving link">
 							Open popup
+						</button>
+					</div>
+				</div>
+				<div className="setting">
+					<div className="name">Autofill title</div>
+					<div className="control activatable button-group">
+						<button onClick={() => this.set("autofillTitle", false)}
+								className={this.getClass("autofillTitle", false)}
+								title="Input title manually or let server crawl it">
+							Off
+						</button>
+						<button onClick={() => this.set("autofillTitle", true)}
+								className={this.getClass("autofillTitle", true, true)}
+								title="Automatically set title to tab title">
+							On
 						</button>
 					</div>
 				</div>

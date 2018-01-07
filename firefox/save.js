@@ -16,11 +16,12 @@
 const LINDEB_SERVER = "https://lindeb.mau.lu"
 
 class PopupHandler {
-	constructor(authHeader) {
+	constructor(authHeader, settings) {
 		this.title = document.getElementById("title")
 		this.tags = document.getElementById("tags")
 		this.url = document.getElementById("url")
 		this.description = document.getElementById("description")
+		this.settings = settings
 		document.getElementById("save").onclick = () => this.save()
 		document.getElementById("go-to-links").onclick = () => {
 			browser.tabs.create({url: LINDEB_SERVER})
@@ -48,7 +49,9 @@ class PopupHandler {
 		}
 
 		this.url.value = tab.url
-		this.title.value = tab.title
+		if (this.settings.autofillTitle !== false) {
+			this.title.value = tab.title
+		}
 	}
 
 	async save() {
@@ -83,9 +86,9 @@ class PopupHandler {
 
 async function init() {
 	try {
-		const { authHeader, settings } = await browser.storage.local.get()
+		const {authHeader, settings} = await browser.storage.local.get()
 		if (authHeader) {
-			window.popup = new PopupHandler(authHeader)
+			window.popup = new PopupHandler(authHeader, settings || {})
 			await window.popup.fillFields()
 			if (settings && settings.buttonAction === "save") {
 				await window.popup.save()
