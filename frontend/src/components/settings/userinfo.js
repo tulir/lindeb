@@ -14,14 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import PropTypes from "prop-types"
 import React, {Component} from "react"
 import Spinner from "../../res/spinner.svg"
 
 class UserInfo extends Component {
+	static contextTypes = {
+		headers: PropTypes.func,
+	}
+
 	constructor(props, context) {
 		super(props, context)
 		this.state = {
 			submitting: false,
+			password: "",
+			currentPassword: "",
 		}
 		this.handleInputChange = this.handleInputChange.bind(this)
 		this.submit = this.submit.bind(this)
@@ -31,7 +38,7 @@ class UserInfo extends Component {
 		this.setState({[event.target.name]: event.target.value})
 	}
 
-	submit(evt) {
+	async submit(evt) {
 		if (this.state.submitting) {
 			return
 		}
@@ -40,17 +47,35 @@ class UserInfo extends Component {
 			evt.preventDefault()
 		}
 
-		alert("User info changing not yet implemented 3:")
+		try {
+			const payload = Object.assign({}, this.state)
+			delete payload.submitting
+			const response = await fetch(`api/auth/update`, {
+				headers: this.context.headers(),
+				method: "POST",
+				body: JSON.stringify(payload),
+			})
+			if (!response.ok) {
+				// TODO show error
+				console.error("Unhandled auth update fail:", response)
+			}
+			// TODO show success
+			this.setState({password: "", currentPassword: ""})
+		} catch (err) {
+			console.error(`Fatal error while updating user info:`, err)
+		} finally {
+			this.setState({submitting: false})
+		}
 	}
 
 	render() {
 		return (
 			<form className="userinfo section" onSubmit={this.submit}>
 				<h1>User info</h1>
-				<input placeholder="New password" required name="password"
+				<input placeholder="New password" name="password" type="password"
 					   value={this.state.password} onChange={this.handleInputChange}/>
 
-				<input placeholder="Current password" required name="currentPassword"
+				<input placeholder="Current password" name="currentPassword" type="password"
 					   value={this.state.currentPassword} onChange={this.handleInputChange}/>
 
 
