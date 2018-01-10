@@ -18,6 +18,27 @@ the following links to some React components:
 * Linkin lisäys [verkossa](https://lindeb.mau.lu/#/save) ja [repossa](https://github.com/tulir/lindeb/blob/master/frontend/src/components/addlink.js)
 * Tagilista [verkossa](https://lindeb.mau.lu/#/tags) ja [repossa](https://github.com/tulir/lindeb/blob/master/frontend/src/components/taglist.js) (tagien listaus, lisäys, muokkaus ja poisto)
 
+## API
+* [OpenAPI document](https://github.com/tulir/lindeb/blob/master/docs/api.yaml)
+* [API explorer](https://lindeb.mau.lu/apidocs)
+
+## Technologies
+### Backend
+The backend uses [Go](https://golang.org/) with [gorilla/mux](https://github.com/gorilla/mux) for routing and
+[go-sql-driver/mysql](https://github.com/go-sql-driver/mysql) as the database driver. It has a REST-like JSON
+API that is documented with an [OpenAPI](https://github.com/OAI/OpenAPI-Specification) document. The specification
+file is available [here](https://github.com/tulir/lindeb/blob/master/docs/api.yaml) and a graphical API explorer
+is available [here](https://lindeb.mau.lu/apidocs).
+
+[MariaDB](https://mariadb.org) is the recommended database management system, but anything compatible with MySQL
+should work. The search system uses [Elasticsearch](https://www.elastic.co/products/elasticsearch) as its backend.
+Since the backend is written in Go, the server running the backend does not need any language-specific runtimes.
+However, a DBMS instance and an Elasticsearch instance must be available.
+
+### Frontend
+The frontend uses [React](https://reactjs.org/), [Sass](http://sass-lang.com/) and modern JavaScript syntax.
+Support for old browsers is not guaranteed. The latest version of Firefox is recommended, but Chrome will work too.
+
 ## Objective
 The goal of this project is to create an easy-to-use system for saving links and searching saved links.
 
@@ -42,24 +63,3 @@ The goal of this project is to create an easy-to-use system for saving links and
 
 ### Out of scope
 * All internal social features
-
-## API
-* [OpenAPI document](https://github.com/tulir/lindeb/blob/master/docs/api.yaml)
-* [API explorer](https://lindeb.mau.lu/apidocs)
-
-## Technologies
-### Backend
-The backend uses [Go](https://golang.org/) with [gorilla/mux](https://github.com/gorilla/mux) for routing and
-[go-sql-driver/mysql](https://github.com/go-sql-driver/mysql) as the database driver. It has a REST-like JSON
-API that is documented with an [OpenAPI](https://github.com/OAI/OpenAPI-Specification) document. The specification
-file is available [here](https://github.com/tulir/lindeb/blob/master/docs/api.yaml) and a graphical API explorer
-is available [here](https://lindeb.mau.lu/apidocs).
-
-[MariaDB](https://mariadb.org) is the recommended database management system, but anything compatible with MySQL
-should work. The search system uses [Elasticsearch](https://www.elastic.co/products/elasticsearch) as its backend.
-Since the backend is written in Go, the server running the backend does not need any language-specific runtimes.
-However, a DBMS instance and an Elasticsearch instance must be available.
-
-### Frontend
-The frontend uses [React](https://reactjs.org/), [Sass](http://sass-lang.com/) and modern JavaScript syntax.
-Support for old browsers is not guaranteed. The latest version of Firefox is recommended, but Chrome will work too.
