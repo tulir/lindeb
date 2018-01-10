@@ -102,4 +102,7 @@ async function init() {
 	document.getElementById("not-logged-in").className = ""
 }
 
+// Set maximum size to 30rem x 20rem
+document.body.style.width = `${Math.min(window.screen.availWidth / 16, 30)}rem`
+document.body.style.height = `${Math.min(window.screen.availHeight / 16, 20)}rem`
 init()
