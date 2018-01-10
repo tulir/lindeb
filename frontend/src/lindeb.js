@@ -399,6 +399,29 @@ class Lindeb extends Component {
 	}
 
 	/**
+	 * Check if a new or updated link contains tags that we haven't seen before.
+	 *
+	 * If such tags are found, {@link #updateTags()} will be called to update all the tags in the cache.
+	 *
+	 * @param {object}   link      The link data.
+	 * @param {string[]} link.tags The tags to check.
+	 */
+	checkForNewTags(link) {
+		if (!link || !link.tags) {
+			return
+		}
+
+		for (const tag of link.tags) {
+			if (!this.state.tagsByName.has(tag)) {
+				// New tag found -> update tags.
+				this.updateTags().catch(err => console.error("Fatal error while fetching tags:", err))
+				// We'll update all the tags, so no need to check if any more of them are new.
+				break
+			}
+		}
+	}
+
+	/**
 	 * Save a link.
 	 *
 	 * @param {Object} data The data of the link. Passed directly to the lindeb API.
@@ -422,6 +445,8 @@ class Lindeb extends Component {
 				await this.error("saving link", response)
 				return
 			}
+			const link = await response.json()
+			this.checkForNewTags(link)
 			window.location.href = "#/"
 		} catch (err) {
 			console.error("Fatal error while saving link:", err)
@@ -455,6 +480,7 @@ class Lindeb extends Component {
 				return
 			}
 			const body = await response.json()
+			this.checkForNewTags(body)
 			for (const [index, link] of Object.entries(this.state.links)) {
 				if (link.id === body.id) {
 					const links = this.state.links.slice()
