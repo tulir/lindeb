@@ -108,7 +108,7 @@ class FullTag extends Component {
 					</button>
 				</div>
 				<div className="name">{this.props.name}</div>
-				<div className="description">{this.props.description}</div>
+				<p className="description">{this.props.description}</p>
 			</div>
 		)
 	}
