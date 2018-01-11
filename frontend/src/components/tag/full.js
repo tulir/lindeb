@@ -16,7 +16,7 @@
 
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import Errorable from "../../errorable"
+import Errorable from "../../util/errorable"
 import EditButton from "../../res/edit.svg"
 import SaveButton from "../../res/save.svg"
 import CancelButton from "../../res/cancel.svg"

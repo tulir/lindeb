@@ -18,7 +18,7 @@ import update from "immutability-helper"
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import ReactTags from "react-tag-autocomplete"
-import Errorable from "../../errorable"
+import Errorable from "../../util/errorable"
 import Spinner from "../../res/spinner.svg"
 
 class LinkAddView extends Errorable(Component) {
