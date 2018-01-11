@@ -18,6 +18,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 import update from "immutability-helper"
 import ReactTags from "react-tag-autocomplete"
+import Errorable from "../../errorable"
 import Tag from "../tag/partial"
 import EditButton from "../../res/edit.svg"
 import SaveButton from "../../res/save.svg"
@@ -25,7 +26,7 @@ import CancelButton from "../../res/cancel.svg"
 import DeleteButton from "../../res/delete.svg"
 import Spinner from "../../res/spinner.svg"
 
-class Link extends Component {
+class Link extends Errorable(Component) {
 	static contextTypes = {
 		topbar: PropTypes.object,
 		deleteLink: PropTypes.func,
@@ -59,7 +60,7 @@ class Link extends Component {
 	}
 
 	finishEdit() {
-		this.setState({editing: false, loading: false})
+		this.setState({error: "", editing: false, loading: false})
 	}
 
 	saveEdit(evt) {
@@ -80,7 +81,7 @@ class Link extends Component {
 
 	delete() {
 		this.setState({editing: false, loading: false, deleting: true})
-		this.context.deleteLink(this.props.id)
+		this.context.deleteLink(this.props.id, this)
 	}
 
 	addTag(tag) {
@@ -102,6 +103,7 @@ class Link extends Component {
 	renderEditor() {
 		return (
 			<form className="link editing" onSubmit={this.saveEdit}>
+				<div className="error">{this.state.error}</div>
 				<div className="buttons">
 					<button className="delete" type="button" onClick={this.delete}>
 						{this.state.deleting ? <Spinner/> : <DeleteButton/>}

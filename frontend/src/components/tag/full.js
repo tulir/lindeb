@@ -16,13 +16,14 @@
 
 import React, {Component} from "react"
 import PropTypes from "prop-types"
+import Errorable from "../../errorable"
 import EditButton from "../../res/edit.svg"
 import SaveButton from "../../res/save.svg"
 import CancelButton from "../../res/cancel.svg"
 import DeleteButton from "../../res/delete.svg"
 import Spinner from "../../res/spinner.svg"
 
-class FullTag extends Component {
+class FullTag extends Errorable(Component) {
 	static contextTypes = {
 		saveTag: PropTypes.func,
 		deleteTag: PropTypes.func,
@@ -35,6 +36,7 @@ class FullTag extends Component {
 			editing: false,
 			name: "",
 			description: "",
+			error: "",
 		}, props)
 		this.edit = this.edit.bind(this)
 		this.finishEdit = this.finishEdit.bind(this)
@@ -53,7 +55,7 @@ class FullTag extends Component {
 
 	finishEdit() {
 		this.context.finishEditingTag(this)
-		this.setState({editing: false, loading: false})
+		this.setState({error: "", editing: false, loading: false})
 	}
 
 	saveEdit(evt) {
@@ -66,17 +68,18 @@ class FullTag extends Component {
 		}
 		const tag = Object.assign({}, this.state)
 		delete tag.editing
-		this.context.saveTag(tag, this)
+		this.context.saveTag(tag, this.id ? this : undefined)
 	}
 
 	delete() {
 		this.setState({editing: false, loading: false, deleting: true})
-		this.context.deleteTag(this.props.id)
+		this.context.deleteTag(this.props.id, this)
 	}
 
 	renderEditor() {
 		return (
 			<form className="editing full tag" onSubmit={this.saveEdit}>
+				<div className="error">{this.state.error}</div>
 				<div className="buttons">
 					<button className="delete" type="button" onClick={this.delete}>
 						{this.state.deleting ? <Spinner/> : <DeleteButton/>}
@@ -102,6 +105,7 @@ class FullTag extends Component {
 		}
 		return (
 			<div className="full tag">
+				<div className="error">{this.state.error}</div>
 				<div className="buttons">
 					<button className="overflow-padding hover-only edit" type="button" onClick={this.edit}>
 						<EditButton/>

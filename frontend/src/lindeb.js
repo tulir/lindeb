@@ -19,6 +19,7 @@ import PropTypes from "prop-types"
 import update from "immutability-helper"
 import PerfectScrollbar from "perfect-scrollbar"
 import {Hashmux, Query} from "hashmux"
+import Errorable from "./errorable"
 import Settings from "./settings"
 import Topbar from "./components/topbar"
 import LoginView from "./components/login"
@@ -37,7 +38,7 @@ const
 /**
  * The main component of lindeb. Contains most of API communication and decides what to render.
  */
-class Lindeb extends Component {
+class Lindeb extends Errorable(Component) {
 	static childContextTypes = {
 		login: PropTypes.func,
 		logout: PropTypes.func,
@@ -70,7 +71,7 @@ class Lindeb extends Component {
 			deleteTag: this.deleteTag.bind(this),
 			switchPage: this.switchPage.bind(this),
 			isAuthenticated: this.isAuthenticated.bind(this),
-			error: this.error.bind(this),
+			error: this.throwError.bind(this),
 			headers: () => this.headers,
 
 			tagsByID: this.state.tagsByID,
@@ -88,6 +89,7 @@ class Lindeb extends Component {
 			user: undefined,
 			page: 1,
 			pageSize: 10,
+			mounted: false,
 			hasExtension: document.body.classList.contains("extension-exists"),
 		}
 		document.body.addEventListener("lindeb-extension-appeared", () => this.setState({hasExtension: true}))
@@ -197,46 +199,36 @@ class Lindeb extends Component {
 	 * @param {string} action The action that caused this error.
 	 * @param {Object} result The response from {@code fetch()}
 	 */
-	async error(action, result) {
-		console.error(`Error while ${action}: ${await result.text()}`)
+	async throwError(action, result) {
+		const text = await result.text()
+		console.error(`Error while ${action}: ${text}`)
 		console.error(result)
 		if (action === "logging in") {
 			switch (result.status) {
 				case 401:
-					this.setState({error: "Invalid username or password"})
-					return
+					throw new Error("Invalid username or password")
 				case 409:
-					this.setState({error: "Username is already in use"})
-					return
+					throw new Error("Username is already in use")
 				default:
 				// continue to next switch
 			}
 		}
 		switch (result.status) {
+			case 400:
+				throw new Error(`Bad request: ${text}`)
 			case 401:
 				// Invalid authentication.
 				delete localStorage.user
 				return
 			case 429:
-				this.setState({error: "Rate limit encountered: Please wait before re-sending request"})
-				return
+				throw new Error("Rate limit encountered: Please wait before re-sending request")
 			case 500:
-				this.setState({error: "Internal server error"})
-				return
+				throw new Error("Internal server error")
 			case 502:
-				this.setState({error: "Could not connect to lindeb backend"})
-				return
+				throw new Error("Could not connect to lindeb backend")
 			default:
-				this.setState({error: `Unknown error: ${result.statusText}`})
-				return
+				throw new Error(`Unknown error: ${result.statusText}: ${text}`)
 		}
-	}
-
-	clearError() {
-		if (!this.state.mounted) {
-			return
-		}
-		this.setState({error: undefined})
 	}
 
 	setStateAsync(data) {
@@ -246,7 +238,7 @@ class Lindeb extends Component {
 	async updateTags(headers = this.headers) {
 		const tagResponse = await fetch("api/tags", {headers})
 		if (!tagResponse.ok) {
-			await this.error("fetching tags", tagResponse)
+			await this.throwError("fetching tags", tagResponse)
 			return
 		}
 		const rawTags = await tagResponse.json() || []
@@ -263,25 +255,25 @@ class Lindeb extends Component {
 	 * @param {string} userData.authtoken The authentication token to use with the API.
 	 * @param {string} [userData.name]    The username of the user.
 	 */
-	async login(userData) {
+	async login(userData, component) {
 		if (!userData.id || !userData.authtoken) {
 			throw new Error("Invalid argument: User data does not contain user and auth token.")
 		}
 		this.clearError()
 		localStorage.user = JSON.stringify(userData)
 
+		const headers = {
+			"Authorization": `LINDEB-TOKEN user=${userData.id} token=${userData.authtoken}`,
+			"Content-Type": "application/json",
+		}
+		this.settings = new Settings(this, userData.id, userData.authtoken)
 		try {
-			const headers = {
-				"Authorization": `LINDEB-TOKEN user=${userData.id} token=${userData.authtoken}`,
-				"Content-Type": "application/json",
-			}
-			this.settings = new Settings(this, userData.id, userData.authtoken)
 			await Promise.all([this.updateTags(headers), this.settings.update()])
 			await this.setStateAsync({user: userData})
 			this.router.update()
 			document.body.dispatchEvent(new CustomEvent("lindeb-login", {detail: userData}))
 		} catch (err) {
-			console.error("Fatal error while fetching tags:", err)
+			this.showError(err.message, component)
 		}
 	}
 
@@ -320,7 +312,7 @@ class Lindeb extends Component {
 				body: JSON.stringify(tag),
 			})
 			if (!response.ok) {
-				await this.error(action, response)
+				await this.throwError(action, response)
 				return
 			}
 			const newTag = await response.json()
@@ -333,16 +325,15 @@ class Lindeb extends Component {
 			}
 			tagsByName.set(newTag.name, newTag)
 			this.setState({tagsByID, tagsByName})
-		} catch (err) {
-			console.error(`Fatal error while ${action}:`, err)
-		} finally {
 			if (component) {
 				component.finishEdit()
 			}
+		} catch (err) {
+			this.showError(err.message, component)
 		}
 	}
 
-	async deleteTag(id) {
+	async deleteTag(id, component) {
 		if (!this.isAuthenticated()) {
 			return
 		}
@@ -354,7 +345,7 @@ class Lindeb extends Component {
 				method: "DELETE",
 			})
 			if (!response.ok) {
-				await this.error("deleting tag", response)
+				await this.throwError("deleting tag", response)
 				return
 			}
 			const deletedTag = this.state.tagsByID.get(id)
@@ -363,7 +354,7 @@ class Lindeb extends Component {
 				tagsByID: update(this.state.tagsByID, {$remove: [id]}),
 			})
 		} catch (err) {
-			console.error("Fatal error while deleting tag:", err)
+			this.showError(err.message, component)
 		}
 	}
 
@@ -372,7 +363,7 @@ class Lindeb extends Component {
 	 *
 	 * @param {number} id The ID of the link to delete.
 	 */
-	async deleteLink(id) {
+	async deleteLink(id, component) {
 		if (!this.isAuthenticated()) {
 			return
 		}
@@ -384,7 +375,7 @@ class Lindeb extends Component {
 				method: "DELETE",
 			})
 			if (!response.ok) {
-				await this.error("deleting link", response)
+				await this.throwError("deleting link", response)
 				return
 			}
 			for (const [index, link] of Object.entries(this.state.links)) {
@@ -394,7 +385,7 @@ class Lindeb extends Component {
 				}
 			}
 		} catch (err) {
-			console.error("Fatal error while deleting link:", err)
+			this.showError(err.message, component)
 		}
 	}
 
@@ -429,7 +420,7 @@ class Lindeb extends Component {
 	 * @param {string} [data.title]       The title to give to the link.
 	 * @param {string} [data.description] A brief description of the link.
 	 */
-	async addLink(data) {
+	async addLink(data, component) {
 		if (!this.isAuthenticated()) {
 			return
 		}
@@ -442,14 +433,14 @@ class Lindeb extends Component {
 				body: JSON.stringify(data),
 			})
 			if (!response.ok) {
-				await this.error("saving link", response)
+				await this.throwError("saving link", response)
 				return
 			}
 			const link = await response.json()
 			this.checkForNewTags(link)
 			window.location.href = "#/"
 		} catch (err) {
-			console.error("Fatal error while saving link:", err)
+			this.showError(err.message, component)
 		}
 	}
 
@@ -476,7 +467,7 @@ class Lindeb extends Component {
 				body: JSON.stringify(data),
 			})
 			if (!response.ok) {
-				await this.error("updating link", response)
+				await this.throwError("updating link", response)
 				return
 			}
 			const body = await response.json()
@@ -489,12 +480,11 @@ class Lindeb extends Component {
 					break
 				}
 			}
-		} catch (err) {
-			console.error("Fatal error while updating link:", err)
-		} finally {
 			if (component) {
 				component.finishEdit()
 			}
+		} catch (err) {
+			this.showError(err.message, component)
 		}
 	}
 
@@ -503,7 +493,7 @@ class Lindeb extends Component {
 	 *
 	 * @param {Query} query A Hashmux query object.
 	 */
-	async openLinkList(query) {
+	async openLinkList(query, component) {
 		if (!this.isAuthenticated()) {
 			return
 		}
@@ -520,7 +510,7 @@ class Lindeb extends Component {
 				headers: this.headers,
 			})
 			if (!linkResponse.ok) {
-				await this.error("fetching links", linkResponse)
+				await this.throwError("fetching links", linkResponse)
 				return
 			}
 			const {links, totalCount} = await linkResponse.json()
@@ -531,7 +521,7 @@ class Lindeb extends Component {
 				pages: Math.ceil(totalCount / +query.get("pagesize")),
 			})
 		} catch (err) {
-			console.error("Fatal error while fetching links:", err)
+			this.showError(err.message, component)
 		}
 	}
 
@@ -578,11 +568,11 @@ class Lindeb extends Component {
 		}
 		switch (this.state.view) {
 			case VIEW_TAGS:
-				return <TagView tags={this.state.tagsByID}/>
+				return <TagView error={this.state.error} tags={this.state.tagsByID}/>
 			case VIEW_SETTINGS:
 				return <SettingsView showExtensionSettings={this.state.hasExtension} settings={this.settings}/>
 			case VIEW_LINK_ADD:
-				return <LinkAddView error={this.state.error} {...this.state.newLink}/>
+				return <LinkAddView {...this.state.newLink}/>
 			case VIEW_NOT_FOUND:
 				return (
 					<div style={{textAlign: "center", marginTop: "2rem"}}>

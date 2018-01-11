@@ -68,7 +68,7 @@ class Settings {
 	async update() {
 		const response = await fetch("api/settings", {headers: this.headers})
 		if (!response.ok) {
-			const err = new Error(`Failed to update settings: ${response.status}`)
+			const err = new Error(`Failed to update settings: ${response.statusText}`)
 			err.response = response
 			throw err
 		}

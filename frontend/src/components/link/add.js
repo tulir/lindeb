@@ -18,9 +18,10 @@ import update from "immutability-helper"
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import ReactTags from "react-tag-autocomplete"
+import Errorable from "../../errorable"
 import Spinner from "../../res/spinner.svg"
 
-class LinkAddView extends Component {
+class LinkAddView extends Errorable(Component) {
 	static contextTypes = {
 		addLink: PropTypes.func,
 		tagsByName: PropTypes.object,
@@ -55,7 +56,7 @@ class LinkAddView extends Component {
 		this.setState({saving: true})
 		const link = Object.assign({}, this.state)
 		link.tags = link.tags.map(tag => tag.name)
-		this.context.addLink(link)
+		this.context.addLink(link, this)
 	}
 
 	addTag(tag) {
@@ -77,7 +78,7 @@ class LinkAddView extends Component {
 	render() {
 		return (
 			<div className="add-link lindeb-content">
-				<div className="error">{this.props.error}</div>
+				<div className="error">{this.state.error}</div>
 				<input name="title" placeholder="Title" type="text" className="title"
 					   value={this.state.title} onChange={this.handleInputChange}/>
 				<ReactTags delimiterChars={[","]} tags={this.state.tags} suggestions={this.state.tagSuggestions}
@@ -94,8 +95,8 @@ class LinkAddView extends Component {
 					<button className="main-color save" type="button" onClick={this.save}>
 						Save
 					</button>
-					{this.state.saving ? <Spinner style={{"margin-top": ".5rem"}}/> : ""}
 				</div>
+				{this.state.saving ? <Spinner style={{marginTop: ".5rem"}}/> : ""}
 
 				<p className="bookmarklet">
 					You can quickly open this link adder by dragging this link to your bookmark toolbar: <a
