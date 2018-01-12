@@ -68,7 +68,7 @@ class PageSwitcher extends PureComponent {
 			// If the button for the second page is also not shown, make it a jump button.
 			// Jump buttons just have dots between them and the normal buttons.
 			if (fromPage > 2) {
-				pageButtons.push(<div key={"jump-start"} className="jump start">...</div>)
+				pageButtons.push(<div key={"jump-start"} className="jump start">…</div>)
 			}
 		}
 
@@ -81,7 +81,7 @@ class PageSwitcher extends PureComponent {
 		// the jump to start button.
 		if (toPage < this.props.pageCount) {
 			if (toPage < this.props.pageCount - 1) {
-				pageButtons.push(<div key={"jump-end"} className="jump end">...</div>)
+				pageButtons.push(<div key={"jump-end"} className="jump end">…</div>)
 			}
 			pageButtons.push(this.getPageButton(this.props.pageCount))
 		}

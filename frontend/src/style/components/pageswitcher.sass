@@ -18,10 +18,10 @@
 	margin: .5rem 0
 	display: flex
 	justify-content: center
+	vertical-align: center
 
 	button
 		flex: 1
-		color: $text-color
 		min-width: 2.5rem
 		width: auto
 		padding: .5rem
@@ -29,13 +29,22 @@
 		border-radius: 0
 		font-size: 1.1rem
 
+		background-color: $main-color
+		color: white
+
 		&.current
-			background-color: $main-color
-			color: white
+			color: $text-color
+			background-color: $background-color
+			text-decoration: underline
+
 	.jump
 		display: inline-block
-		align-self: center
-		user-select: none
-		-moz-user-select: none
+		line-height: 2.5rem
+
+		color: white
+		background-color: $main-color
+
 		-webkit-user-select: none
+		-moz-user-select: none
+		user-select: none
 
