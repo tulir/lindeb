@@ -148,7 +148,7 @@ class Topbar extends Component {
 								window.location.href = "#/"
 								this.setState({search: ""})
 							}}>
-						{this.props.mainView ? <img src="favicon-white.png"/> : <Back/>}
+						{this.props.mainView ? <img src="favicon-white.png" alt="lindeb"/> : <Back/>}
 					</button>
 					<button type="button"
 							className={`main-color new-link ${this.hideUnless("showNewLink")}`}
