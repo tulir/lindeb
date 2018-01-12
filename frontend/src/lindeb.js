@@ -594,8 +594,9 @@ class Lindeb extends Errorable(Component) {
 		return (
 			<div className="lindeb">
 				<Topbar ref={topbar => this.topbar = topbar}
-						showSearch={this.state.view === VIEW_LINKS}
-						showSettings={this.state.view !== VIEW_SETTINGS}/>
+						mainView={this.state.view === VIEW_LINKS}
+						showSettings={this.state.view !== VIEW_SETTINGS}
+						showNewLink={this.state.view !== VIEW_LINK_ADD}/>
 
 				<main ref={ref => this.main = ref} className={this.isAuthenticated() ? "authenticated" : ""}>
 					{this.getView()}

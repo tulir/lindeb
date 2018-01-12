@@ -17,6 +17,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import SearchIcon from "../res/search.svg"
+import Back from "../res/back.svg"
 import {Query} from "hashmux"
 
 class Topbar extends Component {
@@ -128,30 +129,49 @@ class Topbar extends Component {
 		return search
 	}
 
+	hideUnless(prop) {
+		if (!this.props[prop]) {
+			return "hidden"
+		}
+		return ""
+	}
+
 	render() {
 		if (!this.context.isAuthenticated()) {
 			return <header className="topbar"/>
 		}
 		return (
 			<header className="topbar">
-				<div className="brand-wrapper">
-					<a href="#/" onClick={() => this.setState({search: ""})}><h1 className="brand">lindeb</h1></a>
+				<div className="left buttons">
+					<button className="logo"
+							onClick={() => {
+								window.location.href = "#/"
+								this.setState({search: ""})
+							}}>
+						{this.props.mainView ? <img src="favicon-white.png"/> : <Back/>}
+					</button>
+					<button type="button"
+							className={`main-color new-link ${this.hideUnless("showNewLink")}`}
+							onClick={() => window.location.href = "#/save"}>
+						New Link
+					</button>
 				</div>
-				{this.props.showSearch ? (
-					<div className="search-wrapper">
-						<SearchIcon/>
-						<input type="text" className="search" placeholder="Search" value={this.state.search}
-							   onKeyPress={this.searchEntered} onChange={this.searchQueryChanged}/>
-					</div>
-				) : ""}
-				<div className="control-buttons">
-					{this.props.showSettings ? (
-						<button type="button" className="main-color settings"
-								onClick={() => window.location.href = "#/settings"}>
-							Settings
-						</button>
-					) : ""}
-					<button type="button" className="main-color logout" onClick={this.context.logout}>Sign out</button>
+				<div className={`search-wrapper ${this.hideUnless("mainView")}`}>
+					<SearchIcon/>
+					<input type="text" className="search" placeholder="Search" value={this.state.search}
+						   onKeyPress={this.searchEntered} onChange={this.searchQueryChanged}/>
+				</div>
+				<div className="right buttons">
+					<button type="button"
+							className={`main-color settings ${this.hideUnless("showSettings")}`}
+							onClick={() => window.location.href = "#/settings"}>
+						Settings
+					</button>
+					<button type="button"
+							className="main-color logout"
+							onClick={this.context.logout}>
+						Sign out
+					</button>
 				</div>
 			</header>
 		)

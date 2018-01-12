@@ -28,10 +28,6 @@ class LinkListView extends PureComponent {
 		}
 		return (
 			<div className="links lindeb-content">
-				<div className="buttons">
-					<a className="button" href="#/tags">Manage tags</a>
-					<a className="button" href="#/save">New link</a>
-				</div>
 				<PageSwitcher {...this.props}/>
 				<div className="error">{this.props.error}</div>
 				{this.props.links.map(link => <Link key={link.id} {...link}/>)}

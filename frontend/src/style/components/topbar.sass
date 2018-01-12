@@ -21,32 +21,47 @@ header.topbar
 	background-color: $main-color
 	color: white
 
-	> .brand-wrapper
-		padding: 0 1rem
+	$content-height: 2.25rem
+
+	> *
+		height: $content-height
+
+	.hidden
+		display: none
+
+	> .left.buttons > .logo
+		max-height: $content-height
+		max-width: $content-height
+
+		padding: 0
+		background-color: $main-color
+		> img, > svg
+			color: white
+			height: $content-height
+			width: $content-height
+
+	> .right.buttons
+		justify-content: flex-end
+
+	> .buttons
+		display: flex
+
 		flex: 1
+		margin: 0 .5rem
 		box-sizing: border-box
-		> a
-			text-decoration: none
-			> .brand
-				color: white
-				font-weight: normal
-				margin: 0
+		white-space: nowrap
+
+		> button
+			white-space: nowrap
+			height: 100%
 
 	> .search-wrapper
-		height: 2.25rem
 		display: flex
 		align-items: center
 		border-radius: .25rem
 		max-width: calc(#{$max-width} - 2rem)
 		width: 100%
 		background-color: $light-color
-
-		// This is a very hacky solution to keep the search bar centered right above the content
-		// FIXME this needs to be replaced with a legit solution. Also, topbar changes probably require updating this.
-		@media screen and (min-width: 1068px)
-			margin-right: calc((100% - 1068px) / 2)
-		@media screen and (min-width: 1100px)
-			margin-right: 1rem
 
 		$search-placeholder-color: #ACEAB7
 		> svg
@@ -67,15 +82,3 @@ header.topbar
 				color: $search-placeholder-color
 				opacity: 1
 
-	> .control-buttons
-		flex: 1
-		margin: 0 .5rem
-		box-sizing: border-box
-		height: 2.25rem
-		text-align: right
-		// TODO remove this once the right-hand buttons on the topbar have a dropdown menu on small screens
-		white-space: nowrap
-
-		> button
-			white-space: nowrap
-			height: 100%
