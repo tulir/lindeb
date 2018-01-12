@@ -20,7 +20,7 @@ deb: backend frontend
 	mv frontend/dist packaging/var/www/lindeb
 	mv lindeb packaging/usr/bin/lindeb
 
-	dpkg-deb --build packaging lindeb_0.3.0-1.deb
+	dpkg-deb --build packaging lindeb_0.4.0-1.deb
 
 tar: frontend backend
 	mkdir packaging-tmp
@@ -31,6 +31,6 @@ tar: frontend backend
 	cp LICENSE packaging-tmp/
 
 	cd packaging-tmp; \
-		tar cvfJ lindeb-0.3.0.tar.xz *
+		tar cvfJ lindeb-0.4.0.tar.xz *
 	mv packaging-tmp/*.tar.xz .
 	rm -rf packaging-tmp
