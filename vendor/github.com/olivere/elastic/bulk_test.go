@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -227,12 +228,12 @@ func TestBulkRequestsSerialization(t *testing.T) {
 		t.Errorf("expected bulkRequest.NumberOfActions %d; got %d", 4, bulkRequest.NumberOfActions())
 	}
 
-	expected := `{"index":{"_id":"1","_index":"` + testIndexName + `","_type":"doc"}}
+	expected := `{"index":{"_index":"` + testIndexName + `","_id":"1","_type":"doc"}}
 {"user":"olivere","message":"Welcome to Golang and Elasticsearch.","retweets":0,"created":"0001-01-01T00:00:00Z"}
-{"create":{"_id":"2","_index":"` + testIndexName + `","_type":"doc"}}
+{"create":{"_index":"` + testIndexName + `","_id":"2","_type":"doc"}}
 {"user":"sandrae","message":"Dancing all night long. Yeah.","retweets":0,"created":"0001-01-01T00:00:00Z"}
-{"delete":{"_id":"1","_index":"` + testIndexName + `","_type":"doc"}}
-{"update":{"_id":"2","_index":"` + testIndexName + `","_type":"doc"}}
+{"delete":{"_index":"` + testIndexName + `","_type":"doc","_id":"1"}}
+{"update":{"_index":"` + testIndexName + `","_type":"doc","_id":"2"}}
 {"doc":{"retweets":42}}
 `
 	got, err := bulkRequest.bodyAsString()
@@ -481,6 +482,30 @@ func TestBulkEstimateSizeInBytesLength(t *testing.T) {
 	}
 }
 
+func TestBulkContentType(t *testing.T) {
+	var header http.Header
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		header = r.Header
+		fmt.Fprintln(w, `{}`)
+	}))
+	defer ts.Close()
+
+	client, err := NewSimpleClient(SetURL(ts.URL))
+	if err != nil {
+		t.Fatal(err)
+	}
+	indexReq := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."})
+	if _, err := client.Bulk().Add(indexReq).Do(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if header == nil {
+		t.Fatalf("expected header, got %v", header)
+	}
+	if want, have := "application/x-ndjson", header.Get("Content-Type"); want != have {
+		t.Fatalf("Content-Type: want %q, have %q", want, have)
+	}
+}
+
 var benchmarkBulkEstimatedSizeInBytes int64
 
 func BenchmarkBulkEstimatedSizeInBytesWith1Request(b *testing.B) {
@@ -515,26 +540,41 @@ func BenchmarkBulkEstimatedSizeInBytesWith100Requests(b *testing.B) {
 	benchmarkBulkEstimatedSizeInBytes = result // ensure the compiler doesn't optimize
 }
 
-func TestBulkContentType(t *testing.T) {
-	var header http.Header
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		header = r.Header
-		fmt.Fprintln(w, `{}`)
-	}))
-	defer ts.Close()
+func BenchmarkBulkAllocs(b *testing.B) {
+	b.Run("1000 docs with 64 byte", func(b *testing.B) { benchmarkBulkAllocs(b, 64, 1000) })
+	b.Run("1000 docs with 1 KiB", func(b *testing.B) { benchmarkBulkAllocs(b, 1024, 1000) })
+	b.Run("1000 docs with 4 KiB", func(b *testing.B) { benchmarkBulkAllocs(b, 4096, 1000) })
+	b.Run("1000 docs with 16 KiB", func(b *testing.B) { benchmarkBulkAllocs(b, 16*1024, 1000) })
+	b.Run("1000 docs with 64 KiB", func(b *testing.B) { benchmarkBulkAllocs(b, 64*1024, 1000) })
+	b.Run("1000 docs with 256 KiB", func(b *testing.B) { benchmarkBulkAllocs(b, 256*1024, 1000) })
+	b.Run("1000 docs with 1 MiB", func(b *testing.B) { benchmarkBulkAllocs(b, 1024*1024, 1000) })
+}
 
-	client, err := NewSimpleClient(SetURL(ts.URL))
-	if err != nil {
-		t.Fatal(err)
+const (
+	charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
+)
+
+func benchmarkBulkAllocs(b *testing.B, size, num int) {
+	buf := make([]byte, size)
+	for i := range buf {
+		buf[i] = charset[rand.Intn(len(charset))]
 	}
-	indexReq := NewBulkIndexRequest().Index(testIndexName).Type("doc").Id("1").Doc(tweet{User: "olivere", Message: "Welcome to Golang and Elasticsearch."})
-	if _, err := client.Bulk().Add(indexReq).Do(context.Background()); err != nil {
-		t.Fatal(err)
+
+	s := &BulkService{}
+	n := 0
+	for {
+		n++
+		s = s.Add(NewBulkIndexRequest().Index("test").Type("doc").Id("1").Doc(struct {
+			S string `json:"s"`
+		}{
+			S: string(buf),
+		}))
+		if n >= num {
+			break
+		}
 	}
-	if header == nil {
-		t.Fatalf("expected header, got %v", header)
+	for i := 0; i < b.N; i++ {
+		s.bodyAsString()
 	}
-	if want, have := "application/x-ndjson", header.Get("Content-Type"); want != have {
-		t.Fatalf("Content-Type: want %q, have %q", want, have)
-	}
+	b.ReportAllocs()
 }

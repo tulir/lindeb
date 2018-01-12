@@ -12,7 +12,7 @@
 
 [[constraint]]
   name = "github.com/olivere/elastic"
-  branch = "release-branch.v6"
+  version = "6.1.2"
 
 [[constraint]]
   branch = "master"
