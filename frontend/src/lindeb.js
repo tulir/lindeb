@@ -220,6 +220,8 @@ class Lindeb extends Errorable(Component) {
 				// Invalid authentication.
 				delete localStorage.user
 				return
+			case 413:
+				throw new Error(text)
 			case 429:
 				throw new Error("Rate limit encountered: Please wait before re-sending request")
 			case 500:
