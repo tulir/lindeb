@@ -103,7 +103,7 @@ class LoginView extends Component {
 				</a>
 				<h1>lindeb</h1>
 				<div className="error">{this.props.error}</div>
-				<input required type="text" name="username" className="username"
+				<input required type="text" name="username" className="username" maxLength={32}
 					   placeholder="Username"
 					   value={this.state.username}
 					   onChange={this.handleInputChange}/>

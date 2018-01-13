@@ -79,13 +79,13 @@ class LinkAddView extends Errorable(Component) {
 		return (
 			<div className="add-link lindeb-content">
 				<div className="error">{this.state.error}</div>
-				<input name="title" placeholder="Title" type="text" className="title"
+				<input maxLength={255} name="title" placeholder="Title" type="text" className="title"
 					   value={this.state.title} onChange={this.handleInputChange}/>
 				<ReactTags delimiterChars={[","]} tags={this.state.tags} suggestions={this.state.tagSuggestions}
 						   handleAddition={this.addTag} handleDelete={this.deleteTag} allowNew={true}/>
-				<input name="url" placeholder="URL (required)" required type="text" className="url"
+				<input maxLength={2047} name="url" placeholder="URL (required)" required type="text" className="url"
 					   value={this.state.url} onChange={this.handleInputChange}/>
-				<textarea rows="4" name="description" placeholder="Description" className="description"
+				<textarea maxLength={65535} rows="4" name="description" placeholder="Description" className="description"
 						  value={this.state.description} onChange={this.handleInputChange}/>
 
 				<div className="buttons">
