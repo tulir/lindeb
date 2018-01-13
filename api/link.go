@@ -87,6 +87,26 @@ func (al apiLink) Copy() apiLink {
 	}
 }
 
+func (api *API) ValidateLink(w http.ResponseWriter, link apiLink) bool {
+	if len(link.URLString) > 2047 {
+		http.Error(w, "URL too long.", http.StatusRequestEntityTooLarge)
+	} else if len(link.Description) > 65535 {
+		http.Error(w, "Description too long.", http.StatusRequestEntityTooLarge)
+	} else if len(link.Title) > 255 {
+		http.Error(w, "Title too long.", http.StatusRequestEntityTooLarge)
+	} else {
+		for index, tag := range link.Tags {
+			if len(tag) > 32 {
+				http.Error(w, fmt.Sprintf("Tag #%d too long.", index+1), http.StatusRequestEntityTooLarge)
+				return false
+			}
+		}
+		// All checks passed
+		return true
+	}
+	return false
+}
+
 const ElasticIndex = "lindeb"
 const ElasticType = "link"
 
@@ -102,6 +122,10 @@ func (api *API) SaveLink(w http.ResponseWriter, r *http.Request) {
 		inputLink.Title = r.URL.Query().Get("title")
 		inputLink.Description = r.URL.Query().Get("description")
 		inputLink.Tags = r.URL.Query()["tag"]
+	}
+
+	if !api.ValidateLink(w, inputLink) {
+		return
 	}
 
 	user := api.GetUserFromContext(r)
@@ -181,6 +205,10 @@ func (api *API) EditLink(w http.ResponseWriter, r *http.Request) {
 
 	inputLink := apiLink{}
 	if !readJSON(w, r, &inputLink) {
+		return
+	}
+
+	if !api.ValidateLink(w, inputLink) {
 		return
 	}
 

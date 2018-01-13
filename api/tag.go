@@ -24,11 +24,24 @@ import (
 	"maunium.net/go/lindeb/db"
 )
 
+func (api *API) ValidateTag(w http.ResponseWriter, tag *db.Tag) bool {
+	if len(tag.Name) > 32 {
+		http.Error(w, "Tag name too long.", http.StatusRequestEntityTooLarge)
+	} else if len(tag.Description) > 65535 {
+		http.Error(w, "Tag description too long.", http.StatusRequestEntityTooLarge)
+	} else {
+		return true
+	}
+	return false
+}
+
 func (api *API) AddTag(w http.ResponseWriter, r *http.Request) {
 	user := api.GetUserFromContext(r)
 
 	inputTag := &db.Tag{}
 	if !readJSON(w, r, &inputTag) {
+		return
+	} else if !api.ValidateTag(w, inputTag) {
 		return
 	}
 	inputTag.DB = user.DB
@@ -102,6 +115,8 @@ func (api *API) EditTag(w http.ResponseWriter, r *http.Request) {
 
 	inputTag := &db.Tag{}
 	if !readJSON(w, r, &inputTag) {
+		return
+	} else if !api.ValidateTag(w, inputTag) {
 		return
 	}
 

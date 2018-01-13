@@ -93,6 +93,10 @@ func (api *API) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(userData.Username) > 32 {
+		http.Error(w, "Username too long.", http.StatusRequestEntityTooLarge)
+	}
+
 	user := api.DB.GetUserByName(userData.Username)
 	if user != nil {
 		http.Error(w, "Username is taken.", http.StatusConflict)

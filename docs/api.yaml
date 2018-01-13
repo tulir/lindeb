@@ -437,6 +437,8 @@ components:
   responses:
     Unauthorized:
       description: The user is not signed in.
+    TooLong:
+      description: A user-entered value is too long.
   parameters:
     PageNumber:
       name: page

@@ -70,6 +70,14 @@ func (api *API) UpdateSetting(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(key) > 32 {
+		http.Error(w, "Setting key too long.", http.StatusRequestEntityTooLarge)
+		return
+	} else if len(validData) > 65535 {
+		http.Error(w, "Setting value too long.", http.StatusRequestEntityTooLarge)
+		return
+	}
+
 	user.SetSetting(key, string(validData))
 }
 
@@ -78,6 +86,11 @@ func (api *API) GetSetting(w http.ResponseWriter, r *http.Request) {
 
 	key, ok := getMuxVar(w, r, "key", "Setting key")
 	if !ok {
+		return
+	}
+
+	if len(key) > 32 {
+		http.Error(w, "Setting key too long.", http.StatusRequestEntityTooLarge)
 		return
 	}
 
@@ -94,6 +107,11 @@ func (api *API) DeleteSetting(w http.ResponseWriter, r *http.Request) {
 
 	key, ok := getMuxVar(w, r, "key", "Setting key")
 	if !ok {
+		return
+	}
+
+	if len(key) > 32 {
+		http.Error(w, "Setting key too long.", http.StatusRequestEntityTooLarge)
 		return
 	}
 
