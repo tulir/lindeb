@@ -120,6 +120,7 @@ func (db *DB) CreateTables() {
 		link INTEGER NOT NULL,
 		tag  INTEGER NOT NULL,
 
+		UNIQUE KEY linktag (link, tag),
 		FOREIGN KEY (link) REFERENCES Link(id)
 			ON DELETE CASCADE ON UPDATE RESTRICT,
 		FOREIGN KEY (tag)  REFERENCES Tag(id)
