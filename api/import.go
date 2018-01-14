@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -61,24 +62,27 @@ func (api *API) ImportLinks(w http.ResponseWriter, r *http.Request) {
 		}
 
 		apiLink := dbToAPILink(link)
-		apiLinks[index] = apiLink.Copy()
-
-		api.elasticQueue <- func() {
-			apiLink.HTML = readLink(link.URL.String())
-			apiLink.Owner = user.ID
-			_, err = api.Elastic.Index().
-				Index(ElasticIndex).
-				Type(ElasticType).
-				Routing(user.IDString()).
-				Id(link.IDString()).
-				BodyJson(apiLink).
-				Do(context.Background())
-			if err != nil {
-				fmt.Printf("Elasticsearch error while saving link %d from %d: %v", link.ID, user.ID, err)
-			}
-		}
+		api.queueElasticImport(apiLink.Copy(), user)
+		apiLinks[index] = apiLink
 	}
 	writeJSON(w, http.StatusOK, apiLinks)
+}
+
+func (api *API) queueElasticImport(link apiLink, user *db.User) {
+	api.elasticQueue <- func() {
+		link.HTML = readLink(link.URLString)
+		link.Owner = user.ID
+		_, err := api.Elastic.Index().
+			Index(ElasticIndex).
+			Type(ElasticType).
+			Routing(user.IDString()).
+			Id(strconv.Itoa(link.ID)).
+			BodyJson(link).
+			Do(context.Background())
+		if err != nil {
+			fmt.Printf("Elasticsearch error while saving link %d from %d: %v\n", link.ID, user.ID, err)
+		}
+	}
 }
 
 func (api *API) readLindebDump(w http.ResponseWriter, r *http.Request) ([]*db.Link, bool) {
