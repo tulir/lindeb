@@ -77,7 +77,7 @@ class LinkAddView extends Errorable(Component) {
 
 	render() {
 		return (
-			<div className="add-link lindeb-content">
+			<form className="add-link lindeb-content">
 				<div className="error">{this.state.error}</div>
 				<input maxLength={255} name="title" placeholder="Title" type="text" className="title"
 					   value={this.state.title} onChange={this.handleInputChange}/>
@@ -92,7 +92,7 @@ class LinkAddView extends Errorable(Component) {
 					<button className="main-color cancel" type="button" onClick={this.exit}>
 						Cancel
 					</button>
-					<button className="main-color save" type="button" onClick={this.save}>
+					<button className="main-color save" type="button" disabled={this.state.saving} onClick={this.save}>
 						Save
 					</button>
 				</div>
@@ -102,7 +102,7 @@ class LinkAddView extends Errorable(Component) {
 					You can quickly open this link adder by dragging this link to your bookmark toolbar: <a
 					href={this.bookmarklet}>Save to lindeb</a>.
 				</p>
-			</div>
+			</form>
 		)
 	}
 }

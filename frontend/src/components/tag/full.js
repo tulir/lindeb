@@ -68,7 +68,7 @@ class FullTag extends Errorable(Component) {
 		}
 		const tag = Object.assign({}, this.state)
 		delete tag.editing
-		this.context.saveTag(tag, this.id ? this : undefined)
+		this.context.saveTag(tag, tag.id ? this : undefined)
 	}
 
 	delete() {
@@ -81,10 +81,10 @@ class FullTag extends Errorable(Component) {
 			<form className="editing full tag" onSubmit={this.saveEdit}>
 				<div className="error">{this.state.error}</div>
 				<div className="buttons">
-					<button className="delete" type="button" onClick={this.delete}>
+					<button className="delete" type="button" disabled={this.state.deleting} onClick={this.delete}>
 						{this.state.deleting ? <Spinner/> : <DeleteButton/>}
 					</button>
-					<button className="save" type="submit">
+					<button className="save" disabled={this.state.loading} type="submit">
 						{this.state.loading ? <Spinner/> : <SaveButton/>}
 					</button>
 					<button className="cancel" type="button" onClick={this.finishEdit}>

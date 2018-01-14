@@ -105,10 +105,10 @@ class Link extends Errorable(Component) {
 			<form className="link editing" onSubmit={this.saveEdit}>
 				<div className="error">{this.state.error}</div>
 				<div className="buttons">
-					<button className="delete" type="button" onClick={this.delete}>
+					<button className="delete" type="button" disabled={this.state.loading} onClick={this.delete}>
 						{this.state.deleting ? <Spinner/> : <DeleteButton/>}
 					</button>
-					<button className="save" type="submit">
+					<button className="save" disabled={this.state.loading} type="submit">
 						{this.state.loading ? <Spinner/> : <SaveButton/>}
 					</button>
 					<button className="cancel" type="button" onClick={this.finishEdit}>
