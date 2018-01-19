@@ -48,8 +48,8 @@ class WebsiteSettings extends Component {
 						</button>
 						<button onClick={() => this.setScrollbar("default")}
 								className={this.getScrollbarClass("default")}
-								title="Use custom scrollbar if native isn't nice">
-							Default
+								title="Use custom scrollbar if the native one isn't nice">
+							Automatic
 						</button>
 						<button onClick={() => this.setScrollbar("native")}
 								className={this.getScrollbarClass("native")}
