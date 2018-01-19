@@ -155,6 +155,11 @@ class Topbar extends Component {
 							onClick={() => window.location.href = "#/save"}>
 						New Link
 					</button>
+					<button type="button"
+							className={`main-color tags ${this.hideUnless("showTags")}`}
+							onClick={() => window.location.href = "#/tags"}>
+						Tags
+					</button>
 				</div>
 				<div className={`search-wrapper ${this.hideUnless("mainView")}`}>
 					<SearchIcon/>
