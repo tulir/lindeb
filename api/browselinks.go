@@ -117,10 +117,11 @@ func stringToInterfaceSlice(slice []string) []interface{} {
 }
 
 func (api *API) buildQuery(user *db.User, search string, domains []string, tags []string, exclusiveTags bool) elastic.Query {
-	query := elastic.NewBoolQuery()
+	query := elastic.NewBoolQuery().MinimumNumberShouldMatch(1)
 	query.Filter(elastic.NewTermQuery("owner", user.ID))
 	query.Should(elastic.NewFuzzyQuery("html", search).Boost(0.1))
-	query.Must(elastic.NewMultiMatchQuery(search, "url", "title", "description"))
+	query.Should(elastic.NewFuzzyQuery("url", search).Boost(0.3))
+	query.Should(elastic.NewMultiMatchQuery(search, "title", "description").Fuzziness("auto").Boost(1.5))
 	if len(tags) > 0 {
 		if exclusiveTags {
 			for _, tag := range tags {
