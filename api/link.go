@@ -88,6 +88,8 @@ func (al apiLink) Copy() apiLink {
 }
 
 func (api *API) ValidateLink(w http.ResponseWriter, link apiLink) bool {
+	// Allowing empty URLs and other fields is intended; they cause no real harm.
+
 	if len(link.URLString) > 2047 {
 		http.Error(w, "URL too long.", http.StatusRequestEntityTooLarge)
 	} else if len(link.Description) > 65535 {

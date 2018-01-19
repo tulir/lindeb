@@ -95,6 +95,14 @@ func (api *API) Register(w http.ResponseWriter, r *http.Request) {
 
 	if len(userData.Username) > 32 {
 		http.Error(w, "Username too long.", http.StatusRequestEntityTooLarge)
+		return
+	} else if len(userData.Username) == 0 {
+		// Empty usernames are technically not a problem, but some
+		// people might think that allowing empty usernames is a bug.
+		http.Error(w, "Username too short.", http.StatusBadRequest)
+		return
+	} else if len(userData.Password) == 0 {
+		http.Error(w, "Password too short.", http.StatusBadRequest)
 	}
 
 	user := api.DB.GetUserByName(userData.Username)

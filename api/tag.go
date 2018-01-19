@@ -25,6 +25,8 @@ import (
 )
 
 func (api *API) ValidateTag(w http.ResponseWriter, tag *db.Tag) bool {
+	// Allowing empty tags and descriptions is intended; they cause no real harm.
+
 	if len(tag.Name) > 32 {
 		http.Error(w, "Tag name too long.", http.StatusRequestEntityTooLarge)
 	} else if len(tag.Description) > 65535 {
