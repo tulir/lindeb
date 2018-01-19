@@ -16,11 +16,12 @@
 
 import React, {Component} from "react"
 import PropTypes from "prop-types"
+import Errorable from "../util/errorable"
 
-class LoginView extends Component {
+class LoginView extends Errorable(Component) {
 	static contextTypes = {
 		login: PropTypes.func,
-		error: PropTypes.func,
+		throwError: PropTypes.func,
 		addLink: PropTypes.func,
 		saveTag: PropTypes.func,
 		router: PropTypes.object,
@@ -74,7 +75,7 @@ class LoginView extends Component {
 				body: JSON.stringify(this.state),
 			})
 			if (!response.ok) {
-				await this.context.error("logging in", response)
+				await this.context.throwError(action === "register" ? "registering" : "logging in", response)
 				return
 			}
 			const data = await response.json()
@@ -84,7 +85,7 @@ class LoginView extends Component {
 				this.addDefaultLinks()
 			}
 		} catch (err) {
-			console.error("Unhandled error while authenticating:", err)
+			this.showError(err.message)
 		}
 	}
 
@@ -102,7 +103,7 @@ class LoginView extends Component {
 						 data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"/>
 				</a>
 				<h1>lindeb</h1>
-				<div className="error">{this.props.error}</div>
+				<div className="error">{this.state.error}</div>
 				<input required type="text" name="username" className="username" maxLength={32}
 					   placeholder="Username"
 					   value={this.state.username}

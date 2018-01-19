@@ -49,7 +49,7 @@ class Lindeb extends Errorable(Component) {
 		deleteTag: PropTypes.func,
 		switchPage: PropTypes.func,
 		isAuthenticated: PropTypes.func,
-		error: PropTypes.func,
+		throwError: PropTypes.func,
 		headers: PropTypes.func,
 
 		tagsByID: PropTypes.object,
@@ -71,7 +71,7 @@ class Lindeb extends Errorable(Component) {
 			deleteTag: this.deleteTag.bind(this),
 			switchPage: this.switchPage.bind(this),
 			isAuthenticated: this.isAuthenticated.bind(this),
-			error: this.throwError.bind(this),
+			throwError: this.throwError.bind(this),
 			headers: () => this.headers,
 
 			tagsByID: this.state.tagsByID,
@@ -214,12 +214,11 @@ class Lindeb extends Errorable(Component) {
 			}
 		}
 		switch (result.status) {
-			case 400:
-				throw new Error(`Bad request: ${text}`)
 			case 401:
 				// Invalid authentication.
 				delete localStorage.user
 				return
+			case 400:
 			case 413:
 				throw new Error(text)
 			case 429:
@@ -566,7 +565,7 @@ class Lindeb extends Errorable(Component) {
 
 	getView() {
 		if (!this.state.user) {
-			return <LoginView error={this.state.error}/>
+			return <LoginView/>
 		}
 		switch (this.state.view) {
 			case VIEW_TAGS:
