@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 
 	"github.com/go-yaml/yaml"
 	"maunium.net/go/lindeb/db"
@@ -148,7 +149,8 @@ func (frontConfig FrontendConfig) Handler() http.Handler {
 	fs := http.FileServer(http.Dir(frontConfig.Location))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" {
-			r.URL.Path = "/index.html"
+			http.ServeFile(w, r, filepath.Join(frontConfig.Location, "index.html"))
+			return
 		}
 
 		fs.ServeHTTP(w, r)

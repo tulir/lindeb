@@ -24,4 +24,4 @@ COPY --from=backend_builder /usr/bin/lindeb /usr/bin/lindeb
 COPY --from=backend_builder /etc/ssl/certs/ /etc/ssl/certs
 COPY --from=frontend_builder /frontend/dist /var/www/html
 
-CMD ["/usr/bin/lindeb"]
+CMD ["/usr/bin/lindeb", "-c", "/etc/lindeb/config.yaml"]
