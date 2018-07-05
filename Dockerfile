@@ -11,7 +11,7 @@ RUN dep ensure -vendor-only
 COPY . /go/src/maunium.net/go/lindeb
 RUN CGO_ENABLED=0 go build -o /usr/bin/lindeb
 
-FROM node:alpine AS frontend_builder
+FROM node:stretch AS frontend_builder
 
 COPY ./frontend /frontend
 WORKDIR /frontend
