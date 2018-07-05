@@ -98,7 +98,9 @@ const elasticMapping = `
 
 // Connect connects to the Elasticsearch server.
 func (eConf ElasticConfig) Connect() (*elastic.Client, error) {
-	client, err := elastic.NewClient()
+	client, err := elastic.NewClient(
+		elastic.SetURL(string(eConf)),
+	)
 	if err != nil {
 		return nil, err
 	}
