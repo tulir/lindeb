@@ -48,8 +48,7 @@ class LinkDumpManager extends Component {
 	async uploadDump(dump) {
 		this.setState({uploading: true})
 		try {
-			// TODO ask format from user
-			const response = await fetch(`api/links/import?format=pinboard`, {
+			const response = await fetch(`api/links/import?format=${this.state.importFormat}`, {
 				headers: this.context.headers(),
 				method: "POST",
 				body: JSON.stringify(dump),
